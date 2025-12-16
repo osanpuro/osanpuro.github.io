@@ -41,6 +41,33 @@ main {
     text-align: center;
 }
 
+/* ツールボタンのスタイル */
+#tool-list {
+    margin-top: 30px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.tool-link-button {
+    padding: 15px 30px;
+    margin: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    background-color: #28a745; /* グリーンの強調色 */
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.tool-link-button:hover {
+    background-color: #1e7e34;
+}
+
 /* 認証モーダル（ポップアップ）のデザイン */
 #auth-modal {
     position: fixed; /* 画面に固定 */

@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>おさツール</title>
-    <link rel="stylesheet" href="styles.css"> 
+    <title>おさんツール</title> <link rel="stylesheet" href="styles.css"> 
 </head>
 <body>
     
     <header>
-        <div class="logo">ここでは、様々なツールを提供するサイトのホームページです。</div>
-        <nav id="auth-header-controls">
+        <div class="logo">おさんツール</div> <nav id="auth-header-controls">
             <button id="show-login-button" class="header-auth-button">ログイン</button>
             <button id="show-signup-button" class="header-auth-button">サインアップ</button>
             
@@ -20,8 +18,14 @@
     </header>
 
     <main>
-        <h1>Hello World!</h1>
-        <p id="user-status-main">ようこそ！</p> 
+        <h1 id="tool-list-heading">ツール一覧</h1> 
+        <p id="user-status-main">ログインしていません。</p> 
+
+        <section id="tool-list">
+            <a href="/grouptools">
+                <button class="tool-link-button">グループ分けツール</button>
+            </a>
+            </section>
 
         <div id="auth-modal" class="hidden">
             <div id="auth-container">
