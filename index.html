@@ -3,10 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>私のプログラミングツール</title>
+    <title>おさツール</title>
+    <link rel="stylesheet" href="styles.css"> 
 </head>
 <body>
-    <h1>Hello World!</h1>
-    <p>これは私のプログラミング作品を公開するサイトのトップページです。</p>
+    
+    <header>
+        <div class="logo">ここでは、様々なツールを提供するサイトのホームページです。</div>
+        <nav id="auth-header-controls">
+            <button id="show-login-button" class="header-auth-button">ログイン</button>
+            <button id="show-signup-button" class="header-auth-button">サインアップ</button>
+            
+            <span id="user-status-header" style="display:none;"></span>
+            <button id="logout-button" class="header-auth-button hidden">ログアウト</button>
+        </nav>
+    </header>
+
+    <main>
+        <h1>Hello World!</h1>
+        <p id="user-status-main">ようこそ！</p> 
+
+        <div id="auth-modal" class="hidden">
+            <div id="auth-container">
+                <button id="close-modal-button" class="close-button">&times;</button>
+                <div id="auth-form-content">
+                    </div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        // ----------------------------------------------------------------------
+        // (1) Firebase初期化設定
+        // ----------------------------------------------------------------------
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+        
+        // Your web app's Firebase configuration (AIzaSyBtQGq5IJXyoHGBGpx25ZfVkXWL-iRRqC8はダミーのキーです)
+        const firebaseConfig = {
+            // ★★★ 注意: ここをあなたの実際のキーに置き換えてください ★★★
+            apiKey: "AIzaSyBtQGq5IJXyoHGBGpx25ZfVkXWL-iRRqC8",
+            authDomain: "my-programming-tools-auth.firebaseapp.com",
+            projectId: "my-programming-tools-auth",
+            storageBucket: "my-programming-tools-auth.firebasestorage.app",
+            messagingSenderId: "617449767952",
+            appId: "1:617449767952:web:12f75dcb19f2035d637695",
+            measurementId: "G-XKQGFXD0L2"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        window.auth = getAuth(app); 
+        
+        const authScript = document.createElement('script');
+        authScript.src = 'auth.js';
+        authScript.type = 'module';
+        document.body.appendChild(authScript);
+    </script>
+
 </body>
 </html>
