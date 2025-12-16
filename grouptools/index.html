@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <title>グループ分けツール</title>
+
+  <style>
+
+    /* デザインの指定（ここは元のコードとほぼ同じです） */
+
+    body {
+
+      font-family: sans-serif;
+
+      margin: 20px;
+
+      background-color: #f9f9f9;
+
+    }
+
+    h1 {
+
+      color: #333;
+
+    }
+
+    textarea {
+
+      width: 100%;
+
+      height: 200px;
+
+      margin-bottom: 10px;
+
+      padding: 10px;
+
+      box-sizing: border-box;
+
+      border: 1px solid #ccc;
+
+      border-radius: 4px;
+
+    }
+
+    input[type="number"] {
+
+      width: 60px;
+
+      margin-left: 5px;
+
+      padding: 5px;
+
+    }
+
+    input[type="text"] {
+
+      width: 150px;
+
+      padding: 5px;
+
+    }
+
+    button, select {
+
+      padding: 8px 15px;
+
+      margin-right: 5px;
+
+      cursor: pointer;
+
+      background-color: #8BC34A; /* ライムグリーン */
+
+      color: white;
+
+      border: none;
+
+      border-radius: 5px;
+
+      transition: background-color 0.3s ease;
+
+      font-size: 14px;
+
+    }
+
+    button:hover, select:hover {
+
+      background-color: #7CB342;
+
+    }
+
+    button:disabled {
+
+      background-color: #ccc;
+
+      cursor: not-allowed;
+
+    }
+
+
+
+    /* ボタンごとの色設定 */
+
+    #saveButton { background-color: #008CBA; } /* 青 */
+
+    #saveButton:hover { background-color: #007bb5; }
+
+   
+
+    #loadButton { background-color: #f44336; } /* 赤 */
+
+    #loadButton:hover { background-color: #da190b; }
+
+   
+
+    #deleteButton { background-color: #555555; } /* 灰色 */
+
+    #deleteButton:hover { background-color: #333333; }
+
+
+
+    #output {
+
+      margin-top: 20px;
+
+      white-space: pre-wrap;
+
+      border: 1px solid #ccc;
+
+      padding: 20px;
+
+      min-height: 100px;
+
+      background-color: white;
+
+      border-radius: 5px;
+
+    }
+
+
+
+    /* レイアウト */
+
+    .main-container {
+
+      display: flex;
+
+      gap: 20px;
+
+      align-items: flex-start;
+
+      flex-wrap: wrap;
+
+    }
+
+    .names-section {
+
+      flex: 1;
+
+      min-width: 300px;
+
+    }
+
+    .controls-section {
+
+      display: flex;
+
+      flex-direction: column;
+
+      gap: 15px;
+
+      padding-top: 20px;
+
+      min-width: 300px;
+
+    }
+
+    .control-row {
+
+      display: flex;
+
+      align-items: center;
+
+      flex-wrap: wrap;
+
+    }
+
+    .control-row label {
+
+      margin-right: 5px;
+
+      font-weight: bold;
+
+    }
+
+   
+
+    #sheetNameContainer, #sortOrderContainer {
+
+      margin-top: 15px;
+
+      margin-bottom: 15px;
+
+    }
+
+   
+
+    .group-result {
+
+      margin-bottom: 20px;
+
+      padding: 10px;
+
+      border-bottom: 1px solid #eee;
+
+    }
+
+    .group-result h4 {
+
+      margin: 0 0 5px 0;
+
+      color: #555;
+
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <h1>グループ分けツール</h1>
+
+
+
+  <div class="main-container">
+
+    <div class="names-section">
+
+      <label for="names">名簿データ (1行に1人):</label><br>
+
+      <textarea id="names" placeholder="例:&#10;山田 太郎&#10;鈴木 花子&#10;田中 次郎&#10;佐藤 恵美&#10;&#10;高橋 健太&#10;伊藤 美咲&#10;渡辺 大輔&#10;中村 結衣"></textarea>
+
+    </div>
+
+
+
+    <div class="controls-section">
+
+      <div class="control-row">
+
+        <label for="groupCount">グループ数:</label>
+
+        <input type="number" id="groupCount" min="1" value="2">
+
+      </div>
+
+
+
+      <div class="control-row">
+
+        <label for="saveName">名簿を保存:</label>
+
+        <input type="text" id="saveName" placeholder="保存名">
+
+        <button onclick="saveList()" id="saveButton">保存</button>
+
+      </div>
+
+
+
+      <div class="control-row">
+
+        <label for="loadList">名簿を読み込み:</label>
+
+        <select id="loadList"></select>
+
+        <button onclick="loadListFromStorage()" id="loadButton">読み込み</button>
+
+        <button onclick="deleteListFromStorage()" id="deleteButton">削除</button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+ 
+
+  <div id="sheetNameContainer">
+
+    <label for="sheetNameInput">保存ファイル名:</label>
+
+    <input type="text" id="sheetNameInput" placeholder="任意 (例: 数学)">
+
+    <span>（空欄の場合は日付になります）</span>
+
+  </div>
+
+
+
+  <div id="sortOrderContainer">
+
+      <label for="sortOrder">グループ内並べ替え:</label>
+
+      <select id="sortOrder">
+
+          <option value="original">名簿の入力順に出力</option>
+
+          <option value="shuffled">ランダムに出力</option>
+
+      </select>
+
+  </div>
+
+
+
+  <button onclick="divideGroups()">グループ分け実行</button>
+
+  <button onclick="downloadCSV()" id="outputButton" disabled>結果をファイルに保存(CSV)</button>
+
+
+
+  <h2>結果:</h2>
+
+  <div id="output"></div>
+
+
+
+  <script>
+
+    // データを入れておくための変数
+
+    let groupedDataForOutput = [];
+
+    let originalNameOrderMap = new Map();
+
+
+
+    // ブラウザに保存するためのキー設定
+
+    const LOCAL_STORAGE_NAMES_KEY_PREFIX = 'groupingToolNames_';
+
+    const LOCAL_STORAGE_LIST_NAMES_KEY = 'groupingToolListNames';
+
+
+
+    // --------------------------------------------------
+
+    // 名簿の保存・読み込み機能（ブラウザの機能を使用）
+
+    // --------------------------------------------------
+
+
+
+    function saveList() {
+
+      const namesInput = document.getElementById('names').value;
+
+      const saveName = document.getElementById('saveName').value.trim();
+
+
+
+      if (!saveName) {
+
+        alert('保存名を入力してください。');
+
+        return;
+
+      }
+
+
+
+      const key = LOCAL_STORAGE_NAMES_KEY_PREFIX + saveName;
+
+      localStorage.setItem(key, namesInput);
+
+
+
+      let listNames = getListNames();
+
+      if (!listNames.includes(saveName)) {
+
+        listNames.push(saveName);
+
+        localStorage.setItem(LOCAL_STORAGE_LIST_NAMES_KEY, JSON.stringify(listNames.sort()));
+
+        populateListDropdown();
+
+      }
+
+
+
+      alert(`名簿 "${saveName}" をブラウザに保存しました。`);
+
+    }
+
+
+
+    function loadListFromStorage() {
+
+      const loadName = document.getElementById('loadList').value;
+
+      if (!loadName) return;
+
+      const key = LOCAL_STORAGE_NAMES_KEY_PREFIX + loadName;
+
+      const savedNames = localStorage.getItem(key);
+
+      if (savedNames) {
+
+        document.getElementById('names').value = savedNames;
+
+      }
+
+    }
+
+
+
+    function deleteListFromStorage() {
+
+      const loadName = document.getElementById('loadList').value;
+
+      if (!loadName) {
+
+        alert('削除する名簿を選択してください。');
+
+        return;
+
+      }
+
+      if (!confirm(`名簿 "${loadName}" を本当に削除しますか？`)) {
+
+        return;
+
+      }
+
+
+
+      const key = LOCAL_STORAGE_NAMES_KEY_PREFIX + loadName;
+
+      localStorage.removeItem(key);
+
+
+
+      let listNames = getListNames();
+
+      listNames = listNames.filter(name => name !== loadName);
+
+      localStorage.setItem(LOCAL_STORAGE_LIST_NAMES_KEY, JSON.stringify(listNames.sort()));
+
+      populateListDropdown();
+
+
+
+      document.getElementById('names').value = '';
+
+      alert(`名簿 "${loadName}" を削除しました。`);
+
+    }
+
+
+
+    function getListNames() {
+
+      const storedListNames = localStorage.getItem(LOCAL_STORAGE_LIST_NAMES_KEY);
+
+      return storedListNames ? JSON.parse(storedListNames) : [];
+
+    }
+
+
+
+    function populateListDropdown() {
+
+      const listNames = getListNames();
+
+      const select = document.getElementById('loadList');
+
+      select.innerHTML = '';
+
+
+
+      const defaultOption = document.createElement('option');
+
+      defaultOption.value = '';
+
+      defaultOption.textContent = '名簿を選択';
+
+      select.appendChild(defaultOption);
+
+
+
+      listNames.forEach(name => {
+
+        const option = document.createElement('option');
+
+        option.value = name;
+
+        option.textContent = name;
+
+        select.appendChild(option);
+
+      });
+
+    }
+
+
+
+    // --------------------------------------------------
+
+    // グループ分けのメイン処理
+
+    // --------------------------------------------------
+
+
+
+    function divideGroups() {
+
+      const namesInput = document.getElementById('names').value;
+
+      const groupCount = parseInt(document.getElementById('groupCount').value, 10);
+
+      const sortOrder = document.getElementById('sortOrder').value;
+
+
+
+      if (!namesInput.trim()) {
+
+        alert('名簿データを入力してください。');
+
+        return;
+
+      }
+
+      if (isNaN(groupCount) || groupCount < 1) {
+
+        alert('有効なグループ数を入力してください。');
+
+        return;
+
+      }
+
+
+
+      // 元の順番を記憶
+
+      originalNameOrderMap = new Map();
+
+      let currentOriginalIndex = 0;
+
+      namesInput.split('\n').forEach(line => {
+
+        const trimmedLine = line.trim();
+
+        if (trimmedLine !== '') {
+
+          originalNameOrderMap.set(trimmedLine, currentOriginalIndex++);
+
+        }
+
+      });
+
+     
+
+      let allNames = [];
+
+      namesInput.split('\n').forEach(line => {
+
+        const trimmedLine = line.trim();
+
+        if (trimmedLine !== '') {
+
+          allNames.push(trimmedLine);
+
+        }
+
+      });
+
+
+
+      if (allNames.length === 0) {
+
+        alert('有効な名簿データがありません。');
+
+        return;
+
+      }
+
+
+
+      // ランダムにシャッフル
+
+      const allShuffledNames = [...allNames].sort(() => Math.random() - 0.5);
+
+
+
+      const groups = Array.from({ length: groupCount }, () => []);
+
+     
+
+      for (let i = 0; i < allShuffledNames.length; i++) {
+
+        const name = allShuffledNames[i];
+
+        const originalIndex = originalNameOrderMap.has(name) ? originalNameOrderMap.get(name) : -1;
+
+        groups[i % groupCount].push({ name: name, originalIndex: originalIndex, shuffledOrder: i });
+
+      }
+
+
+
+      groupedDataForOutput = [];
+
+      groups.forEach(group => {
+
+          let sortedGroup;
+
+          if (sortOrder === 'original') {
+
+              // 元の入力順に戻す
+
+              sortedGroup = group.sort((a, b) => {
+
+                  if (a.originalIndex === -1 && b.originalIndex === -1) return 0;
+
+                  if (a.originalIndex === -1) return 1;
+
+                  if (b.originalIndex === -1) return -1;
+
+                  return a.originalIndex - b.originalIndex;
+
+              }).map(item => item.name);
+
+          } else {
+
+              // ランダム順のまま
+
+              sortedGroup = group.sort((a, b) => a.shuffledOrder - b.shuffledOrder).map(item => item.name);
+
+          }
+
+          groupedDataForOutput.push(sortedGroup);
+
+      });
+
+     
+
+      displayResults();
+
+      document.getElementById('outputButton').disabled = false;
+
+    }
+
+
+
+    function displayResults() {
+
+        let outputHtml = '';
+
+       
+
+        groupedDataForOutput.forEach((group, index) => {
+
+            outputHtml += `<div class="group-result">`;
+
+            outputHtml += `<h4>グループ ${index + 1} (${group.length}人)</h4>`;
+
+            outputHtml += `<p>${group.join('、')}</p>`;
+
+            outputHtml += `</div>`;
+
+        });
+
+
+
+        document.getElementById('output').innerHTML = outputHtml;
+
+    }
+
+
+
+    // --------------------------------------------------
+
+    // CSVダウンロード処理（スプレッドシート連携の代わり）
+
+    // --------------------------------------------------
+
+
+
+    function downloadCSV() {
+
+      if (groupedDataForOutput.length === 0) {
+
+        alert('先にグループ分けを実行してください。');
+
+        return;
+
+      }
+
+
+
+      // CSVデータを作る
+
+      // 各グループの最大の人数を調べる
+
+      let maxRows = 0;
+
+      groupedDataForOutput.forEach(group => {
+
+        if (group.length > maxRows) maxRows = group.length;
+
+      });
+
+
+
+      let csvContent = "\uFEFF"; // 文字化け防止のための「おまじない」
+
+
+
+      // 1行目：グループ名（ヘッダー）
+
+      let headerRow = [];
+
+      groupedDataForOutput.forEach((group, index) => {
+
+        headerRow.push(`"グループ ${index + 1} (${group.length}人)"`);
+
+      });
+
+      csvContent += headerRow.join(",") + "\n";
+
+
+
+      // 2行目以降：メンバーの名前
+
+      for (let i = 0; i < maxRows; i++) {
+
+        let row = [];
+
+        groupedDataForOutput.forEach(group => {
+
+          if (i < group.length) {
+
+            row.push(`"${group[i]}"`);
+
+          } else {
+
+            row.push(""); // 名前がないところは空欄
+
+          }
+
+        });
+
+        csvContent += row.join(",") + "\n";
+
+      }
+
+
+
+      // ファイル名を決める
+
+      const customName = document.getElementById('sheetNameInput').value.trim();
+
+      const now = new Date();
+
+      const dateStr = `${now.getMonth() + 1}${now.getDate()}_${now.getHours()}${now.getMinutes()}`;
+
+      let fileName = customName ? `${customName}_${dateStr}.csv` : `グループ分け結果_${dateStr}.csv`;
+
+
+
+      // ダウンロード用のリンクを作ってクリックする
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+
+      const link = document.createElement("a");
+
+      if (link.download !== undefined) {
+
+        const url = URL.createObjectURL(blob);
+
+        link.setAttribute("href", url);
+
+        link.setAttribute("download", fileName);
+
+        link.style.visibility = 'hidden';
+
+        document.body.appendChild(link);
+
+        link.click();
+
+        document.body.removeChild(link);
+
+      }
+
+    }
+
+
+
+    window.onload = function() {
+
+      populateListDropdown();
+
+    };
+
+
+
+  </script>
+
+</body>
+
+</html>
