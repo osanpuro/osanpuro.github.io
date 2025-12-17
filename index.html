@@ -2,67 +2,240 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>おさんツール</title> <link rel="stylesheet" href="styles.css"> 
+    <title>おさんツール</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        /* 全体リセット */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Hiragino Kaku Gothic ProN', sans-serif; background-color: #f0f2f5; padding-top: 80px; }
+        .hidden { display: none !important; }
+
+        /* ① 人型を「一番上の右端」に絶対配置するヘッダー */
+        header {
+            position: fixed; top: 0; left: 0; width: 100%; height: 64px;
+            background: #202124; color: white;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 24px; z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .logo a { font-size: 22px; font-weight: bold; color: #ffffff; text-decoration: none; }
+
+        /* 右端のユーザーメニュー */
+        .user-menu-container { position: relative; }
+        .icon-button {
+            background: none; border: none; cursor: pointer; color: white;
+            padding: 4px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s;
+        }
+        .icon-button:hover { background: rgba(255,255,255,0.1); }
+        .icon-button .material-icons { font-size: 40px; } /* 大きめの人型アイコン */
+
+        /* ② プルダウンメニュー（アイコン直下に配置） */
+        .dropdown-menu {
+            position: absolute; top: 56px; right: 0;
+            width: 240px; background: white; border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2); border: 1px solid #ddd;
+            z-index: 1100; overflow: hidden; color: #333;
+        }
+        .dropdown-menu button {
+            width: 100%; padding: 14px 20px; border: none; background: none;
+            text-align: left; cursor: pointer; font-size: 15px; transition: background 0.2s;
+        }
+        .dropdown-menu button:hover { background-color: #f8f9fa; }
+        .user-email-info { padding: 14px 20px; font-size: 13px; color: #5f6368; border-bottom: 1px solid #eee; background: #fdfdfd; }
+
+        /* ③ ミニウィンドウ（画面中央に浮かぶモーダル） */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 2000;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .mini-window {
+            width: 380px; background: white; border-radius: 12px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3); overflow: hidden;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .window-header {
+            padding: 20px 24px; border-bottom: 1px solid #eee; background: #fafafa;
+            display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 18px;
+        }
+        .window-body { padding: 32px 24px; text-align: center; }
+
+        /* ④ Googleボタンのデザイン（アイコンサイズ調整） */
+        .google-btn {
+            width: 100%; height: 44px; background: white; border: 1px solid #dadce0;
+            border-radius: 4px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-weight: 500; font-size: 14px; margin-bottom: 24px;
+            transition: background 0.2s;
+        }
+        .google-btn:hover { background-color: #f8f9fa; border-color: #d2e3fc; }
+        .google-btn img { width: 18px; height: 18px; margin-right: 12px; } /* 指定のサイズ感 */
+
+        /* フォーム入力欄 */
+        .auth-input {
+            width: 100%; padding: 12px; margin-bottom: 12px;
+            border: 1px solid #ccc; border-radius: 4px; font-size: 16px; box-sizing: border-box;
+        }
+        .primary-btn {
+            width: 100%; padding: 14px; background: #1a73e8; color: white;
+            border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 16px;
+        }
+        .primary-btn:hover { background: #1765cc; }
+
+        /* コンテンツ */
+        main { text-align: center; padding: 40px 20px; }
+        .tool-link {
+            display: inline-block; padding: 24px 48px; background: #34a853; color: white;
+            text-decoration: none; border-radius: 12px; font-size: 20px; font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s;
+        }
+        .tool-link:hover { transform: scale(1.05); }
+    </style>
 </head>
 <body>
-    
+
     <header>
-        <div class="logo">おさんツール</div> <nav id="auth-header-controls">
-            <button id="show-login-button" class="header-auth-button">ログイン</button>
-            <button id="show-signup-button" class="header-auth-button">サインアップ</button>
+        <div class="logo"><a href="index.html">おさんツール</a></div>
+        <div class="user-menu-container">
+            <button id="main-user-btn" class="icon-button">
+                <span class="material-icons">account_circle</span>
+            </button>
             
-            <span id="user-status-header" style="display:none;"></span>
-            <button id="logout-button" class="header-auth-button hidden">ログアウト</button>
-        </nav>
+            <div id="dropdown-ui" class="dropdown-menu hidden">
+                <div id="guest-section">
+                    <button id="trigger-signin">サインイン</button>
+                    <button id="trigger-signup">サインアップ</button>
+                </div>
+                <div id="member-section" class="hidden">
+                    <div id="display-email" class="user-email-info"></div>
+                    <button id="trigger-logout">ログアウト</button>
+                </div>
+            </div>
+        </div>
     </header>
 
     <main>
-        <h1 id="tool-list-heading">ツール一覧</h1> 
-        <p id="user-status-main">ログインしていません。</p> 
-
-        <section id="tool-list">
-            <a href="/grouptools">
-                <button class="tool-link-button">グループ分けツール</button>
-            </a>
-            </section>
-
-        <div id="auth-modal" class="hidden">
-            <div id="auth-container">
-                <button id="close-modal-button" class="close-button">&times;</button>
-                <div id="auth-form-content">
-                    </div>
-            </div>
-        </div>
+        <h1 style="margin-bottom:40px;">マイツール</h1>
+        <a href="grouptools/index.html" class="tool-link">グループ分けツール</a>
     </main>
 
+    <div id="modal-ui" class="modal-overlay hidden">
+        <div class="mini-window">
+            <div class="window-header">
+                <span id="modal-title"></span>
+                <button id="modal-close" style="background:none; border:none; font-size:28px; cursor:pointer;">&times;</button>
+            </div>
+            <div class="window-body">
+                <button class="google-btn" id="google-auth-btn">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"> Googleでログイン
+                </button>
+                <div style="margin:20px 0; color:#70757a; font-size:12px; position:relative;">
+                    <hr style="border:none; border-top:1px solid #eee;">
+                    <span style="position:absolute; top:-10px; left:50%; transform:translateX(-50%); background:white; padding:0 10px;">または</span>
+                </div>
+                <div id="email-form-area">
+                    <input type="email" id="input-email" class="auth-input" placeholder="メールアドレス">
+                    <input type="password" id="input-pass" class="auth-input" placeholder="パスワード">
+                    <button id="auth-execute-btn" class="primary-btn">次へ</button>
+                </div>
+                <p id="auth-toggle-text" style="color:#1a73e8; font-size:14px; cursor:pointer; margin-top:20px;"></p>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
-        // ----------------------------------------------------------------------
-        // (1) Firebase初期化設定
-        // ----------------------------------------------------------------------
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-        import { getAuth } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-        
-        // Your web app's Firebase configuration (AIzaSyBtQGq5IJXyoHGBGpx25ZfVkXWL-iRRqC8はダミーのキーです)
+        import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+
         const firebaseConfig = {
-            // ★★★ 注意: ここをあなたの実際のキーに置き換えてください ★★★
             apiKey: "AIzaSyBtQGq5IJXyoHGBGpx25ZfVkXWL-iRRqC8",
             authDomain: "my-programming-tools-auth.firebaseapp.com",
             projectId: "my-programming-tools-auth",
             storageBucket: "my-programming-tools-auth.firebasestorage.app",
             messagingSenderId: "617449767952",
-            appId: "1:617449767952:web:12f75dcb19f2035d637695",
-            measurementId: "G-XKQGFXD0L2"
+            appId: "1:617449767952:web:12f75dcb19f2035d637695"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // UI要素
+        const mainUserBtn = document.getElementById('main-user-btn');
+        const dropdownUi = document.getElementById('dropdown-ui');
+        const modalUi = document.getElementById('modal-ui');
+        const modalTitle = document.getElementById('modal-title');
+        const authToggleText = document.getElementById('auth-toggle-text');
+        let currentMode = 'login';
+
+        // ① & ② プルダウン制御
+        mainUserBtn.onclick = (e) => {
+            e.stopPropagation();
+            dropdownUi.classList.toggle('hidden');
+        };
+        document.body.onclick = () => dropdownUi.classList.add('hidden');
+
+        // ③ ミニウィンドウ（モーダル）展開
+        function openModal(mode) {
+            currentMode = mode;
+            dropdownUi.classList.add('hidden');
+            modalUi.classList.remove('hidden');
+            updateModalUI();
+        }
+
+        function updateModalUI() {
+            const isLogin = currentMode === 'login';
+            modalTitle.textContent = isLogin ? 'サインイン' : 'アカウント作成';
+            authToggleText.textContent = isLogin ? '新しくアカウントを作成する' : 'すでにアカウントをお持ちの方';
+            document.getElementById('auth-execute-btn').textContent = isLogin ? 'サインイン' : '登録する';
+        }
+
+        authToggleText.onclick = () => {
+            currentMode = (currentMode === 'login') ? 'signup' : 'login';
+            updateModalUI();
         };
 
-        const app = initializeApp(firebaseConfig);
-        window.auth = getAuth(app); 
-        
-        const authScript = document.createElement('script');
-        authScript.src = 'auth.js';
-        authScript.type = 'module';
-        document.body.appendChild(authScript);
-    </script>
+        // 閉じる
+        document.getElementById('modal-close').onclick = () => modalUi.classList.add('hidden');
 
+        // サインイン実行
+        document.getElementById('google-auth-btn').onclick = () => {
+            signInWithPopup(auth, new GoogleAuthProvider()).then(() => modalUi.classList.add('hidden'));
+        };
+
+        document.getElementById('auth-execute-btn').onclick = async () => {
+            const email = document.getElementById('input-email').value;
+            const pass = document.getElementById('input-pass').value;
+            try {
+                if (currentMode === 'login') {
+                    await signInWithEmailAndPassword(auth, email, pass);
+                } else {
+                    await createUserWithEmailAndPassword(auth, email, pass);
+                }
+                modalUi.classList.add('hidden');
+            } catch (err) {
+                alert("エラー: " + err.message);
+            }
+        };
+
+        document.getElementById('trigger-signin').onclick = () => openModal('login');
+        document.getElementById('trigger-signup').onclick = () => openModal('signup');
+        document.getElementById('trigger-logout').onclick = () => signOut(auth);
+
+        // ログイン状態監視
+        onAuthStateChanged(auth, (user) => {
+            const guest = document.getElementById('guest-section');
+            const member = document.getElementById('member-section');
+            const emailDisp = document.getElementById('display-email');
+            if (user) {
+                guest.classList.add('hidden');
+                member.classList.remove('hidden');
+                emailDisp.textContent = user.email;
+            } else {
+                guest.classList.remove('hidden');
+                member.classList.add('hidden');
+            }
+        });
+    </script>
 </body>
 </html>
