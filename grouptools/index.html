@@ -5,11 +5,14 @@
     <title>グループ分けツール - おさんツール</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        /* --- 共通ヘッダー・認証スタイル --- */
+        /* =========================================
+           1. デザインの微調整・全体スタイル
+        ========================================= */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Hiragino Kaku Gothic ProN', sans-serif; background-color: #f0f2f5; padding-top: 80px; }
         .hidden { display: none !important; }
 
+        /* ヘッダー */
         header {
             position: fixed; top: 0; left: 0; width: 100%; height: 64px;
             background: #202124; color: white;
@@ -17,67 +20,74 @@
             padding: 0 24px; z-index: 1000; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         .logo a { font-size: 22px; font-weight: bold; color: #ffffff; text-decoration: none; }
+
+        /* ヘッダー内のナビゲーション（未ログイン用） */
+        #header-guest-nav { display: flex; align-items: center; }
+        .nav-text-btn {
+            background: none; border: 1px solid white; color: white;
+            padding: 6px 16px; border-radius: 4px; cursor: pointer;
+            margin-left: 10px; font-size: 14px; transition: 0.2s;
+        }
+        .nav-text-btn.primary { background: white; color: #202124; font-weight: bold; }
+        .nav-text-btn:hover { opacity: 0.8; }
+
+        /* ユーザーメニュー（ログイン後用） */
         .user-menu-container { position: relative; }
-        .icon-button { background: none; border: none; cursor: pointer; color: white; padding: 4px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .icon-button { background: none; border: none; cursor: pointer; color: white; display: flex; align-items: center; }
         .icon-button .material-icons { font-size: 40px; }
 
+        /* プルダウンメニュー */
         .dropdown-menu {
-            position: absolute; top: 56px; right: 0; width: 240px; background: white; border-radius: 8px;
+            position: absolute; top: 56px; right: 0; width: 220px; background: white; border-radius: 8px;
             box-shadow: 0 8px 16px rgba(0,0,0,0.2); border: 1px solid #ddd; z-index: 1100; overflow: hidden; color: #333;
         }
-        .dropdown-menu button { width: 100%; padding: 14px 20px; border: none; background: none; text-align: left; cursor: pointer; font-size: 15px; }
+        .dropdown-menu button {
+            width: 100%; padding: 12px 20px; border: none; background: none;
+            text-align: left; cursor: pointer; font-size: 14px; transition: 0.2s;
+        }
         .dropdown-menu button:hover { background-color: #f8f9fa; }
-        .user-email-info { padding: 14px 20px; font-size: 13px; color: #5f6368; border-bottom: 1px solid #eee; background: #fdfdfd; }
+        .user-email-info { padding: 12px 20px; font-size: 12px; color: #5f6368; border-bottom: 1px solid #eee; background: #fafafa; word-break: break-all; }
+        .btn-delete { color: #ea4335 !important; border-top: 1px solid #eee !important; }
 
-        /* ミニウィンドウ (モーダル) */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; justify-content: center; align-items: center; }
-        .mini-window { width: 380px; background: white; border-radius: 12px; box-shadow: 0 12px 40px rgba(0,0,0,0.3); overflow: hidden; }
-        .window-header { padding: 20px 24px; border-bottom: 1px solid #eee; background: #fafafa; display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 18px; }
-        .window-body { padding: 32px 24px; text-align: center; }
-        .google-btn { width: 100%; height: 44px; background: white; border: 1px solid #dadce0; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: 500; font-size: 14px; margin-bottom: 24px; }
-        .google-btn img { width: 18px; height: 18px; margin-right: 12px; }
-        .auth-input { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; box-sizing: border-box; }
-        .primary-btn { width: 100%; padding: 14px; background: #1a73e8; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
-
-        /* --- グループ分けツール独自スタイル --- */
-        main { max-width: 1100px; margin: 0 auto; padding: 20px; text-align: left; }
-        h1 { margin-bottom: 20px; color: #202124; }
+        /* メインコンテンツ */
+        main { max-width: 1100px; margin: 0 auto; padding: 20px; }
+        .tool-container { display: flex; gap: 20px; flex-wrap: wrap; }
+        .section-box { flex: 1; min-width: 320px; background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }
         
-        .tool-container { display: flex; gap: 20px; flex-wrap: wrap; align-items: stretch; }
-        
-        /* セクション共通のデザイン */
-        .section-box { flex: 1; min-width: 320px; background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column; }
-        
-        /* 開閉用ヘッダー */
         .section-header {
             background: #f8f9fa; padding: 12px 20px; border-bottom: 1px solid #eee;
             display: flex; justify-content: space-between; align-items: center; cursor: pointer;
-            user-select: none;
         }
-        .section-header h2 { font-size: 16px; color: #5f6368; display: flex; align-items: center; gap: 8px; }
-        
+        .section-header h2 { font-size: 15px; color: #5f6368; display: flex; align-items: center; gap: 8px; }
         .section-content { padding: 20px; }
-        
-        /* 名簿の枠 */
-        textarea { width: 100%; height: 460px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px; resize: none; font-family: inherit; }
-        
-        .control-group { margin-bottom: 18px; padding-bottom: 15px; border-bottom: 1px solid #f1f1f1; }
-        .control-group:last-child { border-bottom: none; }
-        
-        label { display: block; margin-bottom: 8px; font-weight: bold; color: #3c4043; font-size: 14px; }
-        input[type="number"], input[type="text"], select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
 
-        /* 実行エリア（常に表示） */
-        .execution-area { margin-top: 20px; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); text-align: center; }
-        .action-btn { background: #34a853; color: white; padding: 18px 40px; width: 100%; max-width: 400px; border: none; border-radius: 8px; font-size: 20px; font-weight: bold; cursor: pointer; transition: background 0.2s, transform 0.1s; }
-        .action-btn:hover { background: #2d9147; transform: scale(1.02); }
-        .action-btn:active { transform: scale(0.98); }
-        
-        #btn-csv-download { width: 100%; max-width: 400px; margin-top: 12px; padding: 12px; background: #5f6368; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        /* 名簿入力エリア */
+        textarea { width: 100%; height: 460px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px; resize: none; }
+
+        /* 設定項目 */
+        .control-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 13px; color: #3c4043; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+
+        /* 実行ボタンエリア */
+        .execution-area { margin-top: 20px; text-align: center; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .action-btn { background: #34a853; color: white; padding: 18px 60px; border: none; border-radius: 8px; font-size: 20px; font-weight: bold; cursor: pointer; transition: 0.2s; width: 100%; max-width: 400px; }
+        .action-btn:hover { background: #2d9147; transform: translateY(-2px); }
+        #btn-csv-download { margin-top: 10px; background: #5f6368; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; width: 100%; max-width: 400px; }
         #btn-csv-download:disabled { background: #dadce0; cursor: not-allowed; }
 
-        #output { margin-top: 30px; padding: 20px; background: white; border-radius: 8px; border: 1px solid #ddd; min-height: 100px; }
-        .group-box { margin-bottom: 12px; padding: 12px; border-left: 5px solid #34a853; background: #f9f9f9; border-radius: 0 4px 4px 0; }
+        /* 認証モーダル */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; justify-content: center; align-items: center; }
+        .mini-window { width: 360px; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .window-header { padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
+        .window-body { padding: 25px; text-align: center; }
+        .google-btn { width: 100%; height: 44px; background: white; border: 1px solid #dadce0; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 20px; font-weight: bold; }
+        .google-btn img { width: 18px; margin-right: 10px; }
+        .auth-input { margin-bottom: 10px; }
+        .primary-btn { width: 100%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+
+        #output { margin-top: 20px; background: white; padding: 20px; border-radius: 8px; border: 1px solid #ddd; }
+        .group-box { margin-bottom: 10px; padding: 10px; border-left: 5px solid #34a853; background: #f9f9f9; }
     </style>
 </head>
 <body>
@@ -85,16 +95,17 @@
     <header>
         <div class="logo"><a href="../index.html">おさんツール</a></div>
         <div class="user-menu-container">
-            <button id="main-user-btn" class="icon-button"><span class="material-icons">account_circle</span></button>
+            <div id="header-guest-nav">
+                <button class="nav-text-btn" id="nav-signin">サインイン</button>
+                <button class="nav-text-btn primary" id="nav-signup">サインアップ</button>
+            </div>
+            <button id="main-user-btn" class="icon-button hidden">
+                <span class="material-icons">account_circle</span>
+            </button>
             <div id="dropdown-ui" class="dropdown-menu hidden">
-                <div id="guest-section">
-                    <button id="trigger-signin">サインイン</button>
-                    <button id="trigger-signup">サインアップ</button>
-                </div>
-                <div id="member-section" class="hidden">
-                    <div id="display-email" class="user-email-info"></div>
-                    <button id="trigger-logout">ログアウト</button>
-                </div>
+                <div class="user-email-info" id="display-email"></div>
+                <button id="trigger-logout">ログアウト</button>
+                <button id="trigger-delete-account" class="btn-delete">アカウントを削除</button>
             </div>
         </div>
     </header>
@@ -109,7 +120,7 @@
                     <span class="material-icons" id="names-icon">expand_less</span>
                 </div>
                 <div class="section-content" id="names-content">
-                    <textarea id="names-input" placeholder="名前を1行ずつ入力してください"></textarea>
+                    <textarea id="names-input" placeholder="名前を1行ずつ入力"></textarea>
                 </div>
             </div>
 
@@ -123,28 +134,25 @@
                         <label>グループ数:</label>
                         <input type="number" id="group-count" min="1" value="2">
                     </div>
-                    
                     <div class="control-group">
                         <label>クラウド保存・読込:</label>
-                        <input type="text" id="save-name" placeholder="保存名">
-                        <div style="display:flex; gap:8px;">
-                            <button id="btn-cloud-save" style="flex:1; padding:10px; background:#1a73e8; color:white; border:none; border-radius:4px; cursor:pointer;">保存</button>
+                        <input type="text" id="save-name" placeholder="保存名" style="margin-bottom:5px;">
+                        <div style="display:flex; gap:5px;">
+                            <button id="btn-cloud-save" style="flex:1; background:#1a73e8; color:white; border:none; padding:8px; border-radius:4px; cursor:pointer;">保存</button>
                             <select id="cloud-load-select" style="flex:1.5;"></select>
                         </div>
-                        <div style="display:flex; gap:8px; margin-top:8px;">
-                            <button id="btn-cloud-load" style="flex:1; padding:10px; background:#34a853; color:white; border:none; border-radius:4px; cursor:pointer;">読込</button>
-                            <button id="btn-cloud-delete" style="flex:1; padding:10px; background:#ea4335; color:white; border:none; border-radius:4px; cursor:pointer;">削除</button>
+                        <div style="display:flex; gap:5px; margin-top:5px;">
+                            <button id="btn-cloud-load" style="flex:1; background:#34a853; color:white; border:none; padding:8px; border-radius:4px; cursor:pointer;">読込</button>
+                            <button id="btn-cloud-delete" style="flex:1; background:#ea4335; color:white; border:none; padding:8px; border-radius:4px; cursor:pointer;">削除</button>
                         </div>
                     </div>
-
                     <div class="control-group">
                         <label>並べ替え:</label>
                         <select id="sort-order">
-                            <option value="original">入力順を優先</option>
+                            <option value="original">入力順</option>
                             <option value="shuffled">ランダム</option>
                         </select>
                     </div>
-
                     <div class="control-group">
                         <label>CSVファイル名:</label>
                         <input type="text" id="csv-filename" placeholder="空欄で日時">
@@ -154,25 +162,22 @@
         </div>
 
         <div class="execution-area">
-            <button class="action-btn" onclick="divideGroups()">グループ分けを実行</button>
-            <br>
+            <button class="action-btn" onclick="divideGroups()">グループ分けを実行</button><br>
             <button id="btn-csv-download" disabled onclick="downloadCSV()">CSVでダウンロード</button>
         </div>
 
-        <div id="output">
-            <p style="color:#999; text-align:center; padding:20px;">ここに結果が表示されます</p>
-        </div>
+        <div id="output"></div>
     </main>
 
     <div id="modal-ui" class="modal-overlay hidden">
         <div class="mini-window">
-            <div class="window-header"><span id="modal-title"></span><button id="modal-close" style="background:none; border:none; font-size:28px; cursor:pointer;">&times;</button></div>
+            <div class="window-header"><span id="modal-title"></span><button id="modal-close" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button></div>
             <div class="window-body">
                 <button class="google-btn" id="google-auth-btn"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"> Googleでログイン</button>
                 <input type="email" id="input-email" class="auth-input" placeholder="メールアドレス">
                 <input type="password" id="input-pass" class="auth-input" placeholder="パスワード">
-                <button id="auth-execute-btn" class="primary-btn">ログイン</button>
-                <p id="auth-toggle-text" style="color:#1a73e8; font-size:14px; cursor:pointer; margin-top:20px;"></p>
+                <button id="auth-execute-btn" class="primary-btn">送信</button>
+                <p id="auth-toggle-text" style="color:#1a73e8; font-size:13px; cursor:pointer; margin-top:15px;"></p>
             </div>
         </div>
     </div>
@@ -194,66 +199,76 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // UI操作ロジック
-        window.toggleSection = (contentId, iconId) => {
-            const content = document.getElementById(contentId);
-            const icon = document.getElementById(iconId);
-            content.classList.toggle('hidden');
-            icon.textContent = content.classList.contains('hidden') ? 'expand_more' : 'expand_less';
-        };
-
-        const mainUserBtn = document.getElementById('main-user-btn');
-        const dropdownUi = document.getElementById('dropdown-ui');
-        const modalUi = document.getElementById('modal-ui');
-        let currentMode = 'login';
+        // UI制御
         let currentUser = null;
-
-        mainUserBtn.onclick = (e) => { e.stopPropagation(); dropdownUi.classList.toggle('hidden'); };
-        document.body.onclick = () => dropdownUi.classList.add('hidden');
-        document.getElementById('modal-close').onclick = () => modalUi.classList.add('hidden');
-
-        window.openAuthModal = (mode) => {
-            currentMode = mode;
-            dropdownUi.classList.add('hidden');
-            modalUi.classList.remove('hidden');
-            document.getElementById('modal-title').textContent = mode === 'login' ? 'サインイン' : 'アカウント作成';
-            document.getElementById('auth-toggle-text').textContent = mode === 'login' ? '新規アカウント作成' : 'サインイン画面に戻る';
+        window.toggleSection = (id, iconId) => {
+            const el = document.getElementById(id);
+            const icon = document.getElementById(iconId);
+            el.classList.toggle('hidden');
+            icon.textContent = el.classList.contains('hidden') ? 'expand_more' : 'expand_less';
         };
 
-        document.getElementById('trigger-signin').onclick = () => openAuthModal('login');
-        document.getElementById('trigger-signup').onclick = () => openAuthModal('signup');
+        const userBtn = document.getElementById('main-user-btn');
+        const dropdown = document.getElementById('dropdown-ui');
+        const guestNav = document.getElementById('header-guest-nav');
+        const modal = document.getElementById('modal-ui');
+        let mode = 'login';
+
+        userBtn.onclick = (e) => { e.stopPropagation(); dropdown.classList.toggle('hidden'); };
+        document.onclick = () => dropdown.classList.add('hidden');
+        document.getElementById('modal-close').onclick = () => modal.classList.add('hidden');
+
+        function openAuth(m) {
+            mode = m;
+            modal.classList.remove('hidden');
+            document.getElementById('modal-title').textContent = m === 'login' ? 'サインイン' : 'アカウント作成';
+            document.getElementById('auth-toggle-text').textContent = m === 'login' ? '新規登録はこちら' : 'ログインはこちら';
+        }
+
+        document.getElementById('nav-signin').onclick = () => openAuth('login');
+        document.getElementById('nav-signup').onclick = () => openAuth('signup');
+        document.getElementById('auth-toggle-text').onclick = () => openAuth(mode === 'login' ? 'signup' : 'login');
         document.getElementById('trigger-logout').onclick = () => signOut(auth);
-        document.getElementById('auth-toggle-text').onclick = () => openAuthModal(currentMode === 'login' ? 'signup' : 'login');
 
         document.getElementById('google-auth-btn').onclick = (e) => {
             e.stopPropagation();
-            signInWithPopup(auth, new GoogleAuthProvider()).then(() => modalUi.classList.add('hidden'));
+            signInWithPopup(auth, new GoogleAuthProvider()).then(() => modal.classList.add('hidden'));
         };
 
         document.getElementById('auth-execute-btn').onclick = async () => {
-            const email = document.getElementById('input-email').value;
-            const pass = document.getElementById('input-pass').value;
+            const e = document.getElementById('input-email').value;
+            const p = document.getElementById('input-pass').value;
             try {
-                if(currentMode === 'login') await signInWithEmailAndPassword(auth, email, pass);
-                else await createUserWithEmailAndPassword(auth, email, pass);
-                modalUi.classList.add('hidden');
-            } catch (e) { alert(e.message); }
+                if(mode === 'login') await signInWithEmailAndPassword(auth, e, p);
+                else await createUserWithEmailAndPassword(auth, e, p);
+                modal.classList.add('hidden');
+            } catch (err) { alert(err.message); }
+        };
+
+        // アカウント削除
+        document.getElementById('trigger-delete-account').onclick = async () => {
+            if (!currentUser || !confirm("データをすべて削除し、退会しますか？")) return;
+            try {
+                await currentUser.delete();
+                alert("削除完了しました");
+                location.reload();
+            } catch (err) { alert("再ログイン後に再度お試しください"); signOut(auth); }
         };
 
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
-            const guest = document.getElementById('guest-section');
-            const member = document.getElementById('member-section');
             if (user) {
-                guest.classList.add('hidden'); member.classList.remove('hidden');
+                guestNav.classList.add('hidden');
+                userBtn.classList.remove('hidden');
                 document.getElementById('display-email').textContent = user.email;
                 refreshCloudList();
             } else {
-                guest.classList.remove('hidden'); member.classList.add('hidden');
+                guestNav.classList.remove('hidden');
+                userBtn.classList.add('hidden');
             }
         });
 
-        // クラウド機能
+        // ツール機能 (Cloud, Divide, CSV)
         async function refreshCloudList() {
             const sel = document.getElementById('cloud-load-select');
             sel.innerHTML = '<option value="">名簿を選択</option>';
@@ -265,66 +280,44 @@
                 });
             }
         }
-
         document.getElementById('btn-cloud-save').onclick = async () => {
-            if (!currentUser) return alert("ログインが必要です");
             const name = document.getElementById('save-name').value;
             const data = document.getElementById('names-input').value;
-            if (!name || !data) return alert("保存名と名簿を入力してください");
+            if (!currentUser || !name || !data) return alert("ログインと入力を確認してください");
             await setDoc(doc(db, "users", currentUser.uid), { savedLists: { [name]: data } }, { merge: true });
-            alert("クラウドに保存しました"); refreshCloudList();
+            alert("保存しました"); refreshCloudList();
         };
-
         document.getElementById('btn-cloud-load').onclick = async () => {
             const name = document.getElementById('cloud-load-select').value;
-            if (!name) return;
             const snap = await getDoc(doc(db, "users", currentUser.uid));
             document.getElementById('names-input').value = snap.data().savedLists[name];
         };
-
         document.getElementById('btn-cloud-delete').onclick = async () => {
             const name = document.getElementById('cloud-load-select').value;
-            if (!name || !confirm("この名簿を削除しますか？")) return;
+            if (!name || !confirm("削除しますか？")) return;
             await updateDoc(doc(db, "users", currentUser.uid), { [`savedLists.${name}`]: deleteField() });
             refreshCloudList();
         };
 
-        // ロジック
-        let lastResult = [];
+        let lastRes = [];
         window.divideGroups = () => {
-            const text = document.getElementById('names-input').value;
-            const lines = text.split('\n').map(s => s.trim()).filter(s => s);
+            const lines = document.getElementById('names-input').value.split('\n').map(s => s.trim()).filter(s => s);
             const count = parseInt(document.getElementById('group-count').value);
             const sort = document.getElementById('sort-order').value;
-
-            if (!lines.length) return alert("名簿を入力してください");
-            if (isNaN(count) || count < 1) return alert("有効なグループ数を入力してください");
-
-            const shuffled = [...lines].sort(() => Math.random() - 0.5);
+            if (!lines.length || isNaN(count)) return;
+            const shuf = [...lines].sort(() => Math.random() - 0.5);
             const groups = Array.from({length: count}, () => []);
-            shuffled.forEach((name, i) => groups[i % count].push(name));
-
-            lastResult = groups.map(g => sort === 'original' ? g.sort((a,b) => lines.indexOf(a) - lines.indexOf(b)) : g);
-            
-            let html = `<h3>グループ分け結果 (全 ${lines.length} 名)</h3><br>`;
-            lastResult.forEach((g, i) => {
-                html += `<div class="group-box"><b>グループ ${i+1}</b> (${g.length}名): ${g.join(', ')}</div>`;
-            });
-            document.getElementById('output').innerHTML = html;
+            shuf.forEach((n, i) => groups[i % count].push(n));
+            lastRes = groups.map(g => sort === 'original' ? g.sort((a,b) => lines.indexOf(a) - lines.indexOf(b)) : g);
+            document.getElementById('output').innerHTML = lastRes.map((g, i) => `<div class="group-box"><b>グループ ${i+1}</b>: ${g.join(', ')}</div>`).join('');
             document.getElementById('btn-csv-download').disabled = false;
         };
-
         window.downloadCSV = () => {
-            if (!lastResult.length) return;
-            let maxRows = Math.max(...lastResult.map(g => g.length));
-            let csv = "\uFEFF" + lastResult.map((_, i) => `"グループ ${i+1}"`).join(",") + "\n";
-            for (let i = 0; i < maxRows; i++) {
-                csv += lastResult.map(g => g[i] ? `"${g[i]}"` : "").join(",") + "\n";
-            }
-            const dateStr = new Date().toISOString().slice(0,10).replace(/-/g, "");
-            const filename = document.getElementById('csv-filename').value || `groups_${dateStr}`;
+            let csv = "\uFEFF" + lastRes.map((_, i) => `"グループ ${i+1}"`).join(",") + "\n";
+            let max = Math.max(...lastRes.map(g => g.length));
+            for (let i = 0; i < max; i++) csv += lastRes.map(g => g[i] ? `"${g[i]}"` : "").join(",") + "\n";
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = filename + ".csv"; a.click();
+            const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = (document.getElementById('csv-filename').value || "result") + ".csv"; a.click();
         };
     </script>
 </body>

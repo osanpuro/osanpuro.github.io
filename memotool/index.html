@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>高機能メモ帳 - おさんツール</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        /* --- 共通スタイル --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Hiragino Kaku Gothic ProN', sans-serif; background-color: #f0f2f5; padding-top: 80px; color: #202124; }
+        .hidden { display: none !important; }
+
+        header {
+            position: fixed; top: 0; left: 0; width: 100%; height: 64px;
+            background: #202124; color: white; display: flex; justify-content: space-between; align-items: center;
+            padding: 0 24px; z-index: 1000; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .logo a { font-size: 22px; font-weight: bold; color: #ffffff; text-decoration: none; }
+
+        /* ログイン状態バッジ */
+        .storage-status {
+            display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px;
+            border-radius: 20px; font-size: 12px; font-weight: bold; margin-bottom: 10px;
+        }
+        .status-local { background: #e8f0fe; color: #1a73e8; }
+        .status-cloud { background: #e6f4ea; color: #1e8e3e; }
+
+        /* メモ帳デザイン */
+        main { max-width: 1000px; margin: 0 auto; padding: 20px; display: grid; grid-template-columns: 1fr 320px; gap: 24px; }
+        
+        .editor-section { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        #memoTitle { width: 100%; padding: 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 18px; outline: none; margin-bottom: 15px; }
+        #memoBody { width: 100%; height: 450px; padding: 15px; border: 1px solid #dadce0; border-radius: 8px; font-size: 16px; resize: none; outline: none; line-height: 1.6; }
+
+        .button-area { display: flex; gap: 10px; margin-top: 20px; }
+        .btn { padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
+        .btn-save { background: #1a73e8; color: white; flex-grow: 1; justify-content: center; }
+        .btn-delete { background: #fce8e6; color: #d93025; }
+
+        /* リストセクション */
+        .list-section { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); height: 600px; display: flex; flex-direction: column; }
+        .list-section h3 { font-size: 16px; margin-bottom: 15px; color: #3c4043; display: flex; align-items: center; gap: 8px; }
+        
+        #listArea { flex-grow: 1; overflow-y: auto; }
+        .memo-item {
+            padding: 12px; border-radius: 8px; cursor: pointer; border-bottom: 1px solid #f1f3f4;
+            transition: 0.2s; font-size: 14px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .memo-item:hover { background-color: #f8f9fa; }
+        .memo-item .title-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+
+        /* 共通UI */
+        .user-menu-container { position: relative; }
+        .icon-button { background: none; border: none; cursor: pointer; color: white; display: flex; align-items: center; }
+        .dropdown-menu { position: absolute; top: 56px; right: 0; width: 220px; background: white; border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); border: 1px solid #ddd; z-index: 1100; overflow: hidden; }
+        .dropdown-menu button { width: 100%; padding: 12px 20px; border: none; background: none; text-align: left; cursor: pointer; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; justify-content: center; align-items: center; }
+        .mini-window { width: 360px; background: white; border-radius: 12px; padding: 25px; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo"><a href="../index.html">おさんツール</a></div>
+        <div class="user-menu-container">
+            <div id="header-guest-nav">
+                <button class="nav-text-btn" style="color:white; background:none; border:1px solid white; padding:5px 10px; border-radius:4px; cursor:pointer;" id="nav-signin">サインイン</button>
+            </div>
+            <button id="main-user-btn" class="icon-button hidden"><span class="material-icons" style="font-size:40px;">account_circle</span></button>
+            <div id="dropdown-ui" class="dropdown-menu hidden">
+                <div style="padding: 12px 20px; font-size: 12px; color: #5f6368; border-bottom: 1px solid #eee; background: #fafafa;" id="display-email"></div>
+                <button id="trigger-logout">ログアウト</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="editor-section">
+            <div id="status-badge" class="storage-status status-local">
+                <span class="material-icons" style="font-size:16px;">devices</span>
+                <span id="status-text">ローカル保存モード</span>
+            </div>
+            <input type="text" id="memoTitle" placeholder="無題のメモ">
+            <textarea id="memoBody" placeholder="ここに内容を入力してください..."></textarea>
+            <div class="button-area">
+                <button id="saveBtn" class="btn btn-save"><span class="material-icons">save</span>保存する</button>
+                <button id="deleteBtn" class="btn btn-delete"><span class="material-icons">delete</span></button>
+            </div>
+        </div>
+
+        <div class="list-section">
+            <h3><span class="material-icons">list</span> 保存済み</h3>
+            <div id="listArea"></div>
+        </div>
+    </main>
+
+    <div id="modal-ui" class="modal-overlay hidden">
+        <div class="mini-window">
+            <h3 id="modal-title" style="margin-bottom:20px;">サインイン</h3>
+            <input type="email" id="input-email" style="width:100%; padding:10px; margin-bottom:10px;" placeholder="メールアドレス">
+            <input type="password" id="input-pass" style="width:100%; padding:10px; margin-bottom:10px;" placeholder="パスワード">
+            <button id="auth-execute-btn" style="width:100%; padding:10px; background:#1a73e8; color:white; border:none; border-radius:4px; cursor:pointer;">送信</button>
+            <p id="auth-toggle-text" style="color:#1a73e8; font-size:13px; cursor:pointer; margin-top:15px;">新規登録はこちら</p>
+            <button onclick="document.getElementById('modal-ui').classList.add('hidden')" style="margin-top:15px; background:none; border:none; color:#999; cursor:pointer;">キャンセル</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, deleteDoc, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBtQGq5IJXyoHGBGpx25ZfVkXWL-iRRqC8",
+            authDomain: "my-programming-tools-auth.firebaseapp.com",
+            projectId: "my-programming-tools-auth",
+            appId: "1:617449767952:web:12f75dcb19f2035d637695"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let unsubscribe = null;
+        const LS_PREFIX = "osan-memo-"; // ローカルストレージ用の接頭辞
+
+        const titleInput = document.getElementById('memoTitle');
+        const bodyInput = document.getElementById('memoBody');
+        const listArea = document.getElementById('listArea');
+        const statusBadge = document.getElementById('status-badge');
+        const statusText = document.getElementById('status-text');
+
+        // --- 保存・削除のコアロジック ---
+
+        async function saveMemo() {
+            const title = titleInput.value.trim() || "無題のメモ";
+            const body = bodyInput.value;
+
+            if (currentUser) {
+                // クラウド保存
+                await setDoc(doc(db, "users", currentUser.uid, "memos", title), {
+                    title, body, updatedAt: Date.now()
+                });
+            } else {
+                // ローカル保存
+                localStorage.setItem(LS_PREFIX + title, body);
+                refreshLocalList();
+            }
+            alert("保存しました");
+        }
+
+        async function deleteMemo() {
+            const title = titleInput.value.trim();
+            if (!title || !confirm("削除しますか？")) return;
+
+            if (currentUser) {
+                await deleteDoc(doc(db, "users", currentUser.uid, "memos", title));
+            } else {
+                localStorage.removeItem(LS_PREFIX + title);
+                refreshLocalList();
+            }
+            titleInput.value = "";
+            bodyInput.value = "";
+        }
+
+        // --- リスト表示の切り替え ---
+
+        function refreshLocalList() {
+            listArea.innerHTML = "";
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith(LS_PREFIX)) {
+                    const displayTitle = key.replace(LS_PREFIX, "");
+                    createListItem(displayTitle, localStorage.getItem(key));
+                }
+            }
+        }
+
+        function createListItem(title, body) {
+            const item = document.createElement('div');
+            item.className = 'memo-item';
+            item.innerHTML = `<span class="title-text">${title}</span><span class="material-icons" style="font-size:16px; color:#ccc;">chevron_right</span>`;
+            item.onclick = () => {
+                titleInput.value = title;
+                bodyInput.value = body;
+            };
+            listArea.appendChild(item);
+        }
+
+        // --- 状態監視 ---
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if (unsubscribe) unsubscribe();
+
+            if (user) {
+                // クラウドモード
+                statusBadge.className = "storage-status status-cloud";
+                statusText.textContent = "クラウド保存モード";
+                document.getElementById('main-user-btn').classList.remove('hidden');
+                document.getElementById('header-guest-nav').classList.add('hidden');
+                document.getElementById('display-email').textContent = user.email;
+
+                const q = query(collection(db, "users", user.uid, "memos"), orderBy("updatedAt", "desc"));
+                unsubscribe = onSnapshot(q, (snapshot) => {
+                    listArea.innerHTML = "";
+                    snapshot.forEach(doc => createListItem(doc.data().title, doc.data().body));
+                });
+            } else {
+                // ローカルモード
+                statusBadge.className = "storage-status status-local";
+                statusText.textContent = "ローカル保存モード (サインインで同期)";
+                document.getElementById('main-user-btn').classList.add('hidden');
+                document.getElementById('header-guest-nav').classList.remove('hidden');
+                refreshLocalList();
+            }
+        });
+
+        // イベント登録
+        document.getElementById('saveBtn').onclick = saveMemo;
+        document.getElementById('deleteBtn').onclick = deleteMemo;
+        document.getElementById('nav-signin').onclick = () => document.getElementById('modal-ui').classList.remove('hidden');
+        document.getElementById('trigger-logout').onclick = () => signOut(auth);
+        document.getElementById('main-user-btn').onclick = (e) => { e.stopPropagation(); document.getElementById('dropdown-ui').classList.toggle('hidden'); };
+        document.body.onclick = () => document.getElementById('dropdown-ui').classList.add('hidden');
+        document.getElementById('auth-execute-btn').onclick = async () => {
+            const e = document.getElementById('input-email').value;
+            const p = document.getElementById('input-pass').value;
+            const mode = document.getElementById('modal-title').textContent;
+            try {
+                if(mode === 'サインイン') await signInWithEmailAndPassword(auth, e, p);
+                else await createUserWithEmailAndPassword(auth, e, p);
+                document.getElementById('modal-ui').classList.add('hidden');
+            } catch (err) { alert(err.message); }
+        };
+        document.getElementById('auth-toggle-text').onclick = () => {
+            const t = document.getElementById('modal-title');
+            t.textContent = t.textContent === 'サインイン' ? 'アカウント作成' : 'サインイン';
+        };
+    </script>
+</body>
+</html>

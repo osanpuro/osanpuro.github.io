@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>タイマー・ストップウォッチ - おさんツール</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        /* --- おさんツール共通スタイル --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Hiragino Kaku Gothic ProN', sans-serif; background-color: #f0f2f5; padding-top: 80px; color: #202124; }
+        .hidden { display: none !important; }
+
+        /* ヘッダー */
+        header {
+            position: fixed; top: 0; left: 0; width: 100%; height: 64px;
+            background: #202124; color: white;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 24px; z-index: 1000; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .logo a { font-size: 22px; font-weight: bold; color: #ffffff; text-decoration: none; }
+
+        /* ヘッダーナビ（未ログイン） */
+        #header-guest-nav { display: flex; align-items: center; }
+        .nav-text-btn {
+            background: none; border: 1px solid white; color: white;
+            padding: 6px 16px; border-radius: 4px; cursor: pointer;
+            margin-left: 10px; font-size: 14px; transition: 0.2s;
+        }
+        .nav-text-btn.primary { background: white; color: #202124; font-weight: bold; }
+
+        /* ユーザーメニュー（ログイン後） */
+        .user-menu-container { position: relative; }
+        .icon-button { background: none; border: none; cursor: pointer; color: white; display: flex; align-items: center; }
+        .icon-button .material-icons { font-size: 40px; }
+
+        .dropdown-menu {
+            position: absolute; top: 56px; right: 0; width: 220px; background: white; border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2); border: 1px solid #ddd; z-index: 1100; overflow: hidden;
+        }
+        .dropdown-menu button {
+            width: 100%; padding: 12px 20px; border: none; background: none;
+            text-align: left; cursor: pointer; font-size: 14px;
+        }
+        .dropdown-menu button:hover { background-color: #f8f9fa; }
+        .user-email-info { padding: 12px 20px; font-size: 12px; color: #5f6368; border-bottom: 1px solid #eee; background: #fafafa; }
+        .btn-delete { color: #ea4335 !important; border-top: 1px solid #eee; }
+
+        /* --- ツール本体のデザイン --- */
+        main { max-width: 600px; margin: 0 auto; padding: 20px; text-align: center; }
+        h1 { margin-bottom: 30px; font-size: 24px; color: #3c4043; }
+
+        .tokei-box {
+            background-color: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin: 0 auto;
+        }
+
+        #gamen {
+            font-size: 80px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            color: #202124;
+            margin: 20px 0;
+            letter-spacing: 2px;
+        }
+
+        .time-controls { margin-bottom: 25px; display: flex; justify-content: center; gap: 10px; }
+        .time-btn {
+            font-size: 14px; padding: 10px 15px; cursor: pointer;
+            border-radius: 8px; border: 1px solid #dadce0;
+            background-color: #f8f9fa; color: #3c4043; transition: 0.2s;
+        }
+        .time-btn:hover { background-color: #e8f0fe; border-color: #1a73e8; }
+
+        hr { border: none; border-top: 1px solid #eee; margin: 25px 0; }
+
+        .sousa-controls { display: flex; justify-content: center; gap: 15px; }
+        .sousa-btn {
+            font-size: 18px; padding: 12px 25px; cursor: pointer;
+            border-radius: 12px; border: none;
+            font-weight: bold; transition: 0.2s; min-width: 100px;
+        }
+        #btn_start { background-color: #34a853; color: white; }
+        #btn_start:hover { background-color: #2d9147; }
+        #btn_stop { background-color: #ea4335; color: white; }
+        #btn_stop:hover { background-color: #d93025; }
+        #btn_reset { background-color: #5f6368; color: white; }
+        #btn_reset:hover { background-color: #494c4f; }
+
+        #message { margin-top: 20px; color: #5f6368; font-size: 16px; font-weight: 500; }
+
+        /* 認証モーダル */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; justify-content: center; align-items: center; }
+        .mini-window { width: 360px; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .window-header { padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
+        .window-body { padding: 25px; text-align: center; }
+        .google-btn { width: 100%; height: 44px; background: white; border: 1px solid #dadce0; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 20px; font-weight: bold; }
+        .google-btn img { width: 18px; margin-right: 10px; }
+        .auth-input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        .primary-btn { width: 100%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo"><a href="../index.html">おさんツール</a></div>
+        <div class="user-menu-container">
+            <div id="header-guest-nav">
+                <button class="nav-text-btn" id="nav-signin">サインイン</button>
+                <button class="nav-text-btn primary" id="nav-signup">サインアップ</button>
+            </div>
+            <button id="main-user-btn" class="icon-button hidden">
+                <span class="material-icons">account_circle</span>
+            </button>
+            <div id="dropdown-ui" class="dropdown-menu hidden">
+                <div class="user-email-info" id="display-email"></div>
+                <button id="trigger-logout">ログアウト</button>
+                <button id="trigger-delete-account" class="btn-delete">アカウントを削除</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <h1>タイマー・ストップウォッチ</h1>
+
+        <div class="tokei-box">
+            <div id="gamen">00:00</div>
+
+            <div class="time-controls">
+                <button class="time-btn" id="btn_plus_1m">+1分</button>
+                <button class="time-btn" id="btn_plus_10s">+10秒</button>
+                <button class="time-btn" id="btn_plus_1s">+1秒</button>
+            </div>
+
+            <hr>
+
+            <div class="sousa-controls">
+                <button class="sousa-btn" id="btn_start">スタート</button>
+                <button class="sousa-btn" id="btn_stop">ストップ</button>
+                <button class="sousa-btn" id="btn_reset">リセット</button>
+            </div>
+           
+            <p id="message">待機中...</p>
+        </div>
+    </main>
+
+    <div id="modal-ui" class="modal-overlay hidden">
+        <div class="mini-window">
+            <div class="window-header"><span id="modal-title"></span><button id="modal-close" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button></div>
+            <div class="window-body">
+                <button class="google-btn" id="google-auth-btn"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"> Googleでログイン</button>
+                <input type="email" id="input-email" class="auth-input" placeholder="メールアドレス">
+                <input type="password" id="input-pass" class="auth-input" placeholder="パスワード">
+                <button id="auth-execute-btn" class="primary-btn">送信</button>
+                <p id="auth-toggle-text" style="color:#1a73e8; font-size:13px; cursor:pointer; margin-top:15px;"></p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBtQGq5IJXyoHGBGpx25ZfVkXWL-iRRqC8",
+            authDomain: "my-programming-tools-auth.firebaseapp.com",
+            projectId: "my-programming-tools-auth",
+            storageBucket: "my-programming-tools-auth.firebasestorage.app",
+            messagingSenderId: "617449767952",
+            appId: "1:617449767952:web:12f75dcb19f2035d637695"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // --- 1. 認証・UI制御ロジック ---
+        let currentUser = null;
+        const userBtn = document.getElementById('main-user-btn');
+        const dropdown = document.getElementById('dropdown-ui');
+        const guestNav = document.getElementById('header-guest-nav');
+        const modal = document.getElementById('modal-ui');
+        let authMode = 'login';
+
+        userBtn.onclick = (e) => { e.stopPropagation(); dropdown.classList.toggle('hidden'); };
+        document.onclick = () => dropdown.classList.add('hidden');
+        document.getElementById('modal-close').onclick = () => modal.classList.add('hidden');
+
+        function openAuth(m) {
+            authMode = m;
+            modal.classList.remove('hidden');
+            document.getElementById('modal-title').textContent = m === 'login' ? 'サインイン' : 'アカウント作成';
+            document.getElementById('auth-toggle-text').textContent = m === 'login' ? '新規登録はこちら' : 'ログインはこちら';
+        }
+
+        document.getElementById('nav-signin').onclick = () => openAuth('login');
+        document.getElementById('nav-signup').onclick = () => openAuth('signup');
+        document.getElementById('auth-toggle-text').onclick = () => openAuth(authMode === 'login' ? 'signup' : 'login');
+        document.getElementById('trigger-logout').onclick = () => signOut(auth);
+
+        document.getElementById('google-auth-btn').onclick = (e) => {
+            e.stopPropagation();
+            signInWithPopup(auth, new GoogleAuthProvider()).then(() => modal.classList.add('hidden'));
+        };
+
+        document.getElementById('auth-execute-btn').onclick = async () => {
+            const e = document.getElementById('input-email').value;
+            const p = document.getElementById('input-pass').value;
+            try {
+                if(authMode === 'login') await signInWithEmailAndPassword(auth, e, p);
+                else await createUserWithEmailAndPassword(auth, e, p);
+                modal.classList.add('hidden');
+            } catch (err) { alert(err.message); }
+        };
+
+        document.getElementById('trigger-delete-account').onclick = async () => {
+            if (!currentUser || !confirm("アカウントを完全に削除しますか？")) return;
+            try {
+                await currentUser.delete();
+                alert("削除しました。");
+                location.reload();
+            } catch (err) { alert("再ログイン後に再度お試しください。"); signOut(auth); }
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if (user) {
+                guestNav.classList.add('hidden');
+                userBtn.classList.remove('hidden');
+                document.getElementById('display-email').textContent = user.email;
+            } else {
+                guestNav.classList.remove('hidden');
+                userBtn.classList.add('hidden');
+            }
+        });
+
+        // --- 2. タイマー・ストップウォッチロジック ---
+        let byou = 0;
+        let kakarimono;
+        let is_running = false;
+        let is_stopwatch_mode = false;
+
+        const gamen = document.getElementById("gamen");
+        const msg = document.getElementById("message");
+
+        function koushin() {
+            const hun = Math.floor(byou / 60);
+            const nokori = byou % 60;
+            const h = hun < 10 ? "0" + hun : hun;
+            const s = nokori < 10 ? "0" + nokori : nokori;
+            gamen.innerText = h + ":" + s;
+        }
+
+        function addTime(seconds) {
+            if (!is_running) {
+                byou = byou + seconds;
+                koushin();
+                is_stopwatch_mode = false;
+                msg.innerText = "タイマー待機中";
+            }
+        }
+
+        document.getElementById("btn_plus_1m").onclick = () => addTime(60);
+        document.getElementById("btn_plus_10s").onclick = () => addTime(10);
+        document.getElementById("btn_plus_1s").onclick = () => addTime(1);
+
+        document.getElementById("btn_start").onclick = function() {
+            if (is_running) return;
+            if (byou === 0) is_stopwatch_mode = true;
+            is_running = true;
+
+            if (is_stopwatch_mode) {
+                msg.innerText = "計測中（ストップウォッチ）";
+                kakarimono = setInterval(() => {
+                    byou++;
+                    koushin();
+                }, 1000);
+            } else {
+                if (byou > 0) {
+                    msg.innerText = "計測中（タイマー）";
+                    kakarimono = setInterval(() => {
+                        byou--;
+                        koushin();
+                        if (byou <= 0) {
+                            clearInterval(kakarimono);
+                            is_running = false;
+                            msg.innerText = "時間ですよ！";
+                            alert("時間ですよ！");
+                        }
+                    }, 1000);
+                } else {
+                    is_running = false;
+                }
+            }
+        };
+
+        document.getElementById("btn_stop").onclick = function() {
+            clearInterval(kakarimono);
+            is_running = false;
+            msg.innerText = "一時停止中";
+        };
+
+        document.getElementById("btn_reset").onclick = function() {
+            clearInterval(kakarimono);
+            is_running = false;
+            byou = 0;
+            is_stopwatch_mode = false;
+            koushin();
+            msg.innerText = "待機中...";
+        };
+    </script>
+</body>
+</html>

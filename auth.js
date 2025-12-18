@@ -65,17 +65,53 @@ document.getElementById('btn-signup').onclick = () => showAuthModal('signup');
 document.getElementById('btn-logout').onclick = () => signOut(auth);
 document.getElementById('close-modal').onclick = () => authModal.classList.add('hidden');
 
-// 状態監視
+// ログイン状態監視
 onAuthStateChanged(auth, (user) => {
-    const guest = document.getElementById('menu-guest');
-    const member = document.getElementById('menu-member');
-    const mail = document.getElementById('user-mail');
+    currentUser = user;
+    const guestNav = document.getElementById('header-guest-nav');
+    const userBtn = document.getElementById('main-user-btn');
+    const emailDisp = document.getElementById('display-email');
+
     if (user) {
-        guest.classList.add('hidden');
-        member.classList.remove('hidden');
-        mail.textContent = user.email;
+        // ログイン時：テキストボタンを隠し、アイコンを表示
+        guestNav.classList.add('hidden');
+        userBtn.classList.remove('hidden');
+        emailDisp.textContent = user.email;
+        if (typeof refreshCloudList === 'function') refreshCloudList(); // グループ分けツール用
     } else {
-        guest.classList.remove('hidden');
-        member.classList.add('hidden');
+        // 未ログイン時：アイコンを隠し、テキストボタンを表示
+        guestNav.classList.remove('hidden');
+        userBtn.classList.add('hidden');
     }
 });
+
+// 各種ボタンのイベント紐付け
+document.getElementById('trigger-signin-top').onclick = () => openAuthModal('login');
+document.getElementById('trigger-signup-top').onclick = () => openAuthModal('signup');
+document.getElementById('trigger-logout').onclick = () => signOut(auth);
+
+// アカウント削除の実行処理
+document.getElementById('trigger-delete-account').onclick = async () => {
+    if (!currentUser) return;
+    const confirmDelete = confirm("本当にアカウントを削除しますか？\n保存された名簿データもすべて削除され、復元はできません。");
+    
+    if (confirmDelete) {
+        try {
+            // Firestoreのデータを削除（もしあれば）
+            // await deleteDoc(doc(db, "users", currentUser.uid)); 
+            
+            // Firebase Authのアカウントを削除
+            await currentUser.delete();
+            alert("アカウントを削除しました。");
+            location.reload(); 
+        } catch (error) {
+            console.error(error);
+            if (error.code === 'auth/requires-recent-login') {
+                alert("セキュリティ保護のため、再ログインしてから再度削除をお試しください。");
+                signOut(auth);
+            } else {
+                alert("エラーが発生しました: " + error.message);
+            }
+        }
+    }
+};
