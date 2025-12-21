@@ -99,7 +99,7 @@
         <nav class="nav-links">
             <a href="#about">概要</a>
             <a href="#tools">ツール一覧</a>
-            <a href="#feedback" onclick="alert('フィードバック機能は準備中です！')">フィードバック</a>
+            <a href="feedback.html">フィードバック</a>
             <div class="auth-controls">
                 <div id="header-guest-nav">
                     <button class="nav-text-btn" id="nav-signin">サインイン</button>
@@ -148,7 +148,7 @@
 
         <div class="search-container">
             <span class="material-icons">search</span>
-            <input type="text" id="tool-search" placeholder="キーワードでツールを検索...">
+            <input type="text" id="tool-search" autocomplete="off" placeholder="キーワードでツールを検索...">
         </div>
 
         <div class="tool-list" id="tool-list">
@@ -203,8 +203,8 @@
                 <button class="google-btn" id="google-auth-btn" style="width:100%; height:44px; background:white; border:1px solid #dadce0; border-radius:4px; display:flex; align-items:center; justify-content:center; cursor:pointer; margin-bottom:20px; font-weight:bold;">
                     <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:18px; margin-right:10px;"> Googleでログイン
                 </button>
-                <input type="email" id="input-email" class="auth-input" placeholder="メールアドレス">
-                <input type="password" id="input-pass" class="auth-input" placeholder="パスワード">
+                <input type="email" id="input-email" class="auth-input" autocomplete="username" placeholder="メールアドレス">
+                <input type="password" id="input-pass" class="auth-input" autocomplete="current-password" placeholder="パスワード">
                 <button id="auth-execute-btn" class="primary-btn">送信</button>
                 <p id="auth-toggle-text" style="color:#1a73e8; font-size:13px; cursor:pointer; margin-top:15px;"></p>
             </div>

@@ -80,7 +80,11 @@
                 <span class="material-icons" style="font-size:16px;">devices</span>
                 <span id="status-text">ローカル保存モード</span>
             </div>
-            <input type="text" id="memoTitle" placeholder="無題のメモ">
+
+            <input type="text" style="position:fixed; top:-100px; left:-100px; width:1px; height:1px; opacity:0;" aria-hidden="true">
+            <input type="password" style="position:fixed; top:-100px; left:-100px; width:1px; height:1px; opacity:0;" aria-hidden="true">
+
+            <input type="text" id="memoTitle" autocomplete="off" placeholder="無題のメモ">
             <textarea id="memoBody" placeholder="ここに内容を入力してください..."></textarea>
             <div class="button-area">
                 <button id="saveBtn" class="btn btn-save"><span class="material-icons">save</span>保存する</button>
@@ -97,8 +101,8 @@
     <div id="modal-ui" class="modal-overlay hidden">
         <div class="mini-window">
             <h3 id="modal-title" style="margin-bottom:20px;">サインイン</h3>
-            <input type="email" id="input-email" style="width:100%; padding:10px; margin-bottom:10px;" placeholder="メールアドレス">
-            <input type="password" id="input-pass" style="width:100%; padding:10px; margin-bottom:10px;" placeholder="パスワード">
+            <input type="email" id="input-email" autocomplete="username" style="width:100%; padding:10px; margin-bottom:10px;" placeholder="メールアドレス">
+            <input type="password" id="input-pass" autocomplete="current-password" style="width:100%; padding:10px; margin-bottom:10px;" placeholder="パスワード">
             <button id="auth-execute-btn" style="width:100%; padding:10px; background:#1a73e8; color:white; border:none; border-radius:4px; cursor:pointer;">送信</button>
             <p id="auth-toggle-text" style="color:#1a73e8; font-size:13px; cursor:pointer; margin-top:15px;">新規登録はこちら</p>
             <button onclick="document.getElementById('modal-ui').classList.add('hidden')" style="margin-top:15px; background:none; border:none; color:#999; cursor:pointer;">キャンセル</button>

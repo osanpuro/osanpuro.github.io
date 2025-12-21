@@ -155,7 +155,10 @@
                     </div>
                     <div class="control-group">
                         <label>CSVファイル名:</label>
-                        <input type="text" id="csv-filename" placeholder="空欄で日時">
+                        <input type="text" style="position:fixed; top:-100px; left:-100px; width:1px; height:1px; opacity:0;" aria-hidden="true">
+                        <input type="password" style="position:fixed; top:-100px; left:-100px; width:1px; height:1px; opacity:0;" aria-hidden="true">
+                        
+                        <input type="text" id="csv-filename" autocomplete="off" placeholder="空欄で日時">
                     </div>
                 </div>
             </div>
@@ -174,8 +177,8 @@
             <div class="window-header"><span id="modal-title"></span><button id="modal-close" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button></div>
             <div class="window-body">
                 <button class="google-btn" id="google-auth-btn"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"> Googleでログイン</button>
-                <input type="email" id="input-email" class="auth-input" placeholder="メールアドレス">
-                <input type="password" id="input-pass" class="auth-input" placeholder="パスワード">
+                <input type="email" id="input-email" class="auth-input" autocomplete="username" placeholder="メールアドレス">
+                <input type="password" id="input-pass" class="auth-input" autocomplete="current-password" placeholder="パスワード">
                 <button id="auth-execute-btn" class="primary-btn">送信</button>
                 <p id="auth-toggle-text" style="color:#1a73e8; font-size:13px; cursor:pointer; margin-top:15px;"></p>
             </div>

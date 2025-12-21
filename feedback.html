@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>フィードバック - おさんツール</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Hiragino Kaku Gothic ProN', sans-serif; background-color: #f0f2f5; color: #202124; line-height: 1.6; padding: 40px 20px; }
+        
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        
+        h2 { text-align: center; margin-bottom: 10px; font-size: 24px; }
+        .description { color: #5f6368; font-size: 14px; text-align: center; margin-bottom: 30px; }
+
+        .form-group { margin-bottom: 20px; text-align: left; }
+        label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px; }
+        
+        input[type="text"], input[type="email"], select, textarea {
+            width: 100%; padding: 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 16px; outline: none; transition: 0.3s;
+        }
+        input:focus, textarea:focus { border-color: #34a853; box-shadow: 0 0 0 3px rgba(52, 168, 83, 0.1); }
+        
+        textarea { height: 150px; resize: none; }
+
+        .privacy-note {
+            background: #f8f9fa; padding: 15px; border-radius: 8px; font-size: 12px; color: #5f6368; margin-bottom: 25px; border-left: 4px solid #34a853;
+        }
+
+        .submit-btn {
+            width: 100%; padding: 15px; background: #34a853; color: white; border: none; border-radius: 8px;
+            font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 10px;
+        }
+        .submit-btn:hover { background: #2d8e47; transform: translateY(-2px); }
+        .submit-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+        .back-link { display: block; text-align: center; margin-top: 20px; color: #1a73e8; text-decoration: none; font-size: 14px; }
+        .back-link:hover { text-decoration: underline; }
+
+        .user-badge {
+            display: inline-block; padding: 4px 12px; background: #e8f0fe; color: #1a73e8; border-radius: 20px; font-size: 12px; margin-bottom: 15px; font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>フィードバック</h2>
+        <p class="description">ツールの感想や改善案、新機能のリクエストなどをお聞かせください。</p>
+
+        <div id="auth-status" class="hidden"></div>
+
+        <div class="form-group">
+            <label>対象のツール</label>
+            <select id="tool-type">
+                <option value="general">サイト全体</option>
+                <option value="group">グループ分けツール</option>
+                <option value="timer">タイマー・ストップウォッチ</option>
+                <option value="memo">クラウドメモ帳</option>
+                <option value="bug">不具合の報告</option>
+                <option value="request">新しいツールの提案</option>
+            </select>
+        </div>
+
+        <div class="form-group" id="email-field">
+            <label>メールアドレス（任意）</label>
+            <input type="email" id="contact-email" placeholder="example@mail.com">
+            <p style="font-size: 11px; color: #888; margin-top: 5px;">※具体的なヒアリングのためにご連絡させていただく場合があります。</p>
+        </div>
+
+        <div class="form-group">
+            <label>メッセージ内容</label>
+            <textarea id="feedback-message" placeholder="こちらにご記入ください..."></textarea>
+        </div>
+
+        <div class="privacy-note">
+            <strong>プライバシーについて：</strong><br>
+            ご記入いただいた情報は、サービスの改善およびお問い合わせへの回答のみに使用し、許可なく第三者に公開することはありません。
+        </div>
+
+        <button id="send-btn" class="submit-btn">
+            <span class="material-icons">send</span> 送信する
+        </button>
+
+        <a href="index.html" class="back-link">ホームに戻る</a>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBtQGq5IJXyoHGBGpx25ZfVkXWL-iRRqC8",
+            authDomain: "my-programming-tools-auth.firebaseapp.com",
+            projectId: "my-programming-tools-auth",
+            storageBucket: "my-programming-tools-auth.firebasestorage.app",
+            messagingSenderId: "617449767952",
+            appId: "1:617449767952:web:12f75dcb19f2035d637695"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+
+        // ログイン状態を監視
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            const emailField = document.getElementById('email-field');
+            const authStatus = document.getElementById('auth-status');
+
+            if (user) {
+                // ログイン済みの場合はメール入力を隠し、バッジを表示
+                emailField.style.display = 'none';
+                authStatus.innerHTML = `<div class="user-badge">ログイン中: ${user.email}</div>`;
+                authStatus.classList.remove('hidden');
+            } else {
+                // 未ログインの場合はメール入力欄を表示
+                emailField.style.display = 'block';
+                authStatus.classList.add('hidden');
+            }
+        });
+
+        // 送信処理
+        document.getElementById('send-btn').onclick = async function() {
+            const toolType = document.getElementById('tool-type').value;
+            const message = document.getElementById('feedback-message').value.trim();
+            const contactEmail = document.getElementById('contact-email').value.trim();
+            const btn = this;
+
+            if (!message) {
+                alert("メッセージを入力してください。");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = "送信中...";
+
+            try {
+                // Firestoreの 'feedbacks' コレクションに保存
+                await addDoc(collection(db, "feedbacks"), {
+                    tool: toolType,
+                    message: message,
+                    // ログインしてればそのアドレス、してなければ入力されたアドレス、どちらもなければ anonymous
+                    email: currentUser ? currentUser.email : (contactEmail || "anonymous"),
+                    userId: currentUser ? currentUser.uid : "guest",
+                    createdAt: serverTimestamp()
+                });
+
+                alert("フィードバックを送信しました。ありがとうございます！");
+                window.location.href = "index.html"; // ホームに戻る
+
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                alert("送信に失敗しました。時間をおいて再度お試しください。");
+                btn.disabled = false;
+                btn.innerHTML = '<span class="material-icons">send</span> 送信する';
+            }
+        };
+    </script>
+</body>
+</html>
