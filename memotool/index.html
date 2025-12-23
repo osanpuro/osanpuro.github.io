@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>高機能メモ帳 - おさんツール</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         /* --- 共通スタイル --- */
@@ -26,11 +27,20 @@
         .status-cloud { background: #e6f4ea; color: #1e8e3e; }
 
         /* メモ帳デザイン */
-        main { max-width: 1000px; margin: 0 auto; padding: 20px; display: grid; grid-template-columns: 1fr 320px; gap: 24px; }
+        main { 
+            max-width: 1000px; margin: 0 auto; padding: 20px; 
+            display: grid; grid-template-columns: 1fr 320px; gap: 24px; 
+        }
         
         .editor-section { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        #memoTitle { width: 100%; padding: 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 18px; outline: none; margin-bottom: 15px; }
-        #memoBody { width: 100%; height: 450px; padding: 15px; border: 1px solid #dadce0; border-radius: 8px; font-size: 16px; resize: none; outline: none; line-height: 1.6; }
+        #memoTitle { 
+            width: 100%; padding: 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 18px; outline: none; margin-bottom: 15px; 
+            appearance: none; -webkit-appearance: none;
+        }
+        #memoBody { 
+            width: 100%; height: 450px; padding: 15px; border: 1px solid #dadce0; border-radius: 8px; font-size: 16px; resize: none; outline: none; line-height: 1.6; 
+            appearance: none; -webkit-appearance: none;
+        }
 
         .button-area { display: flex; gap: 10px; margin-top: 20px; }
         .btn { padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
@@ -55,7 +65,27 @@
         .dropdown-menu { position: absolute; top: 56px; right: 0; width: 220px; background: white; border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); border: 1px solid #ddd; z-index: 1100; overflow: hidden; }
         .dropdown-menu button { width: 100%; padding: 12px 20px; border: none; background: none; text-align: left; cursor: pointer; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; justify-content: center; align-items: center; }
-        .mini-window { width: 360px; background: white; border-radius: 12px; padding: 25px; text-align: center; }
+        .mini-window { width: 360px; max-width: 90%; background: white; border-radius: 12px; padding: 25px; text-align: center; }
+
+        /* --- スマホ対応用レスポンシブ設定 --- */
+        @media (max-width: 800px) {
+            body { padding-top: 60px; padding-bottom: 20px; }
+            header { padding: 0 16px; height: 56px; }
+            .logo a { font-size: 18px; }
+
+            main {
+                display: flex; flex-direction: column; /* 縦並びにする */
+                padding: 15px;
+                gap: 20px;
+            }
+
+            .editor-section { padding: 15px; }
+            #memoBody { height: 300px; /* スマホでは少し高さを抑える */ }
+            
+            .list-section { height: 400px; /* リストも高さを抑える */ }
+            
+            .memo-item .title-text { max-width: 70%; } /* リストの文字切れ調整 */
+        }
     </style>
 </head>
 <body>
@@ -64,9 +94,9 @@
         <div class="logo"><a href="../index.html">おさんツール</a></div>
         <div class="user-menu-container">
             <div id="header-guest-nav">
-                <button class="nav-text-btn" style="color:white; background:none; border:1px solid white; padding:5px 10px; border-radius:4px; cursor:pointer;" id="nav-signin">サインイン</button>
+                <button class="nav-text-btn" style="color:white; background:none; border:1px solid white; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px;" id="nav-signin">サインイン</button>
             </div>
-            <button id="main-user-btn" class="icon-button hidden"><span class="material-icons" style="font-size:40px;">account_circle</span></button>
+            <button id="main-user-btn" class="icon-button hidden"><span class="material-icons" style="font-size:32px;">account_circle</span></button>
             <div id="dropdown-ui" class="dropdown-menu hidden">
                 <div style="padding: 12px 20px; font-size: 12px; color: #5f6368; border-bottom: 1px solid #eee; background: #fafafa;" id="display-email"></div>
                 <button id="trigger-logout">ログアウト</button>
@@ -101,9 +131,9 @@
     <div id="modal-ui" class="modal-overlay hidden">
         <div class="mini-window">
             <h3 id="modal-title" style="margin-bottom:20px;">サインイン</h3>
-            <input type="email" id="input-email" autocomplete="username" style="width:100%; padding:10px; margin-bottom:10px;" placeholder="メールアドレス">
-            <input type="password" id="input-pass" autocomplete="current-password" style="width:100%; padding:10px; margin-bottom:10px;" placeholder="パスワード">
-            <button id="auth-execute-btn" style="width:100%; padding:10px; background:#1a73e8; color:white; border:none; border-radius:4px; cursor:pointer;">送信</button>
+            <input type="email" id="input-email" autocomplete="username" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:4px;" placeholder="メールアドレス">
+            <input type="password" id="input-pass" autocomplete="current-password" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:4px;" placeholder="パスワード">
+            <button id="auth-execute-btn" style="width:100%; padding:10px; background:#1a73e8; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">送信</button>
             <p id="auth-toggle-text" style="color:#1a73e8; font-size:13px; cursor:pointer; margin-top:15px;">新規登録はこちら</p>
             <button onclick="document.getElementById('modal-ui').classList.add('hidden')" style="margin-top:15px; background:none; border:none; color:#999; cursor:pointer;">キャンセル</button>
         </div>
@@ -142,26 +172,39 @@
 
             if (currentUser) {
                 // クラウド保存
-                await setDoc(doc(db, "users", currentUser.uid, "memos", title), {
-                    title, body, updatedAt: Date.now()
-                });
+                try {
+                    await setDoc(doc(db, "users", currentUser.uid, "memos", title), {
+                        title, body, updatedAt: Date.now()
+                    });
+                    alert("保存しました");
+                } catch(e) {
+                    console.error(e);
+                    alert("保存に失敗しました");
+                }
             } else {
                 // ローカル保存
-                localStorage.setItem(LS_PREFIX + title, body);
-                refreshLocalList();
+                try {
+                    localStorage.setItem(LS_PREFIX + title, body);
+                    refreshLocalList();
+                    alert("保存しました");
+                } catch(e) {
+                    alert("容量オーバーなどで保存できませんでした");
+                }
             }
-            alert("保存しました");
         }
 
         async function deleteMemo() {
             const title = titleInput.value.trim();
-            if (!title || !confirm("削除しますか？")) return;
+            if (!title) return;
+            if (!confirm("「" + title + "」を削除しますか？")) return;
 
             if (currentUser) {
                 await deleteDoc(doc(db, "users", currentUser.uid, "memos", title));
+                alert("削除しました");
             } else {
                 localStorage.removeItem(LS_PREFIX + title);
                 refreshLocalList();
+                alert("削除しました");
             }
             titleInput.value = "";
             bodyInput.value = "";
@@ -171,13 +214,19 @@
 
         function refreshLocalList() {
             listArea.innerHTML = "";
+            let items = [];
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
                 if (key.startsWith(LS_PREFIX)) {
-                    const displayTitle = key.replace(LS_PREFIX, "");
-                    createListItem(displayTitle, localStorage.getItem(key));
+                    items.push({
+                        key: key,
+                        title: key.replace(LS_PREFIX, ""),
+                        body: localStorage.getItem(key)
+                    });
                 }
             }
+            // 簡易的に名前順などで表示（作成日時はローカルだと保存していないため）
+            items.forEach(item => createListItem(item.title, item.body));
         }
 
         function createListItem(title, body) {
@@ -187,6 +236,10 @@
             item.onclick = () => {
                 titleInput.value = title;
                 bodyInput.value = body;
+                // スマホ時はクリックしたら上部（エディタ）へスクロール
+                if (window.innerWidth <= 800) {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
             };
             listArea.appendChild(item);
         }
@@ -213,7 +266,7 @@
             } else {
                 // ローカルモード
                 statusBadge.className = "storage-status status-local";
-                statusText.textContent = "ローカル保存モード (サインインで同期)";
+                statusText.textContent = "ローカル保存";
                 document.getElementById('main-user-btn').classList.add('hidden');
                 document.getElementById('header-guest-nav').classList.remove('hidden');
                 refreshLocalList();

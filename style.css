@@ -1,88 +1,184 @@
-/* ブラウザのデフォルト設定をクリア */
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: sans-serif; background-color: #f9f9f9; padding-top: 60px; }
-.hidden { display: none !important; }
+/* ベーススタイル（共通・PC向け） */
+body {
+    font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #333;
+    line-height: 1.6;
+    background-color: #f9f9f9;
+}
 
-/* ① 人型を「一番上の右端」に強制配置 */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* ヘッダー */
 header {
-    position: fixed !important; 
-    top: 0 !important; 
-    left: 0 !important; 
-    width: 100% !important; 
-    height: 60px !important;
-    background: #333 !important; 
-    color: white !important;
-    display: flex !important; 
-    justify-content: space-between !important; 
-    align-items: center !important;
-    padding: 0 20px !important; 
-    z-index: 1000 !important;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 15px 0;
 }
 
-.logo a { font-size: 20px; font-weight: bold; color: white; text-decoration: none; }
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-/* ユーザーメニューコンテナ */
-.user-menu-container { position: relative !important; }
-.icon-button {
-    background: none !important; border: none !important; cursor: pointer !important; color: white !important;
-    display: flex !important; align-items: center !important;
+.brand h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #2c3e50;
 }
-.icon-button .material-icons { font-size: 40px !important; }
 
-/* ② プルダウンメニュー（アイコン押下時に表示） */
-.dropdown-menu {
-    position: absolute !important; 
-    top: 60px !important; 
-    right: 0 !important;
-    width: 220px !important; 
-    background: white !important; 
-    border-radius: 8px !important;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important; 
-    border: 1px solid #ccc !important;
-    z-index: 1100 !important; 
-    overflow: hidden !important;
+nav a {
+    text-decoration: none;
+    color: #555;
+    margin-left: 20px;
+    font-weight: bold;
 }
-.dropdown-menu button {
-    width: 100% !important; padding: 15px !important; border: none !important; 
-    background: none !important; text-align: left !important; 
-    cursor: pointer !important; font-size: 14px !important; color: #333 !important;
-}
-.dropdown-menu button:hover { background-color: #f1f1f1 !important; }
-.user-email-info { padding: 12px 15px; font-size: 12px; color: #666; border-bottom: 1px solid #eee; background: #fafafa; }
 
-/* ③ ミニウィンドウ（サイト上の中央モーダル） */
-.modal-overlay {
-    position: fixed !important; top: 0 !important; left: 0 !important; 
-    width: 100% !important; height: 100% !important;
-    background: rgba(0,0,0,0.6) !important; z-index: 2000 !important;
-    display: flex !important; justify-content: center !important; align-items: center !important;
+.btn-login {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    margin-left: 20px;
+    cursor: pointer;
 }
-.mini-window {
-    width: 360px !important; background: white !important; border-radius: 12px !important;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4) !important; overflow: hidden !important;
-}
-.window-header {
-    padding: 16px; border-bottom: 1px solid #eee; background: #f8f8f8;
-    display: flex; justify-content: space-between; align-items: center; font-weight: bold;
-}
-.window-body { padding: 30px; text-align: center; }
 
-/* ④ Googleログインボタン（サイズ・アイコン調整） */
-.google-btn {
-    width: 100% !important; 
-    height: 48px !important; 
-    background: white !important; 
-    border: 1px solid #dadce0 !important;
-    border-radius: 4px !important; 
-    display: flex !important; 
-    align-items: center !important; 
-    justify-content: center !important;
-    cursor: pointer !important; 
-    font-weight: 500 !important; 
-    font-size: 14px !important; 
-    margin-bottom: 25px !important;
+/* ヒーローセクション */
+.hero {
+    text-align: center;
+    padding: 60px 20px;
+    background-color: #fff;
+    margin-bottom: 20px;
 }
-.google-btn img { width: 20px !important; height: 20px !important; margin-right: 12px !important; }
 
-.auth-input { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
-.primary-btn { width: 100%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+.hero h2 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+/* 特徴セクション（横並び） */
+.features {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    gap: 20px;
+}
+
+.feature-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    flex: 1;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.material-icons {
+    font-size: 48px;
+    color: #007bff;
+    margin-bottom: 10px;
+}
+
+/* ツール一覧（グリッド） */
+.tools {
+    padding-bottom: 60px;
+}
+
+.tool-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.tool-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+}
+
+.tool-card:hover {
+    transform: translateY(-5px);
+}
+
+.btn-arrow {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.btn-arrow .material-icons {
+    font-size: 18px;
+    margin-left: 5px;
+    margin-bottom: 0;
+}
+
+.disabled {
+    opacity: 0.7;
+}
+
+/* フッター */
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 20px 0;
+}
+
+/* --- スマホ対応（レスポンシブ） --- */
+@media screen and (max-width: 768px) {
+    /* ヘッダーの調整 */
+    .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    nav {
+        margin-top: 15px;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    nav a {
+        margin: 10px 0;
+        margin-left: 0;
+    }
+
+    .btn-login {
+        margin-left: 0;
+        margin-top: 10px;
+        width: 100%; /* ボタンを押しやすく最大幅に */
+        padding: 12px;
+    }
+
+    /* ヒーローセクションの文字サイズ調整 */
+    .hero h2 {
+        font-size: 1.8rem;
+    }
+
+    /* 特徴セクションを縦並びに */
+    .features {
+        flex-direction: column;
+    }
+
+    /* ツールグリッドはauto-fitで自動調整されるが、余白を微調整 */
+    .tool-grid {
+        grid-template-columns: 1fr; /* 1列にする */
+    }
+
+    .container {
+        padding: 0 15px;
+    }
+}

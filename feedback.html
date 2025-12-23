@@ -19,6 +19,8 @@
         
         input[type="text"], input[type="email"], select, textarea {
             width: 100%; padding: 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 16px; outline: none; transition: 0.3s;
+            /* iOSでの拡大防止と見た目の統一 */
+            appearance: none; -webkit-appearance: none; background: white;
         }
         input:focus, textarea:focus { border-color: #34a853; box-shadow: 0 0 0 3px rgba(52, 168, 83, 0.1); }
         
@@ -40,6 +42,23 @@
 
         .user-badge {
             display: inline-block; padding: 4px 12px; background: #e8f0fe; color: #1a73e8; border-radius: 20px; font-size: 12px; margin-bottom: 15px; font-weight: bold;
+        }
+
+        /* --- スマホ対応用レスポンシブ設定 --- */
+        @media (max-width: 600px) {
+            body {
+                padding: 20px 10px; /* 画面端の余白を狭くする */
+            }
+            .container {
+                padding: 30px 20px; /* 白枠内の余白を少し詰める */
+            }
+            h2 {
+                font-size: 20px; /* タイトルを少し小さく */
+            }
+            .description {
+                font-size: 13px;
+                margin-bottom: 25px;
+            }
         }
     </style>
 </head>

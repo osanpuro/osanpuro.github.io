@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>タイマー・ストップウォッチ - おさんツール</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         /* --- おさんツール共通スタイル --- */
@@ -64,6 +65,8 @@
             color: #202124;
             margin: 20px 0;
             letter-spacing: 2px;
+            /* 数字が変動しても幅がブレないように */
+            font-variant-numeric: tabular-nums;
         }
 
         .time-controls { margin-bottom: 25px; display: flex; justify-content: center; gap: 10px; }
@@ -71,6 +74,8 @@
             font-size: 14px; padding: 10px 15px; cursor: pointer;
             border-radius: 8px; border: 1px solid #dadce0;
             background-color: #f8f9fa; color: #3c4043; transition: 0.2s;
+            /* スマホでのタップ遅延防止 */
+            touch-action: manipulation;
         }
         .time-btn:hover { background-color: #e8f0fe; border-color: #1a73e8; }
 
@@ -81,6 +86,8 @@
             font-size: 18px; padding: 12px 25px; cursor: pointer;
             border-radius: 12px; border: none;
             font-weight: bold; transition: 0.2s; min-width: 100px;
+            /* スマホでのタップ遅延防止 */
+            touch-action: manipulation;
         }
         #btn_start { background-color: #34a853; color: white; }
         #btn_start:hover { background-color: #2d9147; }
@@ -98,8 +105,35 @@
         .window-body { padding: 25px; text-align: center; }
         .google-btn { width: 100%; height: 44px; background: white; border: 1px solid #dadce0; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 20px; font-weight: bold; }
         .google-btn img { width: 18px; margin-right: 10px; }
-        .auth-input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        .auth-input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
         .primary-btn { width: 100%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+
+        /* --- スマホ対応用レスポンシブ設定 --- */
+        @media (max-width: 600px) {
+            body { padding-top: 60px; } /* ヘッダーの高さに合わせて調整 */
+            header { padding: 0 16px; height: 56px; }
+            .logo a { font-size: 18px; }
+            
+            main { padding: 20px 10px; }
+            h1 { font-size: 20px; margin-bottom: 20px; }
+
+            .tokei-box { padding: 30px 15px; }
+            
+            /* 時間表示を画面幅に合わせて縮小 (Viewport Width単位を使用) */
+            #gamen { font-size: 17vw; margin: 10px 0; }
+
+            /* 時間追加ボタンを押しやすく */
+            .time-controls { gap: 8px; }
+            .time-btn { flex: 1; padding: 12px 5px; font-size: 12px; }
+
+            /* 操作ボタンを横並びで均等に配置 */
+            .sousa-controls { gap: 8px; }
+            .sousa-btn { font-size: 14px; padding: 12px 0; flex: 1; min-width: auto; }
+            
+            /* モーダルをスマホ幅に */
+            .mini-window { width: 90%; }
+            .nav-text-btn { padding: 6px 10px; margin-left: 5px; font-size: 12px; }
+        }
     </style>
 </head>
 <body>
@@ -109,7 +143,7 @@
         <div class="user-menu-container">
             <div id="header-guest-nav">
                 <button class="nav-text-btn" id="nav-signin">サインイン</button>
-                <button class="nav-text-btn primary" id="nav-signup">サインアップ</button>
+                <button class="nav-text-btn primary" id="nav-signup">登録</button>
             </div>
             <button id="main-user-btn" class="icon-button hidden">
                 <span class="material-icons">account_circle</span>
@@ -141,7 +175,7 @@
                 <button class="sousa-btn" id="btn_stop">ストップ</button>
                 <button class="sousa-btn" id="btn_reset">リセット</button>
             </div>
-           
+            
             <p id="message">待機中...</p>
         </div>
     </main>
