@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         /* =========================================
-           基本スタイル (前回と同じ)
+           基本スタイル
         ========================================= */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Hiragino Kaku Gothic ProN', sans-serif; background-color: #f0f2f5; padding-top: 80px; padding-bottom: 40px; color: #202124; }
@@ -18,11 +18,19 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 64px;
             background: #202124; color: white;
             display: flex; justify-content: space-between; align-items: center;
-            padding: 0 24px; z-index: 1000; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            padding: 0 16px; z-index: 1000; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
+        
+        .header-left { display: flex; align-items: center; gap: 10px; }
         .logo a { font-size: 20px; font-weight: bold; color: #ffffff; text-decoration: none; }
 
-        /* ナビゲーション */
+        #hamburger-btn {
+            background: none; border: none; color: white; cursor: pointer;
+            display: none; align-items: center; justify-content: center;
+            padding: 5px; margin-right: 5px;
+        }
+        #hamburger-btn .material-icons { font-size: 28px; }
+
         #header-guest-nav { display: flex; align-items: center; }
         .nav-text-btn {
             background: none; border: 1px solid white; color: white;
@@ -33,7 +41,6 @@
         .icon-button { background: none; border: none; cursor: pointer; color: white; display: flex; align-items: center; }
         .icon-button .material-icons { font-size: 32px; }
 
-        /* ドロップダウン */
         .user-menu-container { position: relative; }
         .dropdown-menu {
             position: absolute; top: 50px; right: 0; width: 220px; background: white; border-radius: 8px;
@@ -45,6 +52,32 @@
         }
         .user-email-info { padding: 12px 20px; font-size: 12px; color: #5f6368; border-bottom: 1px solid #eee; background: #fafafa; word-break: break-all; }
         .btn-delete { color: #ea4335 !important; }
+
+        /* サイドメニュー */
+        #drawer-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 1100; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+        }
+        #drawer-overlay.open { opacity: 1; pointer-events: auto; }
+
+        #mobile-drawer {
+            position: fixed; top: 0; left: 0; width: 260px; height: 100%;
+            background: white; z-index: 1200; transform: translateX(-100%); transition: transform 0.3s ease;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.1); display: flex; flex-direction: column;
+        }
+        #mobile-drawer.open { transform: translateX(0); }
+
+        .drawer-header {
+            padding: 20px; background: #f8f9fa; border-bottom: 1px solid #eee;
+            font-weight: bold; color: #202124; display: flex; justify-content: space-between; align-items: center;
+        }
+        .drawer-list { list-style: none; padding: 10px 0; }
+        .drawer-list li a {
+            display: block; padding: 15px 20px; color: #3c4043; text-decoration: none;
+            font-size: 15px; border-left: 4px solid transparent; transition: 0.2s;
+        }
+        .drawer-list li a:hover { background: #f0f2f5; }
+        .drawer-list li a.active { background: #e8f0fe; color: #1a73e8; border-left-color: #1a73e8; font-weight: bold; }
 
         /* レイアウト */
         main { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
@@ -60,11 +93,16 @@
         .section-header h2 { font-size: 15px; color: #5f6368; display: flex; align-items: center; gap: 8px; margin: 0; }
         .section-content { padding: 20px; }
 
-        /* フォーム要素 */
         textarea { 
-            width: 100%; height: 350px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; 
-            font-size: 16px; resize: vertical; line-height: 1.6; font-family: monospace;
+            width: 100%; height: 300px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; 
+            font-size: 15px; resize: vertical; line-height: 1.6; font-family: monospace; background: white;
         }
+        textarea:focus { border-color: #1a73e8; outline: none; background: #fdfdfd; }
+        
+        .input-hint {
+            font-size: 12px; color: #666; background: #e8f0fe; padding: 10px; border-radius: 4px; margin-bottom: 10px; line-height: 1.5;
+        }
+
         .control-group { margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 13px; color: #3c4043; }
         input[type="text"], input[type="number"], select { 
@@ -79,6 +117,8 @@
         .bg-blue { background: #1a73e8; }
         .bg-green { background: #34a853; }
         .bg-red { background: #ea4335; }
+        #list-save-status { font-size: 11px; margin-left: 5px; color: #888; font-weight: normal; }
+        .status-saving { color: #ea4335 !important; font-weight: bold; }
 
         /* 実行エリア */
         .execution-area { margin-top: 20px; text-align: center; background: white; padding: 30px 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
@@ -93,12 +133,35 @@
         #btn-csv-download:disabled { background: #dadce0; cursor: not-allowed; opacity: 0.7; }
 
         /* 結果出力 */
-        #output { margin-top: 20px; }
+        #output-header { 
+            display: none; justify-content: space-between; align-items: center; 
+            margin: 20px 0 10px 0; padding-bottom: 5px; border-bottom: 2px solid #ddd; 
+        }
+        #output-title { font-weight: bold; font-size: 18px; color: #3c4043; display: flex; align-items: center; gap: 5px; }
+
+        #output { margin-top: 0; }
+        
+        /* フラッシュアニメーション */
+        @keyframes highlightFade {
+            0% { background-color: #fef08a; transform: scale(1.02); }
+            100% { background-color: transparent; transform: scale(1); }
+        }
+        .updated-flash { animation: highlightFade 0.6s ease-out; }
+
         .group-box { 
             margin-bottom: 15px; padding: 15px; border-left: 5px solid #34a853; 
             background: white; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); line-height: 1.6;
         }
         .group-title { font-weight: bold; color: #202124; display: block; margin-bottom: 5px; }
+
+        /* 履歴保存ステータス表示 */
+        #history-save-indicator {
+            margin-top: 10px; font-size: 13px; color: #555; font-weight: bold; min-height: 20px;
+        }
+        .text-wait { color: #fbbc04; }
+        .text-saving { color: #ea4335; }
+        .text-done { color: #34a853; }
+        .text-error { color: #d93025; background: #fce8e6; padding: 5px 10px; border-radius: 4px; display: inline-block; }
 
         /* 履歴リスト */
         #history-list { list-style: none; margin-top: 0; }
@@ -106,13 +169,23 @@
             padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; 
         }
         .history-item:last-child { border-bottom: none; }
-        .history-info { font-size: 14px; color: #333; }
-        .history-date { font-size: 12px; color: #888; margin-bottom: 4px; }
+        .history-left { flex: 1; min-width: 0; padding-right: 10px; }
+        
+        .history-date { font-size: 11px; color: #888; margin-bottom: 2px; }
+        .history-info { font-size: 14px; font-weight: bold; color: #333; margin-bottom: 2px; }
+        .history-preview { font-size: 12px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .history-actions { display: flex; gap: 5px; align-items: center; }
         .history-actions button {
-            padding: 6px 12px; border-radius: 4px; border: 1px solid #ddd; background: white; cursor: pointer; font-size: 12px;
+            padding: 8px 12px; border-radius: 4px; border: 1px solid #1a73e8; 
+            background: white; color: #1a73e8; cursor: pointer; font-size: 12px; font-weight: bold;
+            display: flex; align-items: center; justify-content: center;
         }
-        .history-actions button:hover { background: #f8f9fa; }
-        .btn-restore { color: #1a73e8; border-color: #1a73e8 !important; margin-right: 5px; }
+        .history-actions button:hover { background: #e8f0fe; }
+        
+        .btn-history-delete { color: #ea4335 !important; border-color: #ea4335 !important; }
+        .btn-history-delete:hover { background: #fce8e6 !important; }
+        .btn-history-delete .material-icons { font-size: 16px; }
 
         /* モーダル */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; justify-content: center; align-items: center; }
@@ -124,19 +197,38 @@
         .auth-input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; }
         .primary-btn { width: 100%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
 
-        @media (max-width: 600px) {
-            header { padding: 0 16px; }
+        /* ステータスバッジ */
+        #storage-status {
+            font-size: 11px; margin-left: 5px; padding: 2px 6px; border-radius: 4px; background: #eee; color: #555;
+        }
+        .status-cloud { background: #e8f0fe !important; color: #1a73e8 !important; }
+        .status-local { background: #fce8e6 !important; color: #c5221f !important; }
+        
+        /* トースト通知 */
+        #toast {
+            visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 4px; padding: 16px;
+            position: fixed; z-index: 3000; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; opacity: 0; transition: opacity 0.5s, bottom 0.5s;
+        }
+        #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
+
+        @media (max-width: 768px) {
+            #hamburger-btn { display: flex; }
             main { padding: 0 15px; }
             .tool-container { flex-direction: column; }
             .section-box { width: 100%; }
-            textarea { height: 250px; }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo"><a href="../index.html">おさんツール</a></div>
+        <div class="header-left">
+            <button id="hamburger-btn" aria-label="メニューを開く">
+                <span class="material-icons">menu</span>
+            </button>
+            <div class="logo"><a href="../index.html">おさんツール</a></div>
+        </div>
+
         <div class="user-menu-container">
             <div id="header-guest-nav">
                 <button class="nav-text-btn" id="nav-signin">サインイン</button>
@@ -153,23 +245,51 @@
         </div>
     </header>
 
+    <div id="drawer-overlay"></div>
+    <nav id="mobile-drawer">
+        <div class="drawer-header">
+            <span>メニュー</span>
+            <span class="material-icons" id="drawer-close" style="cursor:pointer;">close</span>
+        </div>
+        <ul class="drawer-list">
+            <li><a href="../index.html">トップページ</a></li>
+            <li><a href="#" class="active">グループ分け</a></li>
+        </ul>
+    </nav>
+
     <main>
-        <h1><span class="material-icons" style="vertical-align: bottom; margin-right:5px; color:#34a853;">groups</span>グループ分け</h1>
+        <h1>グループ分け</h1>
         
         <div class="tool-container">
             <div class="section-box">
                 <div class="section-header" onclick="toggleSection('names-content', 'names-icon')">
-                    <h2><span class="material-icons">list</span> 名簿データ入力</h2>
+                    <h2>名簿データ入力</h2>
                     <span class="material-icons" id="names-icon">expand_less</span>
                 </div>
                 <div class="section-content" id="names-content">
-                    <textarea id="names-input" placeholder="ここに名前を1行ずつ入力してください&#13;&#10;例：&#13;&#10;佐藤&#13;&#10;鈴木&#13;&#10;高橋"></textarea>
+                    <div class="input-hint">
+                        <span style="font-weight:bold;">💡 バランスよく分ける方法：</span><br>
+                        属性（男女や役職など）ごとに<span style="color:#ea4335; font-weight:bold;">1行あけて</span>入力してください。<br>
+                        空白行で区切られたブロックごとに、均等に配分されます。
+                    </div>
+                    
+                    <textarea id="names-input" placeholder="（例：男子の入力）
+佐藤
+鈴木
+高橋
+
+（←ここに空白行を入れると区切られます）
+
+（例：女子の入力）
+田中
+渡辺
+伊藤"></textarea>
                 </div>
             </div>
 
             <div class="section-box">
                 <div class="section-header" onclick="toggleSection('config-content', 'config-icon')">
-                    <h2><span class="material-icons">settings</span> 設定・保存</h2>
+                    <h2>設定・保存</h2>
                     <span class="material-icons" id="config-icon">expand_less</span>
                 </div>
                 <div class="section-content" id="config-content">
@@ -187,12 +307,19 @@
                     </div>
 
                     <div class="control-group" style="border-top:1px solid #eee; padding-top:15px;">
-                        <label><span class="material-icons" style="font-size:14px; vertical-align:middle;">cloud</span> 名簿リストの保存</label>
+                        <label>
+                            名簿リストの保存
+                            <span id="storage-status">保存先: ブラウザ</span>
+                        </label>
                         <div class="cloud-actions">
-                            <div style="display:flex; gap:5px;">
-                                <input type="text" id="save-name" placeholder="リスト名 (例: 1組男子)">
+                            <div style="display:flex; gap:5px; align-items:center;">
+                                <input type="text" id="save-name" placeholder="リスト名 (例: 合宿班)">
                                 <button id="btn-cloud-save" class="c-btn bg-blue" style="width:60px;">保存</button>
                             </div>
+                            <div style="font-size:11px; text-align:right; margin-bottom:5px;">
+                                <span id="list-save-status"></span>
+                            </div>
+                            
                             <div style="display:flex; gap:5px; align-items:center;">
                                 <select id="cloud-load-select" style="flex:1;"><option value="">データを選択...</option></select>
                             </div>
@@ -208,19 +335,24 @@
 
         <div class="execution-area">
             <button class="action-btn" onclick="divideGroups()">
-                <span class="material-icons">play_circle</span> グループ分け実行
+                グループ分け実行
             </button>
             <br>
+            <div id="history-save-indicator"></div>
+
             <button id="btn-csv-download" disabled onclick="downloadCSV()">
-                <span class="material-icons" style="font-size:16px;">download</span> CSVで保存
+                CSVで保存
             </button>
         </div>
 
+        <div id="output-header">
+            <span id="output-title"></span>
+        </div>
         <div id="output"></div>
 
         <div class="section-box" style="margin-top: 20px;">
             <div class="section-header" onclick="toggleSection('history-content', 'history-icon')">
-                <h2><span class="material-icons">history</span> 過去の実行結果・履歴</h2>
+                <h2>過去の実行結果・履歴 (最大10件)</h2>
                 <span class="material-icons" id="history-icon">expand_less</span>
             </div>
             <div class="section-content" id="history-content" style="padding:0;">
@@ -235,6 +367,8 @@
             <input type="text" id="csv-filename" autocomplete="off" placeholder="空欄なら日時">
         </div>
     </main>
+
+    <div id="toast">保存しました</div>
 
     <div id="modal-ui" class="modal-overlay hidden">
         <div class="mini-window">
@@ -251,9 +385,9 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteField } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteField } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBtQGq5IJXyoHGBGpx25ZfVkXWL-iRRqC8",
@@ -269,8 +403,33 @@
 
         // --- 変数定義 ---
         let currentUser = null;
-        let lastRes = []; // 現在表示中の結果
-        const LOCAL_STORAGE_KEY = 'group_tool_history_v1';
+        let lastRes = []; 
+        let historySaveTimer = null; 
+        let listAutoSaveTimer = null;
+
+        const LS_KEY_HISTORY = 'group_tool_history_v1';
+        const LS_KEY_LISTS = 'group_tool_lists_v4';
+
+        // --- トースト表示機能 ---
+        function showToast(message) {
+            const x = document.getElementById("toast");
+            x.textContent = message;
+            x.className = "show";
+            setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+        }
+
+        // --- ドロワー制御 ---
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const drawer = document.getElementById('mobile-drawer');
+        const overlay = document.getElementById('drawer-overlay');
+        const drawerClose = document.getElementById('drawer-close');
+
+        function openDrawer() { drawer.classList.add('open'); overlay.classList.add('open'); }
+        function closeDrawer() { drawer.classList.remove('open'); overlay.classList.remove('open'); }
+
+        hamburgerBtn.addEventListener('click', openDrawer);
+        overlay.addEventListener('click', closeDrawer);
+        drawerClose.addEventListener('click', closeDrawer);
 
         // --- UI制御 ---
         window.toggleSection = (id, iconId) => {
@@ -284,6 +443,7 @@
         const dropdown = document.getElementById('dropdown-ui');
         const guestNav = document.getElementById('header-guest-nav');
         const modal = document.getElementById('modal-ui');
+        const storageStatus = document.getElementById('storage-status');
         let mode = 'login';
 
         userBtn.onclick = (e) => { e.stopPropagation(); dropdown.classList.toggle('hidden'); };
@@ -294,6 +454,7 @@
             mode = m;
             modal.classList.remove('hidden');
             document.getElementById('modal-title').textContent = m === 'login' ? 'サインイン' : 'アカウント作成';
+            document.getElementById('auth-execute-btn').textContent = m === 'login' ? 'ログイン' : '登録する';
             document.getElementById('auth-toggle-text').textContent = m === 'login' ? 'アカウントをお持ちでない方はこちら' : 'すでにアカウントをお持ちの方はこちら';
         }
 
@@ -302,7 +463,6 @@
         document.getElementById('auth-toggle-text').onclick = () => openAuth(mode === 'login' ? 'signup' : 'login');
         document.getElementById('trigger-logout').onclick = () => signOut(auth);
 
-        // 認証処理
         document.getElementById('google-auth-btn').onclick = async (e) => {
             e.stopPropagation();
             try { await signInWithPopup(auth, new GoogleAuthProvider()); modal.classList.add('hidden'); } catch (err) { alert("失敗: " + err.message); }
@@ -328,80 +488,221 @@
                 guestNav.classList.add('hidden');
                 userBtn.classList.remove('hidden');
                 document.getElementById('display-email').textContent = user.email;
-                refreshCloudList(); // 名簿リスト読み込み
-                loadHistory();      // 履歴読み込み（クラウド優先）
+                storageStatus.textContent = "保存先: クラウド(アカウント)";
+                storageStatus.className = "status-cloud";
+                refreshSavedLists();
+                loadHistory();       
             } else {
                 guestNav.classList.remove('hidden');
                 userBtn.classList.add('hidden');
-                document.getElementById('cloud-load-select').innerHTML = '<option value="">(ログインが必要)</option>';
-                loadHistory();      // 履歴読み込み（ローカル）
+                storageStatus.textContent = "保存先: ブラウザ(ローカル)";
+                storageStatus.className = "status-local";
+                refreshSavedLists();
+                loadHistory();       
             }
         });
 
-        // --- 名簿保存機能 (既存) ---
-        async function refreshCloudList() {
-            const sel = document.getElementById('cloud-load-select');
-            sel.innerHTML = '<option value="">名簿を選択...</option>';
-            if (!currentUser) return;
-            try {
-                const snap = await getDoc(doc(db, "users", currentUser.uid));
-                if (snap.exists() && snap.data().savedLists) {
-                    Object.keys(snap.data().savedLists).sort().forEach(k => {
-                        const o = document.createElement('option'); o.value = k; o.textContent = k; sel.appendChild(o);
-                    });
-                }
-            } catch(e) { console.error(e); }
-        }
-        document.getElementById('btn-cloud-save').onclick = async () => {
+        // --- 名簿保存機能 ---
+        async function saveNameList(isAuto = false) {
             const name = document.getElementById('save-name').value.trim();
-            const data = document.getElementById('names-input').value;
-            if (!currentUser) return alert("ログインしてください");
-            if (!name || !data) return alert("名前とデータを入力してください");
-            await setDoc(doc(db, "users", currentUser.uid), { savedLists: { [name]: data } }, { merge: true });
-            alert(`保存しました: ${name}`); refreshCloudList();
-        };
+            const content = document.getElementById('names-input').value;
+            const statusEl = document.getElementById('list-save-status');
+            
+            if (isAuto && !name) {
+                statusEl.textContent = "";
+                return;
+            }
+            if (!name) return alert("リスト名を入力してください");
+
+            if (isAuto) {
+                statusEl.textContent = "保存中...";
+                statusEl.classList.add('status-saving');
+            }
+
+            const saveData = { content: content };
+
+            try {
+                if (currentUser) {
+                    await setDoc(doc(db, "users", currentUser.uid), { savedLists: { [name]: saveData } }, { merge: true });
+                } else {
+                    const lists = JSON.parse(localStorage.getItem(LS_KEY_LISTS) || '{}');
+                    lists[name] = saveData;
+                    localStorage.setItem(LS_KEY_LISTS, JSON.stringify(lists));
+                }
+
+                if (isAuto) {
+                    statusEl.textContent = "保存完了";
+                    statusEl.classList.remove('status-saving');
+                    setTimeout(() => { if(statusEl.textContent === "保存完了") statusEl.textContent = ""; }, 2000);
+                } else {
+                    showToast(`保存しました: ${name}`);
+                }
+                refreshSavedLists();
+
+            } catch(e) {
+                console.error("Save Error:", e);
+                if(isAuto) statusEl.textContent = "保存失敗";
+                else alert("保存に失敗しました");
+            }
+        }
+
+        document.getElementById('btn-cloud-save').onclick = () => saveNameList(false);
+
+        document.getElementById('names-input').addEventListener('input', () => {
+            const name = document.getElementById('save-name').value.trim();
+            const statusEl = document.getElementById('list-save-status');
+            
+            if (!name) return;
+
+            statusEl.textContent = "編集中...";
+            statusEl.classList.remove('status-saving');
+
+            if (listAutoSaveTimer) clearTimeout(listAutoSaveTimer);
+            listAutoSaveTimer = setTimeout(() => {
+                saveNameList(true);
+            }, 3000);
+        });
+
+        async function refreshSavedLists() {
+            const sel = document.getElementById('cloud-load-select');
+            const currentVal = sel.value;
+            
+            sel.innerHTML = '<option value="">データを選択...</option>';
+            let lists = {};
+            if (currentUser) {
+                try {
+                    const snap = await getDoc(doc(db, "users", currentUser.uid));
+                    if (snap.exists() && snap.data().savedLists) lists = snap.data().savedLists;
+                } catch(e) { console.error(e); }
+            } else {
+                lists = JSON.parse(localStorage.getItem(LS_KEY_LISTS) || '{}');
+            }
+            Object.keys(lists).sort().forEach(k => {
+                const o = document.createElement('option'); o.value = k; o.textContent = k; 
+                sel.appendChild(o);
+            });
+            if(currentVal && lists[currentVal]) sel.value = currentVal;
+        }
+
         document.getElementById('btn-cloud-load').onclick = async () => {
             const name = document.getElementById('cloud-load-select').value;
             if(!name) return;
-            const snap = await getDoc(doc(db, "users", currentUser.uid));
-            document.getElementById('names-input').value = snap.data().savedLists[name];
-            document.getElementById('save-name').value = name;
+            let loadedData = null;
+            if (currentUser) {
+                const snap = await getDoc(doc(db, "users", currentUser.uid));
+                if(snap.exists()) loadedData = snap.data().savedLists[name];
+            } else {
+                const lists = JSON.parse(localStorage.getItem(LS_KEY_LISTS) || '{}');
+                loadedData = lists[name];
+            }
+            if(loadedData) {
+                const text = (typeof loadedData === 'string') ? loadedData : (loadedData.content || "");
+                document.getElementById('names-input').value = text;
+                document.getElementById('save-name').value = name;
+                document.getElementById('list-save-status').textContent = "";
+            }
         };
+
         document.getElementById('btn-cloud-delete').onclick = async () => {
             const name = document.getElementById('cloud-load-select').value;
             if (!name || !confirm(`「${name}」を削除しますか？`)) return;
-            await updateDoc(doc(db, "users", currentUser.uid), { [`savedLists.${name}`]: deleteField() });
-            refreshCloudList();
+            if (currentUser) {
+                try {
+                    await updateDoc(doc(db, "users", currentUser.uid), { [`savedLists.${name}`]: deleteField() });
+                    refreshSavedLists();
+                    showToast("削除しました");
+                } catch(e) { alert("削除失敗"); }
+            } else {
+                const lists = JSON.parse(localStorage.getItem(LS_KEY_LISTS) || '{}');
+                delete lists[name];
+                localStorage.setItem(LS_KEY_LISTS, JSON.stringify(lists));
+                refreshSavedLists();
+                showToast("削除しました");
+            }
+            if (document.getElementById('save-name').value === name) {
+                document.getElementById('save-name').value = "";
+            }
         };
 
         // --- グループ分け実行 ---
-        window.divideGroups = () => {
+        window.divideGroups = async () => {
             const rawText = document.getElementById('names-input').value;
-            const lines = rawText.split(/\n/).map(s => s.trim()).filter(s => s !== "");
             const count = parseInt(document.getElementById('group-count').value);
             const sort = document.getElementById('sort-order').value;
 
-            if (lines.length === 0) return alert("名簿を入力してください。");
+            if (rawText.trim() === "") return alert("名簿を入力してください。");
             if (isNaN(count) || count < 1) return alert("グループ数は1以上にしてください。");
-            if (count > lines.length) return alert(`人数(${lines.length}人)より多いグループ数は作れません。`);
 
-            const shuf = [...lines].sort(() => Math.random() - 0.5);
+            const sectionsRaw = rawText.split(/\n\s*\n/);
+            const sections = [];
+            let totalPeople = 0;
+
+            sectionsRaw.forEach(secStr => {
+                const lines = secStr.split(/\n/).map(s => s.trim()).filter(s => s !== "");
+                if (lines.length > 0) {
+                    sections.push(lines);
+                    totalPeople += lines.length;
+                }
+            });
+
+            if (totalPeople === 0) return alert("名簿を入力してください。");
+            if (count > totalPeople) return alert(`人数(${totalPeople}人)より多いグループ数は作れません。`);
+
             const groups = Array.from({length: count}, () => []);
-            shuf.forEach((n, i) => groups[i % count].push(n));
+            let currentOffset = 0;
 
-            // 結果データの生成
-            lastRes = groups.map(g => (sort === 'original') ? g.sort((a,b) => rawText.indexOf(a) - rawText.indexOf(b)) : g);
+            sections.forEach(lines => {
+                const shuf = [...lines].sort(() => Math.random() - 0.5);
+                shuf.forEach((n, i) => {
+                    groups[(i + currentOffset) % count].push(n);
+                });
+                currentOffset = (currentOffset + lines.length) % count;
+            });
 
-            // 画面表示
-            displayResult(lastRes);
+            lastRes = groups.map(g => {
+                if (sort === 'original') return g.sort((a,b) => rawText.indexOf(a) - rawText.indexOf(b));
+                return g;
+            });
+
+            // 表示（フラッシュ効果あり）
+            displayResult(lastRes, "実行結果");
+
+            // --- 履歴保存ロジック（3秒待機） ---
+            const ind = document.getElementById('history-save-indicator');
+            if (historySaveTimer) clearTimeout(historySaveTimer);
+
+            ind.innerHTML = '<span class="text-wait">⏳ 3秒後に履歴へ保存します...</span>';
             
-            // 履歴に保存
-            saveToHistory(lastRes);
+            historySaveTimer = setTimeout(async () => {
+                ind.innerHTML = '<span class="text-saving">履歴に保存中...</span>';
+                
+                await saveToHistory(lastRes)
+                    .then(() => {
+                        ind.innerHTML = '<span class="text-done">✅ 履歴に保存されました</span>';
+                    })
+                    .catch((err) => {
+                        console.error("履歴保存失敗:", err);
+                        ind.innerHTML = `<span class="text-error">⚠ 保存エラー: ${err.message}</span>`;
+                    });
+                historySaveTimer = null;
+            }, 3000);
         };
 
-        function displayResult(resultData) {
-            lastRes = resultData; // グローバル変数を更新（CSV用）
+        function displayResult(resultData, titleLabel = "") {
+            lastRes = resultData;
             const outputArea = document.getElementById('output');
+            const header = document.getElementById('output-header');
+            const titleEl = document.getElementById('output-title');
+
+            // タイトル更新
+            if(titleLabel) {
+                header.style.display = "flex";
+                titleEl.textContent = titleLabel;
+            } else {
+                header.style.display = "none";
+            }
+
+            // データ描画
             outputArea.innerHTML = resultData.map((g, i) => 
                 `<div class="group-box">
                     <span class="group-title">グループ ${i+1} (${g.length}名)</span>
@@ -409,105 +710,165 @@
                  </div>`
             ).join('');
             
+            // アニメーション発火 (classを一度外して付け直す)
+            outputArea.classList.remove('updated-flash');
+            void outputArea.offsetWidth; // Reflow trigger
+            outputArea.classList.add('updated-flash');
+
             const csvBtn = document.getElementById('btn-csv-download');
             csvBtn.disabled = false;
-            outputArea.scrollIntoView({behavior: "smooth", block: "start"});
+            
+            // 少し上にスクロールして見やすくする
+            header.scrollIntoView({behavior: "smooth", block: "start"});
         }
 
-        // --- 履歴管理機能 (New) ---
-
-        // 履歴オブジェクト作成
+        // --- 履歴機能 ---
         function createHistoryItem(result) {
+            if (!result || !Array.isArray(result)) return null;
+
+            // Firestore制限回避: 2次元配列をオブジェクト配列に
+            const safeData = result.map(group => ({ members: group }));
+
             return {
                 id: Date.now(),
                 date: new Date().toLocaleString('ja-JP'),
-                data: result,
+                data: safeData,
                 count: result.length,
                 total: result.flat().length
             };
         }
 
-        // 履歴の保存（分岐処理）
         async function saveToHistory(result) {
             const item = createHistoryItem(result);
+            if (!item) throw new Error("保存データが無効です");
 
             if (currentUser) {
-                // クラウド保存 (Firestore)
-                try {
-                    const userRef = doc(db, "users", currentUser.uid);
-                    const snap = await getDoc(userRef);
-                    let hist = [];
-                    if (snap.exists() && snap.data().history) {
-                        hist = snap.data().history;
-                    }
-                    hist.unshift(item); // 先頭に追加
-                    if (hist.length > 20) hist = hist.slice(0, 20); // 最大20件
-                    await setDoc(userRef, { history: hist }, { merge: true });
-                    loadHistory(); // 再描画
-                } catch(e) { console.error("History save error", e); }
+                const userRef = doc(db, "users", currentUser.uid);
+                const snap = await getDoc(userRef);
+                let hist = snap.exists() && snap.data().history ? snap.data().history : [];
+                
+                hist.unshift(item); 
+                if (hist.length > 10) hist = hist.slice(0, 10);
+                
+                await setDoc(userRef, { history: hist }, { merge: true });
+                renderHistoryList(hist);
             } else {
-                // ローカル保存 (LocalStorage)
-                let hist = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
+                let hist = [];
+                try {
+                    const stored = localStorage.getItem(LS_KEY_HISTORY);
+                    if (stored) hist = JSON.parse(stored);
+                } catch(e) { console.warn("Reset", e); hist = []; }
+                
+                if (!Array.isArray(hist)) hist = [];
                 hist.unshift(item);
-                if (hist.length > 20) hist = hist.slice(0, 20);
-                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(hist));
-                loadHistory(); // 再描画
+                if (hist.length > 10) hist = hist.slice(0, 10);
+                
+                localStorage.setItem(LS_KEY_HISTORY, JSON.stringify(hist));
+                renderHistoryList(hist);
             }
         }
 
-        // 履歴の読み込み（分岐処理）
         async function loadHistory() {
             let hist = [];
-            const listEl = document.getElementById('history-list');
-            listEl.innerHTML = '<li style="padding:20px; text-align:center; color:#888;">読み込み中...</li>';
-
+            
             if (currentUser) {
-                // クラウドから取得
                 try {
                     const snap = await getDoc(doc(db, "users", currentUser.uid));
-                    if (snap.exists() && snap.data().history) {
-                        hist = snap.data().history;
-                    }
+                    if (snap.exists() && snap.data().history) hist = snap.data().history;
                 } catch(e) { console.error(e); }
             } else {
-                // ローカルから取得
-                hist = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
+                try {
+                    const stored = localStorage.getItem(LS_KEY_HISTORY);
+                    if (stored) hist = JSON.parse(stored);
+                } catch(e) { console.error(e); }
             }
-
             renderHistoryList(hist);
         }
 
-        // 履歴の描画
         function renderHistoryList(histArray) {
             const listEl = document.getElementById('history-list');
             listEl.innerHTML = '';
-
-            if (histArray.length === 0) {
+            
+            if (!histArray || !Array.isArray(histArray) || histArray.length === 0) {
                 listEl.innerHTML = '<li style="padding:20px; text-align:center; color:#888;">履歴はありません</li>';
                 return;
             }
+            
+            histArray.forEach((item) => {
+                // プレビュー用に最初の数名を取得
+                let firstGroupMembers = [];
+                if(item.data && item.data.length > 0) {
+                     // 新形式 or 旧形式
+                     const g1 = item.data[0];
+                     if(g1.members) firstGroupMembers = g1.members; // 新形式
+                     else if(Array.isArray(g1)) firstGroupMembers = g1; // 旧形式
+                }
+                const previewText = firstGroupMembers.slice(0, 3).join("、") + (firstGroupMembers.length > 3 ? "..." : "");
 
-            histArray.forEach((item, index) => {
                 const li = document.createElement('li');
                 li.className = 'history-item';
+                // 「例：」を削除してメンバー名だけ表示
                 li.innerHTML = `
-                    <div>
+                    <div class="history-left">
                         <div class="history-date">${item.date}</div>
                         <div class="history-info">${item.count}グループ / 計${item.total}名</div>
+                        <div class="history-preview">（${previewText || '不明'}）</div>
                     </div>
                     <div class="history-actions">
                         <button class="btn-restore">表示</button>
+                        <button class="btn-history-delete" title="削除"><span class="material-icons">delete</span></button>
                     </div>
                 `;
                 
-                // 表示（復元）ボタン
+                // 表示ボタン
                 li.querySelector('.btn-restore').onclick = () => {
-                    displayResult(item.data);
-                    alert("履歴の結果を表示しました。\n「CSVで保存」ボタンからダウンロードできます。");
+                    let restoreData = item.data;
+                    if (restoreData.length > 0 && !Array.isArray(restoreData[0]) && restoreData[0].members) {
+                        restoreData = restoreData.map(g => g.members);
+                    }
+                    displayResult(restoreData, `📜 履歴: ${item.date}`);
+                    showToast("履歴を表示しました");
                 };
+
+                // 削除ボタン
+                li.querySelector('.btn-history-delete').onclick = () => deleteHistoryItem(item.id);
 
                 listEl.appendChild(li);
             });
+        }
+
+        async function deleteHistoryItem(targetId) {
+            if(!confirm("この履歴を削除しますか？")) return;
+
+            if (currentUser) {
+                // Cloud Deletion
+                try {
+                    const userRef = doc(db, "users", currentUser.uid);
+                    const snap = await getDoc(userRef);
+                    if (snap.exists() && snap.data().history) {
+                        const newHist = snap.data().history.filter(h => h.id !== targetId);
+                        await updateDoc(userRef, { history: newHist });
+                        showToast("履歴を削除しました");
+                        renderHistoryList(newHist);
+                    }
+                } catch(e) {
+                    alert("削除エラー: " + e.message);
+                }
+            } else {
+                // Local Deletion
+                try {
+                    const stored = localStorage.getItem(LS_KEY_HISTORY);
+                    if (stored) {
+                        const hist = JSON.parse(stored);
+                        const newHist = hist.filter(h => h.id !== targetId);
+                        localStorage.setItem(LS_KEY_HISTORY, JSON.stringify(newHist));
+                        showToast("履歴を削除しました");
+                        renderHistoryList(newHist);
+                    }
+                } catch(e) {
+                    console.error(e);
+                }
+            }
         }
 
         // --- CSVダウンロード ---
@@ -531,6 +892,9 @@
             a.download = filename;
             a.click();
         };
+
+        // 初期ロード
+        loadHistory();
     </script>
 </body>
 </html>

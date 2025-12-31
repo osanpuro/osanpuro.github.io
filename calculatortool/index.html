@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>高機能電卓 | おさんツール</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        /* --- 共通デザイン (おさんツール準拠) --- */
+        html { scroll-behavior: smooth; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif; 
+            background-color: #fcfcfc; 
+            color: #202124; 
+            line-height: 1.8; 
+            padding-top: 70px; 
+        }
+        .hidden { display: none !important; }
+
+        /* ヘッダー */
+        header {
+            position: fixed; top: 0; left: 0; width: 100%; height: 70px;
+            background: #202124; color: white;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 20px; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        #hamburger-btn {
+            background: none; border: none; color: white; cursor: pointer;
+            display: none; align-items: center; justify-content: center;
+        }
+        .logo a { font-size: 22px; font-weight: bold; color: #ffffff; text-decoration: none; letter-spacing: 0.1em; }
+        
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .nav-text-btn { background: none; border: 1px solid rgba(255,255,255,0.3); color: white; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; transition: 0.3s; white-space: nowrap; }
+        .nav-text-btn.primary { background: white; color: #202124; font-weight: bold; border-color: white; }
+        .nav-text-btn:hover { border-color: white; }
+
+        .icon-button { background: none; border: none; cursor: pointer; color: white; display: flex; align-items: center; }
+        
+        /* ドロップダウン */
+        .dropdown-menu {
+            position: absolute; top: 60px; right: 20px; width: 220px; 
+            background: white; border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); 
+            border: 1px solid #ddd; z-index: 1100; overflow: hidden; color: #333;
+        }
+        .user-email-info { padding: 14px 20px; font-size: 12px; color: #5f6368; border-bottom: 1px solid #eee; background: #fafafa; word-break: break-all; }
+        .dropdown-menu button { width: 100%; padding: 14px 20px; border: none; background: none; text-align: left; cursor: pointer; }
+        .dropdown-menu button:hover { background-color: #f1f1f1; }
+
+        /* モバイルドロワー */
+        #drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1100; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        #drawer-overlay.open { opacity: 1; pointer-events: auto; }
+        #mobile-drawer {
+            position: fixed; top: 0; left: 0; width: 260px; height: 100%;
+            background: white; z-index: 1200; transform: translateX(-100%); transition: transform 0.3s ease;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.1); display: flex; flex-direction: column;
+        }
+        #mobile-drawer.open { transform: translateX(0); }
+        .drawer-header { padding: 20px; background: #f8f9fa; border-bottom: 1px solid #eee; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+        .drawer-list a { display: block; padding: 15px 20px; color: #3c4043; text-decoration: none; transition: 0.2s; }
+        .drawer-list a:hover { background: #f0f2f5; }
+
+        /* --- 電卓メインレイアウト --- */
+        .container {
+            max-width: 900px; margin: 40px auto; padding: 0 20px;
+            display: grid; grid-template-columns: 1fr 300px; gap: 40px;
+            align-items: start;
+        }
+
+        /* 左側：電卓本体 */
+        .calculator-wrapper {
+            background: #202124; padding: 30px; border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            color: white;
+        }
+        .screen-container {
+            margin-bottom: 25px; text-align: right; word-break: break-all;
+        }
+        .screen-history { font-size: 14px; color: #9aa0a6; min-height: 20px; margin-bottom: 5px; }
+        .screen-current { font-size: 48px; font-weight: 300; letter-spacing: 1px; }
+
+        .keypad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+        .key {
+            height: 60px; border-radius: 12px; border: none; font-size: 20px; cursor: pointer;
+            transition: 0.1s; display: flex; align-items: center; justify-content: center;
+            user-select: none;
+        }
+        .key:active { transform: scale(0.95); }
+        
+        /* キーの色設定 */
+        .k-num { background: #3c4043; color: white; }
+        .k-num:hover { background: #4a4e54; }
+        
+        .k-op { background: #5f6368; color: #e8eaed; font-size: 22px; }
+        .k-op:hover { background: #70757a; }
+        
+        .k-func { background: #303134; color: #9aa0a6; font-size: 16px; font-weight: bold; }
+        .k-func:hover { background: #3c4043; color: white; }
+
+        .k-ac { background: #ea4335; color: white; font-weight: bold; }
+        .k-ac:hover { background: #d93025; }
+
+        .k-eq { background: #34a853; color: white; grid-column: span 2; font-size: 28px; }
+        .k-eq:hover { background: #1e8e3e; }
+
+        /* 右側：履歴エリア */
+        .history-panel {
+            background: white; border-radius: 16px; padding: 25px;
+            border: 1px solid #eee; box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            height: 560px; display: flex; flex-direction: column;
+        }
+        .history-header {
+            font-weight: bold; font-size: 16px; margin-bottom: 15px; padding-bottom: 10px;
+            border-bottom: 2px solid #34a853; display: flex; justify-content: space-between; align-items: center;
+        }
+        .storage-badge {
+            font-size: 10px; padding: 2px 8px; border-radius: 10px; color: white;
+            background: #999; font-weight: normal;
+        }
+        .storage-badge.cloud { background: #1a73e8; } /* Cloud Blue */
+        .storage-badge.local { background: #fbbc04; color: #333; } /* Local Yellow */
+
+        .history-list {
+            flex-grow: 1; overflow-y: auto; list-style: none; padding-right: 5px;
+        }
+        /* スクロールバー装飾 */
+        .history-list::-webkit-scrollbar { width: 6px; }
+        .history-list::-webkit-scrollbar-thumb { background: #ddd; border-radius: 3px; }
+
+        .history-item {
+            padding: 10px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: 0.2s;
+            border-radius: 6px; margin-bottom: 5px;
+        }
+        .history-item:hover { background: #f8f9fa; }
+        .h-expr { font-size: 12px; color: #5f6368; margin-bottom: 2px; }
+        .h-res { font-size: 18px; font-weight: bold; color: #202124; text-align: right; }
+        
+        .clear-hist-btn {
+            margin-top: 15px; width: 100%; padding: 10px; border: 1px solid #eee; background: white;
+            color: #5f6368; border-radius: 6px; cursor: pointer; transition: 0.2s; font-size: 12px;
+        }
+        .clear-hist-btn:hover { background: #fee; color: #d93025; border-color: #fcc; }
+
+        /* モーダル */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: flex; justify-content: center; align-items: center; }
+        .mini-window { width: 360px; max-width: 90%; background: white; border-radius: 12px; padding: 30px; text-align: center; }
+        .auth-input { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .primary-btn { width: 100%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        .google-btn { width: 100%; padding: 12px; background: white; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 10px;}
+
+        /* レスポンシブ */
+        @media (max-width: 900px) {
+            .container { grid-template-columns: 1fr; gap: 30px; }
+            .history-panel { height: 300px; }
+        }
+        @media (max-width: 768px) {
+            #hamburger-btn { display: flex; }
+            .header-right .nav-text-btn { display: none; } /* モバイルでサインインボタン隠す場合はここ */
+            .key { height: 50px; font-size: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-left">
+            <button id="hamburger-btn"><span class="material-icons">menu</span></button>
+            <div class="logo"><a href="../index.html">おさんツール</a></div>
+        </div>
+        <div class="header-right">
+            <div id="header-guest-nav" class="auth-controls">
+                <button class="nav-text-btn" id="nav-signin">サインイン</button>
+                <button class="nav-text-btn primary" id="nav-signup">登録</button>
+            </div>
+            
+            <div class="user-menu-container">
+                <button id="main-user-btn" class="icon-button hidden"><span class="material-icons" style="font-size:36px;">account_circle</span></button>
+                <div id="dropdown-ui" class="dropdown-menu hidden">
+                    <div class="user-email-info" id="display-email"></div>
+                    <button id="trigger-logout">ログアウト</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div id="drawer-overlay"></div>
+    <nav id="mobile-drawer">
+        <div class="drawer-header">
+            <span>メニュー</span>
+            <span class="material-icons" id="drawer-close" style="cursor:pointer;">close</span>
+        </div>
+        <div class="drawer-list">
+            <a href="../index.html">トップページ</a>
+            <a href="../grouptools/index.html">グループ分けツール</a>
+            <a href="../timertool/index.html">高機能タイマー</a>
+            <a href="../memotool/index.html">クラウドメモ</a>
+            <a href="#" style="background:#e8f0fe; color:#1a73e8; font-weight:bold;">高機能電卓</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="calculator-wrapper">
+            <div class="screen-container">
+                <div class="screen-history" id="prev-op"></div>
+                <div class="screen-current" id="curr-op">0</div>
+            </div>
+            
+            <div class="keypad">
+                <button class="key k-func" onclick="inputFunc('sin')">sin</button>
+                <button class="key k-func" onclick="inputFunc('cos')">cos</button>
+                <button class="key k-func" onclick="inputFunc('tan')">tan</button>
+                <button class="key k-ac" onclick="clearAll()">AC</button>
+
+                <button class="key k-func" onclick="inputFunc('log')">log</button>
+                <button class="key k-func" onclick="inputFunc('√')">√</button>
+                <button class="key k-func" onclick="inputOperator('^')">^</button>
+                <button class="key k-op" onclick="inputOperator('÷')">÷</button>
+
+                <button class="key k-num" onclick="inputNumber('7')">7</button>
+                <button class="key k-num" onclick="inputNumber('8')">8</button>
+                <button class="key k-num" onclick="inputNumber('9')">9</button>
+                <button class="key k-op" onclick="inputOperator('×')">×</button>
+
+                <button class="key k-num" onclick="inputNumber('4')">4</button>
+                <button class="key k-num" onclick="inputNumber('5')">5</button>
+                <button class="key k-num" onclick="inputNumber('6')">6</button>
+                <button class="key k-op" onclick="inputOperator('-')">-</button>
+
+                <button class="key k-num" onclick="inputNumber('1')">1</button>
+                <button class="key k-num" onclick="inputNumber('2')">2</button>
+                <button class="key k-num" onclick="inputNumber('3')">3</button>
+                <button class="key k-op" onclick="inputOperator('+')">+</button>
+
+                <button class="key k-num" onclick="inputNumber('0')">0</button>
+                <button class="key k-num" onclick="inputNumber('.')">.</button>
+                <button class="key k-eq" onclick="calculate()">=</button>
+            </div>
+        </div>
+
+        <div class="history-panel">
+            <div class="history-header">
+                <span>計算履歴</span>
+                <span id="storage-status" class="storage-badge local">ローカル</span>
+            </div>
+            <ul class="history-list" id="history-list">
+                </ul>
+            <button class="clear-hist-btn" onclick="clearHistoryData()">履歴を消去</button>
+        </div>
+    </div>
+
+    <div id="modal-ui" class="modal-overlay hidden">
+        <div class="mini-window">
+            <h3 id="modal-title" style="margin-bottom:20px;">サインイン</h3>
+            <button id="google-auth-btn" class="google-btn">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18"> Googleで続行
+            </button>
+            <div style="font-size:12px; color:#999; margin-bottom:15px;">または Email</div>
+            <input type="email" id="input-email" class="auth-input" placeholder="メールアドレス">
+            <input type="password" id="input-pass" class="auth-input" placeholder="パスワード">
+            <button id="auth-execute-btn" class="primary-btn">送信</button>
+            <p id="auth-toggle-text" style="color:#1a73e8; font-size:13px; cursor:pointer; margin-top:15px;"></p>
+            <div style="margin-top:20px; cursor:pointer; color:#666; font-size:13px;" id="modal-close">閉じる</div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // Firebase設定
+        const firebaseConfig = {
+            apiKey: "AIzaSyBtQGq5IJXyoHGBGpx25ZfVkXWL-iRRqC8",
+            authDomain: "my-programming-tools-auth.firebaseapp.com",
+            projectId: "my-programming-tools-auth",
+            storageBucket: "my-programming-tools-auth.firebasestorage.app",
+            messagingSenderId: "617449767952",
+            appId: "1:617449767952:web:12f75dcb19f2035d637695"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- 電卓ロジック ---
+        let currentInput = "0";
+        let previousInput = "";
+        let shouldResetScreen = false;
+
+        const currOpEl = document.getElementById('curr-op');
+        const prevOpEl = document.getElementById('prev-op');
+
+        window.inputNumber = (num) => {
+            if (currOpEl.textContent === "0" || shouldResetScreen) {
+                currOpEl.textContent = num;
+                shouldResetScreen = false;
+            } else {
+                currOpEl.textContent += num;
+            }
+            currentInput = currOpEl.textContent;
+        };
+
+        window.inputOperator = (op) => {
+            const lastChar = currentInput.slice(-1);
+            if (['+','-','×','÷','^'].includes(lastChar)) {
+                currentInput = currentInput.slice(0, -1) + op;
+            } else {
+                currentInput += op;
+            }
+            currOpEl.textContent = currentInput;
+            shouldResetScreen = false;
+        };
+
+        window.inputFunc = (func) => {
+            if (currOpEl.textContent === "0" || shouldResetScreen) {
+                currOpEl.textContent = func + "(";
+                shouldResetScreen = false;
+            } else {
+                currOpEl.textContent += func + "(";
+            }
+            currentInput = currOpEl.textContent;
+        };
+
+        window.clearAll = () => {
+            currentInput = "0";
+            previousInput = "";
+            currOpEl.textContent = "0";
+            prevOpEl.textContent = "";
+        };
+
+        window.calculate = async () => {
+            let expression = currOpEl.textContent;
+            if (!expression) return;
+
+            try {
+                // 安全な置換
+                let evalExp = expression
+                    .replace(/×/g, '*')
+                    .replace(/÷/g, '/')
+                    .replace(/\^/g, '**')
+                    .replace(/√/g, 'Math.sqrt')
+                    .replace(/sin/g, 'Math.sin')
+                    .replace(/cos/g, 'Math.cos')
+                    .replace(/tan/g, 'Math.tan')
+                    .replace(/log/g, 'Math.log10');
+
+                const result = new Function('return ' + evalExp)();
+                
+                // 数値整形（小数点以下最大10桁）
+                const formattedResult = parseFloat(result.toPrecision(12)).toString();
+
+                // 画面更新
+                prevOpEl.textContent = expression + " =";
+                currOpEl.textContent = formattedResult;
+                shouldResetScreen = true;
+                currentInput = formattedResult;
+
+                // 履歴保存（分岐ロジック）
+                saveHistoryItem(expression, formattedResult);
+
+            } catch (e) {
+                currOpEl.textContent = "Error";
+                shouldResetScreen = true;
+                currentInput = "";
+            }
+        };
+
+        // --- 履歴管理（ローカル vs クラウド） ---
+        const historyListEl = document.getElementById('history-list');
+        const storageStatusBadge = document.getElementById('storage-status');
+        let currentUser = null;
+        let unsubscribeHistory = null; // Firestore監視解除用
+
+        // 1. 保存ロジック
+        async function saveHistoryItem(expr, res) {
+            if (currentUser) {
+                // Cloud保存
+                try {
+                    await addDoc(collection(db, "users", currentUser.uid, "calc_history"), {
+                        expr: expr,
+                        res: res,
+                        timestamp: serverTimestamp()
+                    });
+                } catch(e) { console.error("Cloud save error", e); }
+            } else {
+                // Local保存
+                const hist = JSON.parse(localStorage.getItem('local_calc_hist') || "[]");
+                hist.unshift({ expr, res, timestamp: Date.now() });
+                if(hist.length > 20) hist.pop();
+                localStorage.setItem('local_calc_hist', JSON.stringify(hist));
+                renderHistory(hist); // ローカルは手動再描画
+            }
+        }
+
+        // 2. 読み込みロジック（Auth状態変更時に呼ばれる）
+        function switchHistorySource(user) {
+            // 前のリスナーがあれば解除
+            if (unsubscribeHistory) {
+                unsubscribeHistory();
+                unsubscribeHistory = null;
+            }
+            historyListEl.innerHTML = ''; // クリア
+
+            if (user) {
+                // Cloudモード
+                storageStatusBadge.textContent = "クラウド保存";
+                storageStatusBadge.className = "storage-badge cloud";
+                
+                const q = query(collection(db, "users", user.uid, "calc_history"), orderBy("timestamp", "desc"), limit(20));
+                
+                // リアルタイムリスナー
+                unsubscribeHistory = onSnapshot(q, (snapshot) => {
+                    const docs = snapshot.docs.map(d => ({ ...d.data(), id: d.id })); // IDも含める
+                    renderHistory(docs);
+                });
+
+            } else {
+                // Localモード
+                storageStatusBadge.textContent = "ローカル保存";
+                storageStatusBadge.className = "storage-badge local";
+                
+                const hist = JSON.parse(localStorage.getItem('local_calc_hist') || "[]");
+                renderHistory(hist);
+            }
+        }
+
+        // 3. 描画ロジック
+        function renderHistory(items) {
+            historyListEl.innerHTML = '';
+            if (items.length === 0) {
+                historyListEl.innerHTML = '<li style="text-align:center; color:#999; font-size:12px; padding:20px;">履歴はありません</li>';
+                return;
+            }
+            items.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'history-item';
+                li.onclick = () => { 
+                    currOpEl.textContent = item.res; 
+                    currentInput = item.res;
+                    shouldResetScreen = false;
+                };
+                li.innerHTML = `
+                    <div class="h-expr">${item.expr} =</div>
+                    <div class="h-res">${item.res}</div>
+                `;
+                historyListEl.appendChild(li);
+            });
+        }
+
+        // 4. 履歴削除
+        window.clearHistoryData = async () => {
+            if(!confirm("履歴をすべて削除しますか？")) return;
+
+            if(currentUser) {
+                // Cloud削除（一括削除はクライアントSDKでは1つずつ消す）
+                const q = query(collection(db, "users", currentUser.uid, "calc_history"));
+                const snapshot = await getDocs(q);
+                snapshot.forEach(doc => { deleteDoc(doc.ref); });
+            } else {
+                // Local削除
+                localStorage.removeItem('local_calc_hist');
+                renderHistory([]);
+            }
+        };
+
+
+        // --- UI & Auth (共通) ---
+        // ドロワー
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const drawer = document.getElementById('mobile-drawer');
+        const overlay = document.getElementById('drawer-overlay');
+        const drawerClose = document.getElementById('drawer-close');
+        
+        function toggleDrawer(open) {
+            if(open) { drawer.classList.add('open'); overlay.classList.add('open'); }
+            else { drawer.classList.remove('open'); overlay.classList.remove('open'); }
+        }
+        hamburgerBtn.onclick = () => toggleDrawer(true);
+        overlay.onclick = () => toggleDrawer(false);
+        drawerClose.onclick = () => toggleDrawer(false);
+
+        // モーダル・認証
+        const modal = document.getElementById('modal-ui');
+        const userBtn = document.getElementById('main-user-btn');
+        const dropdown = document.getElementById('dropdown-ui');
+        let authMode = 'login';
+
+        function openAuth(mode) {
+            authMode = mode;
+            modal.classList.remove('hidden');
+            document.getElementById('modal-title').textContent = mode === 'login' ? 'サインイン' : 'アカウント作成';
+            document.getElementById('auth-execute-btn').textContent = mode === 'login' ? 'ログイン' : '登録する';
+            document.getElementById('auth-toggle-text').textContent = mode === 'login' ? 'アカウントをお持ちでない方はこちら' : 'すでにアカウントをお持ちの方はこちら';
+            toggleDrawer(false);
+        }
+
+        document.getElementById('nav-signin').onclick = () => openAuth('login');
+        document.getElementById('nav-signup').onclick = () => openAuth('signup');
+        document.getElementById('modal-close').onclick = () => modal.classList.add('hidden');
+        document.getElementById('auth-toggle-text').onclick = () => openAuth(authMode === 'login' ? 'signup' : 'login');
+
+        // Dropdown
+        userBtn.onclick = (e) => { e.stopPropagation(); dropdown.classList.toggle('hidden'); };
+        document.onclick = () => dropdown.classList.add('hidden');
+
+        // Auth実行
+        document.getElementById('google-auth-btn').onclick = async () => {
+            try { await signInWithPopup(auth, new GoogleAuthProvider()); modal.classList.add('hidden'); } catch(e){ alert(e.message); }
+        };
+        document.getElementById('auth-execute-btn').onclick = async () => {
+            const e = document.getElementById('input-email').value;
+            const p = document.getElementById('input-pass').value;
+            try {
+                if(authMode === 'login') await signInWithEmailAndPassword(auth, e, p);
+                else await createUserWithEmailAndPassword(auth, e, p);
+                modal.classList.add('hidden');
+            } catch (err) { alert("エラー: " + err.message); }
+        };
+        document.getElementById('trigger-logout').onclick = () => signOut(auth);
+
+        // 認証状態監視 & 履歴ソース切り替え
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if (user) {
+                document.getElementById('header-guest-nav').classList.add('hidden');
+                userBtn.classList.remove('hidden');
+                document.getElementById('display-email').textContent = user.email;
+            } else {
+                document.getElementById('header-guest-nav').classList.remove('hidden');
+                userBtn.classList.add('hidden');
+            }
+            // ★ ここで履歴のソースを切り替える
+            switchHistorySource(user);
+        });
+
+    </script>
+</body>
+</html>

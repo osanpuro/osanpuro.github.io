@@ -6,7 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        /* --- 共通スタイル --- */
+        /* =========================================
+           共通スタイル
+        ========================================= */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Hiragino Kaku Gothic ProN', sans-serif; background-color: #f0f2f5; padding-top: 80px; color: #202124; }
         .hidden { display: none !important; }
@@ -35,17 +37,23 @@
         .editor-section { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         #memoTitle { 
             width: 100%; padding: 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 18px; outline: none; margin-bottom: 15px; 
-            appearance: none; -webkit-appearance: none;
+            appearance: none; -webkit-appearance: none; font-weight: bold;
         }
         #memoBody { 
             width: 100%; height: 450px; padding: 15px; border: 1px solid #dadce0; border-radius: 8px; font-size: 16px; resize: none; outline: none; line-height: 1.6; 
             appearance: none; -webkit-appearance: none;
         }
 
-        .button-area { display: flex; gap: 10px; margin-top: 20px; }
+        .button-area { display: flex; gap: 10px; margin-top: 20px; align-items: center; }
         .btn { padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
-        .btn-save { background: #1a73e8; color: white; flex-grow: 1; justify-content: center; }
+        .btn-save { background: #1a73e8; color: white; justify-content: center; min-width: 120px; }
+        .btn-save:hover { background: #1558b0; }
         .btn-delete { background: #fce8e6; color: #d93025; }
+        .btn-delete:hover { background: #faddd9; }
+
+        /* 自動保存ステータス表示 */
+        #auto-save-text { font-size: 12px; color: #888; margin-left: 10px; transition: color 0.3s; }
+        .status-saving { color: #ea4335 !important; font-weight: bold; } /* 保存中は赤っぽく */
 
         /* リストセクション */
         .list-section { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); height: 600px; display: flex; flex-direction: column; }
@@ -57,7 +65,8 @@
             transition: 0.2s; font-size: 14px; display: flex; justify-content: space-between; align-items: center;
         }
         .memo-item:hover { background-color: #f8f9fa; }
-        .memo-item .title-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+        .memo-item .title-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; font-weight: bold; color: #444; }
+        .memo-item.active { background-color: #e8f0fe; color: #1a73e8; }
 
         /* 共通UI */
         .user-menu-container { position: relative; }
@@ -67,24 +76,23 @@
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; justify-content: center; align-items: center; }
         .mini-window { width: 360px; max-width: 90%; background: white; border-radius: 12px; padding: 25px; text-align: center; }
 
-        /* --- スマホ対応用レスポンシブ設定 --- */
+        /* トースト通知 (保存完了など) */
+        #toast {
+            visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 4px; padding: 16px;
+            position: fixed; z-index: 3000; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; opacity: 0; transition: opacity 0.5s, bottom 0.5s;
+        }
+        #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
+
+        /* --- スマホ対応 --- */
         @media (max-width: 800px) {
             body { padding-top: 60px; padding-bottom: 20px; }
             header { padding: 0 16px; height: 56px; }
             .logo a { font-size: 18px; }
-
-            main {
-                display: flex; flex-direction: column; /* 縦並びにする */
-                padding: 15px;
-                gap: 20px;
-            }
-
+            main { display: flex; flex-direction: column; padding: 15px; gap: 20px; }
             .editor-section { padding: 15px; }
-            #memoBody { height: 300px; /* スマホでは少し高さを抑える */ }
-            
-            .list-section { height: 400px; /* リストも高さを抑える */ }
-            
-            .memo-item .title-text { max-width: 70%; } /* リストの文字切れ調整 */
+            #memoBody { height: 300px; }
+            .list-section { height: 400px; }
+            .memo-item .title-text { max-width: 70%; }
         }
     </style>
 </head>
@@ -112,21 +120,24 @@
             </div>
 
             <input type="text" style="position:fixed; top:-100px; left:-100px; width:1px; height:1px; opacity:0;" aria-hidden="true">
-            <input type="password" style="position:fixed; top:-100px; left:-100px; width:1px; height:1px; opacity:0;" aria-hidden="true">
 
             <input type="text" id="memoTitle" autocomplete="off" placeholder="無題のメモ">
             <textarea id="memoBody" placeholder="ここに内容を入力してください..."></textarea>
+            
             <div class="button-area">
-                <button id="saveBtn" class="btn btn-save"><span class="material-icons">save</span>保存する</button>
+                <button id="saveBtn" class="btn btn-save"><span class="material-icons">save</span>保存</button>
+                <span id="auto-save-text"></span> <div style="flex-grow:1;"></div>
                 <button id="deleteBtn" class="btn btn-delete"><span class="material-icons">delete</span></button>
             </div>
         </div>
 
         <div class="list-section">
-            <h3><span class="material-icons">list</span> 保存済み</h3>
+            <h3><span class="material-icons">list</span> 保存済みメモ</h3>
             <div id="listArea"></div>
         </div>
     </main>
+
+    <div id="toast">保存しました</div>
 
     <div id="modal-ui" class="modal-overlay hidden">
         <div class="mini-window">
@@ -156,42 +167,89 @@
 
         let currentUser = null;
         let unsubscribe = null;
-        const LS_PREFIX = "osan-memo-"; // ローカルストレージ用の接頭辞
+        let autoSaveTimer = null; // 自動保存用のタイマー変数
+        const LS_PREFIX = "osan-memo-";
 
         const titleInput = document.getElementById('memoTitle');
         const bodyInput = document.getElementById('memoBody');
         const listArea = document.getElementById('listArea');
         const statusBadge = document.getElementById('status-badge');
         const statusText = document.getElementById('status-text');
+        const autoSaveText = document.getElementById('auto-save-text');
+
+        // --- トースト表示機能 ---
+        function showToast(message) {
+            const x = document.getElementById("toast");
+            x.textContent = message;
+            x.className = "show";
+            setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+        }
 
         // --- 保存・削除のコアロジック ---
 
-        async function saveMemo() {
+        // isAuto: 手動保存ならfalse, 自動保存ならtrue
+        async function saveMemo(isAuto = false) {
             const title = titleInput.value.trim() || "無題のメモ";
             const body = bodyInput.value;
 
-            if (currentUser) {
-                // クラウド保存
-                try {
+            // 自動保存時に中身が空っぽなら何もしない
+            if (isAuto && body.trim() === "") return;
+
+            autoSaveText.textContent = "保存中...";
+            autoSaveText.classList.add('status-saving');
+
+            try {
+                if (currentUser) {
+                    // クラウド保存
                     await setDoc(doc(db, "users", currentUser.uid, "memos", title), {
                         title, body, updatedAt: Date.now()
                     });
-                    alert("保存しました");
-                } catch(e) {
-                    console.error(e);
-                    alert("保存に失敗しました");
-                }
-            } else {
-                // ローカル保存
-                try {
+                } else {
+                    // ローカル保存
                     localStorage.setItem(LS_PREFIX + title, body);
                     refreshLocalList();
-                    alert("保存しました");
-                } catch(e) {
-                    alert("容量オーバーなどで保存できませんでした");
                 }
+
+                // 保存完了後の処理
+                autoSaveText.textContent = "保存完了";
+                autoSaveText.classList.remove('status-saving');
+                
+                // 手動保存のときだけ、目立つ通知を出す（自動保存は静かに）
+                if (!isAuto) {
+                    showToast("保存しました");
+                } else {
+                    // 2秒後に「保存完了」の文字を消す
+                    setTimeout(() => {
+                        if(autoSaveText.textContent === "保存完了") autoSaveText.textContent = "";
+                    }, 2000);
+                }
+
+            } catch(e) {
+                console.error(e);
+                if (!isAuto) alert("保存に失敗しました");
+                autoSaveText.textContent = "保存失敗";
             }
         }
+
+        // 自動保存トリガー (入力があったらタイマーをセット)
+        function triggerAutoSave() {
+            // すでに待機中なら一旦キャンセル
+            if (autoSaveTimer) clearTimeout(autoSaveTimer);
+            
+            // UIを「編集中...」にする
+            autoSaveText.textContent = "編集中...";
+            autoSaveText.classList.remove('status-saving');
+
+            // 3秒(3000ms)後に保存を実行
+            autoSaveTimer = setTimeout(() => {
+                saveMemo(true); // true = 自動保存モード
+            }, 3000);
+        }
+
+        // 入力欄のイベントリスナー
+        titleInput.addEventListener('input', triggerAutoSave);
+        bodyInput.addEventListener('input', triggerAutoSave);
+
 
         async function deleteMemo() {
             const title = titleInput.value.trim();
@@ -200,17 +258,17 @@
 
             if (currentUser) {
                 await deleteDoc(doc(db, "users", currentUser.uid, "memos", title));
-                alert("削除しました");
             } else {
                 localStorage.removeItem(LS_PREFIX + title);
                 refreshLocalList();
-                alert("削除しました");
             }
+            showToast("削除しました");
             titleInput.value = "";
             bodyInput.value = "";
+            autoSaveText.textContent = "";
         }
 
-        // --- リスト表示の切り替え ---
+        // --- リスト表示 ---
 
         function refreshLocalList() {
             listArea.innerHTML = "";
@@ -225,21 +283,30 @@
                     });
                 }
             }
-            // 簡易的に名前順などで表示（作成日時はローカルだと保存していないため）
             items.forEach(item => createListItem(item.title, item.body));
         }
 
         function createListItem(title, body) {
             const item = document.createElement('div');
             item.className = 'memo-item';
+            
+            // 現在開いているメモと同じタイトルなら色を変えるなどの判定用（簡易実装）
+            if (title === titleInput.value) item.classList.add('active');
+
             item.innerHTML = `<span class="title-text">${title}</span><span class="material-icons" style="font-size:16px; color:#ccc;">chevron_right</span>`;
             item.onclick = () => {
                 titleInput.value = title;
                 bodyInput.value = body;
-                // スマホ時はクリックしたら上部（エディタ）へスクロール
+                autoSaveText.textContent = ""; // 読み込み直後は保存ステータスをリセット
+                
+                // スマホ時は上へスクロール
                 if (window.innerWidth <= 800) {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
+                
+                // リストの選択状態更新（簡易）
+                document.querySelectorAll('.memo-item').forEach(el => el.classList.remove('active'));
+                item.classList.add('active');
             };
             listArea.appendChild(item);
         }
@@ -251,7 +318,6 @@
             if (unsubscribe) unsubscribe();
 
             if (user) {
-                // クラウドモード
                 statusBadge.className = "storage-status status-cloud";
                 statusText.textContent = "クラウド保存モード";
                 document.getElementById('main-user-btn').classList.remove('hidden');
@@ -264,7 +330,6 @@
                     snapshot.forEach(doc => createListItem(doc.data().title, doc.data().body));
                 });
             } else {
-                // ローカルモード
                 statusBadge.className = "storage-status status-local";
                 statusText.textContent = "ローカル保存";
                 document.getElementById('main-user-btn').classList.add('hidden');
@@ -273,13 +338,15 @@
             }
         });
 
-        // イベント登録
-        document.getElementById('saveBtn').onclick = saveMemo;
+        // ボタンイベント
+        document.getElementById('saveBtn').onclick = () => saveMemo(false); // 手動保存
         document.getElementById('deleteBtn').onclick = deleteMemo;
+        
         document.getElementById('nav-signin').onclick = () => document.getElementById('modal-ui').classList.remove('hidden');
         document.getElementById('trigger-logout').onclick = () => signOut(auth);
         document.getElementById('main-user-btn').onclick = (e) => { e.stopPropagation(); document.getElementById('dropdown-ui').classList.toggle('hidden'); };
         document.body.onclick = () => document.getElementById('dropdown-ui').classList.add('hidden');
+        
         document.getElementById('auth-execute-btn').onclick = async () => {
             const e = document.getElementById('input-email').value;
             const p = document.getElementById('input-pass').value;
