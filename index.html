@@ -14,7 +14,9 @@
             background-color: #fcfcfc; 
             color: #202124; 
             line-height: 1.8; 
-            padding-top: 70px; 
+            padding-top: 70px;
+            /* 基本文字サイズを少し大きく設定 */
+            font-size: 16px; 
         }
         .hidden { display: none !important; }
 
@@ -32,10 +34,18 @@
         #hamburger-btn {
             background: none; border: none; color: white; cursor: pointer;
             display: none; align-items: center; justify-content: center;
+            padding: 5px; /* タップ領域確保 */
         }
-        #hamburger-btn .material-icons { font-size: 28px; }
+        #hamburger-btn .material-icons { font-size: 30px; }
 
-        .logo a { font-size: 22px; font-weight: bold; color: #ffffff; text-decoration: none; letter-spacing: 0.1em; }
+        .logo a { 
+            font-size: 22px; 
+            font-weight: bold; 
+            color: #ffffff; 
+            text-decoration: none; 
+            letter-spacing: 0.1em;
+            white-space: nowrap; /* 文字が折り返されないようにする設定 */
+        }
         
         /* デスクトップ用ナビリンク */
         .desktop-nav { display: flex; gap: 30px; align-items: center; margin-left: 30px; }
@@ -48,34 +58,34 @@
         .notification-container { position: relative; display: flex; align-items: center; }
         .bell-button { background: none; border: none; color: #ccc; cursor: pointer; display: flex; align-items: center; position: relative; transition: 0.3s; padding: 5px; }
         .bell-button:hover { color: white; }
-        .bell-button .material-icons { font-size: 26px; }
-        .bell-badge { position: absolute; top: 6px; right: 6px; width: 9px; height: 9px; background: #ea4335; border-radius: 50%; border: 2px solid #202124; }
+        .bell-button .material-icons { font-size: 28px; }
+        .bell-badge { position: absolute; top: 6px; right: 6px; width: 10px; height: 10px; background: #ea4335; border-radius: 50%; border: 2px solid #202124; }
 
         .news-dropdown {
-            position: absolute; top: 55px; right: 0; width: 320px; background: white; border-radius: 12px;
+            position: absolute; top: 60px; right: -10px; width: 320px; background: white; border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 1px solid #eee; z-index: 1100; color: #333; padding: 10px 0;
         }
-        .news-header { padding: 12px 20px; font-weight: bold; font-size: 13px; border-bottom: 1px solid #f0f0f0; color: #5f6368; letter-spacing: 0.05em; }
-        .news-item { padding: 15px 20px; font-size: 13px; border-bottom: 1px solid #fafafa; transition: 0.2s; text-align: left; }
+        .news-header { padding: 12px 20px; font-weight: bold; font-size: 14px; border-bottom: 1px solid #f0f0f0; color: #5f6368; letter-spacing: 0.05em; }
+        .news-item { padding: 15px 20px; font-size: 14px; border-bottom: 1px solid #fafafa; transition: 0.2s; text-align: left; }
         .news-item:hover { background: #f8f9fa; }
-        .news-date { display: block; font-size: 11px; color: #9aa0a6; margin-bottom: 4px; }
+        .news-date { display: block; font-size: 12px; color: #9aa0a6; margin-bottom: 4px; }
 
         .auth-buttons-container { display: flex; align-items: center; gap: 10px; }
-        .nav-text-btn { background: none; border: 1px solid rgba(255,255,255,0.3); color: white; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; transition: 0.3s; white-space: nowrap; }
+        .nav-text-btn { background: none; border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; transition: 0.3s; white-space: nowrap; }
         .nav-text-btn.primary { background: white; color: #202124; font-weight: bold; border-color: white; }
         .nav-text-btn:hover { border-color: white; }
 
         .user-menu-container { position: relative; }
         .icon-button { background: none; border: none; cursor: pointer; color: white; display: flex; align-items: center; }
-        .icon-button .material-icons { font-size: 32px; }
+        .icon-button .material-icons { font-size: 34px; }
         
         .dropdown-menu {
-            position: absolute; top: 55px; right: 0; width: 220px; 
+            position: absolute; top: 60px; right: 0; width: 240px; 
             background: white; border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); 
             border: 1px solid #ddd; z-index: 1100; overflow: hidden; color: #333;
         }
-        .user-email-info { padding: 14px 20px; font-size: 12px; color: #5f6368; border-bottom: 1px solid #eee; background: #fafafa; word-break: break-all; }
-        .dropdown-menu button { width: 100%; padding: 14px 20px; border: none; background: none; text-align: left; cursor: pointer; }
+        .user-email-info { padding: 14px 20px; font-size: 13px; color: #5f6368; border-bottom: 1px solid #eee; background: #fafafa; word-break: break-all; }
+        .dropdown-menu button { width: 100%; padding: 14px 20px; border: none; background: none; text-align: left; cursor: pointer; font-size: 15px; }
         .dropdown-menu button:hover { background-color: #f1f1f1; }
 
         /* --- モバイル用ドロワー (サイドメニュー) --- */
@@ -86,7 +96,7 @@
         #drawer-overlay.open { opacity: 1; pointer-events: auto; }
 
         #mobile-drawer {
-            position: fixed; top: 0; left: 0; width: 260px; height: 100%;
+            position: fixed; top: 0; left: 0; width: 280px; height: 100%;
             background: white; z-index: 1200; transform: translateX(-100%); transition: transform 0.3s ease;
             box-shadow: 2px 0 8px rgba(0,0,0,0.1); display: flex; flex-direction: column;
         }
@@ -95,11 +105,12 @@
         .drawer-header-area {
             padding: 20px; background: #f8f9fa; border-bottom: 1px solid #eee;
             font-weight: bold; color: #202124; display: flex; justify-content: space-between; align-items: center;
+            font-size: 18px;
         }
         .drawer-list { list-style: none; padding: 10px 0; }
         .drawer-list li a {
-            display: block; padding: 15px 20px; color: #3c4043; text-decoration: none;
-            font-size: 15px; border-left: 4px solid transparent; transition: 0.2s;
+            display: block; padding: 16px 24px; color: #3c4043; text-decoration: none;
+            font-size: 16px; border-left: 4px solid transparent; transition: 0.2s;
         }
         .drawer-list li a:hover { background: #f0f2f5; border-left-color: #34a853; }
 
@@ -111,28 +122,33 @@
             margin-top: -70px;
             padding-top: 140px;
         }
-        .hero h1 { font-size: 38px; font-weight: 400; margin-bottom: 24px; letter-spacing: 0.1em; }
-        .hero p { font-size: 18px; opacity: 0.8; max-width: 800px; font-weight: 300; letter-spacing: 0.05em; line-height: 1.6; }
+        .hero h1 { font-size: 38px; font-weight: 400; margin-bottom: 24px; letter-spacing: 0.1em; line-height: 1.4; }
+        .hero p { font-size: 18px; opacity: 0.9; max-width: 800px; font-weight: 300; letter-spacing: 0.05em; line-height: 1.8; }
 
         /* --- セクション共通 --- */
         section { padding: 100px 20px; max-width: 1100px; margin: 0 auto; }
         h2.section-title { font-size: 28px; text-align: center; margin-bottom: 60px; font-weight: 400; letter-spacing: 0.1em; color: #1a1a1a; position: relative; padding-bottom: 15px; }
-        h2.section-title::after { content: ""; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 40px; height: 2px; background: #34a853; }
+        h2.section-title::after { content: ""; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 50px; height: 3px; background: #34a853; }
 
         /* --- 概要セクション --- */
-        .about-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; }
+        .about-grid { 
+            display: grid; 
+            /* PC表示時は強制的に3列に設定 */
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 40px; 
+        }
         .about-item { background: #fff; padding: 50px 30px; border-radius: 16px; border: 1px solid #f0f0f0; box-shadow: 0 4px 20px rgba(0,0,0,0.02); text-align: center; transition: all 0.4s ease; }
         .about-item:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.06); border-color: #34a853; }
-        .about-item .material-icons { font-size: 44px; background: linear-gradient(135deg, #34a853, #2e7d32); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 25px; display: inline-block; }
-        .about-item h3 { font-size: 20px; font-weight: 600; margin-bottom: 15px; color: #1a1a1a; }
-        .about-item p { color: #5f6368; font-size: 14px; line-height: 1.8; }
+        .about-item .material-icons { font-size: 48px; background: linear-gradient(135deg, #34a853, #2e7d32); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 25px; display: inline-block; }
+        .about-item h3 { font-size: 22px; font-weight: 600; margin-bottom: 15px; color: #1a1a1a; }
+        .about-item p { color: #5f6368; font-size: 16px; line-height: 1.8; }
 
         /* --- 検索ボックス --- */
         .search-container { max-width: 500px; margin: 0 auto 60px; position: relative; }
-        .search-container .material-icons { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: #9aa0a6; font-size: 20px; }
+        .search-container .material-icons { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #9aa0a6; font-size: 24px; }
         #tool-search-input {
-            width: 100%; padding: 14px 20px 14px 50px; border-radius: 30px;
-            border: 1px solid #e0e0e0; font-size: 15px; outline: none; transition: 0.3s;
+            width: 100%; padding: 16px 20px 16px 55px; border-radius: 30px;
+            border: 1px solid #e0e0e0; font-size: 16px; outline: none; transition: 0.3s;
             background: #fff;
         }
         #tool-search-input:focus { border-color: #34a853; box-shadow: 0 0 0 4px rgba(52, 168, 83, 0.1); }
@@ -146,14 +162,14 @@
             border: 1px solid #eee;
         }
         .tool-card:hover { transform: translateY(-8px); box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
-        .tool-thumb { height: 160px; background: #f8f9fa; display: flex; justify-content: center; align-items: center; border-bottom: 1px solid #f0f0f0; }
-        .tool-thumb .material-icons { font-size: 60px; color: #4285f4; opacity: 0.8; }
-        .tool-info { padding: 30px; flex-grow: 1; }
-        .tool-info h3 { font-size: 18px; margin-bottom: 12px; color: #1a1a1a; font-weight: 600; }
-        .tool-info p { color: #5f6368; font-size: 13px; margin-bottom: 20px; line-height: 1.6; }
-        .tool-link { color: #1a73e8; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 4px; }
+        .tool-thumb { height: 180px; background: #f8f9fa; display: flex; justify-content: center; align-items: center; border-bottom: 1px solid #f0f0f0; }
+        .tool-thumb .material-icons { font-size: 70px; color: #4285f4; opacity: 0.8; }
+        .tool-info { padding: 30px; flex-grow: 1; display: flex; flex-direction: column; }
+        .tool-info h3 { font-size: 20px; margin-bottom: 12px; color: #1a1a1a; font-weight: 600; }
+        .tool-info p { color: #5f6368; font-size: 15px; margin-bottom: 20px; line-height: 1.7; flex-grow: 1; }
+        .tool-link { color: #1a73e8; font-size: 15px; font-weight: bold; display: flex; align-items: center; gap: 4px; margin-top: auto; }
 
-        footer { background: #202124; color: #666; text-align: center; padding: 80px 20px; font-size: 12px; letter-spacing: 0.05em; }
+        footer { background: #202124; color: #999; text-align: center; padding: 60px 20px; font-size: 14px; letter-spacing: 0.05em; line-height: 1.6; }
 
         /* --- モーダル・認証用スタイル --- */
         .modal-overlay {
@@ -162,46 +178,66 @@
             display: flex; justify-content: center; align-items: center;
         }
         .mini-window {
-            width: 360px; background: white; border-radius: 12px;
+            width: 380px; background: white; border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.4); overflow: hidden; max-width: 90%;
         }
         .window-header {
-            padding: 16px; border-bottom: 1px solid #eee; background: #f8f8f8;
-            display: flex; justify-content: space-between; align-items: center; font-weight: bold;
+            padding: 16px 20px; border-bottom: 1px solid #eee; background: #f8f8f8;
+            display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 16px;
         }
         .window-body { padding: 30px; text-align: center; }
         .google-btn {
-            width: 100%; height: 48px; background: white; 
+            width: 100%; height: 50px; background: white; 
             border: 1px solid #dadce0; border-radius: 4px; 
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-weight: 500; font-size: 14px; margin-bottom: 25px;
+            cursor: pointer; font-weight: 500; font-size: 16px; margin-bottom: 25px;
         }
-        .google-btn img { width: 20px; height: 20px; margin-right: 12px; }
-        .auth-input { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
-        .primary-btn { width: 100%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        .google-btn img { width: 24px; height: 24px; margin-right: 12px; }
+        .auth-input { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
+        .primary-btn { width: 100%; padding: 14px; background: #1a73e8; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; }
+        .primary-btn:hover { background: #155cb0; }
 
-        /* レスポンシブ (スマホ向け) */
+        /* ============================
+           レスポンシブ (スマホ向け)
+           ============================ */
         @media (max-width: 768px) {
-            header { padding: 0 15px; }
+            header { padding: 0 15px; height: 60px; }
+            body { padding-top: 60px; }
             
             /* ハンバーガーを表示、デスクトップナビを非表示 */
             #hamburger-btn { display: flex; }
             .desktop-nav { display: none; }
             
-            /* ロゴ周り調整 */
-            .logo a { font-size: 18px; }
+            /* ロゴ周り調整 - 文字サイズを小さくし、折り返し防止 */
+            .logo a { 
+                font-size: 17px; 
+                white-space: nowrap; 
+            }
             
             /* ヘッダー右側 */
-            .header-right { gap: 10px; }
-            .nav-text-btn { padding: 5px 10px; font-size: 11px; } /* ボタンを少し小さく */
+            .header-right { gap: 8px; }
+            .nav-text-btn { padding: 6px 12px; font-size: 12px; } 
             
             /* コンテンツ */
-            .hero { height: auto; min-height: 400px; padding-top: 120px; padding-bottom: 50px; }
-            .hero h1 { font-size: 26px; }
-            .hero p { font-size: 14px; padding: 0 10px; }
-            .about-grid, .tool-list { grid-template-columns: 1fr; padding: 0 10px; }
-            .news-dropdown { width: 300px; right: -50px; }
-            .search-container { width: 100%; padding: 0 10px; }
+            section { padding: 60px 20px; } 
+
+            /* ヒーローエリア */
+            .hero { height: auto; min-height: 400px; padding-top: 80px; padding-bottom: 60px; }
+            .hero h1 { font-size: 28px; padding: 0 10px; }
+            .hero p { font-size: 16px; padding: 0 15px; text-align: left; }
+
+            /* カード類 - スマホでは1列に戻す */
+            .about-grid, .tool-list { grid-template-columns: 1fr; gap: 25px; }
+            .tool-thumb { height: 150px; }
+            .tool-thumb .material-icons { font-size: 60px; }
+
+            /* ドロップダウンの位置調整 */
+            .news-dropdown { width: 300px; right: -50px; top: 50px; }
+            .dropdown-menu { width: 200px; top: 50px; }
+            
+            /* 検索ボックス */
+            .search-container { width: 100%; padding: 0; margin-bottom: 40px; }
+            #tool-search-input { font-size: 16px; padding: 14px 20px 14px 45px; } 
         }
     </style>
 </head>
@@ -254,6 +290,7 @@
                 <div id="dropdown-ui" class="dropdown-menu hidden">
                     <div class="user-email-info" id="display-email"></div>
                     <button id="trigger-logout">ログアウト</button>
+                    <button id="trigger-delete-account" class="btn-delete">アカウント削除</button>
                 </div>
             </div>
         </div>
@@ -274,7 +311,7 @@
 
     <div class="hero" id="top">
         <h1>みんなで創り上げていくツール</h1>
-        <p>わかりやすく、そして便利なツールをあなたに。</p>
+        <p>わかりやすく、そして便利なツールをあなたに。<br>複雑な設定は不要、すぐに使い始められます。</p>
     </div>
 
     <section id="about">
@@ -302,7 +339,7 @@
         <h2 class="section-title">ツール一覧</h2>
         <div class="search-container">
             <span class="material-icons">search</span>
-            <input type="text" id="tool-search-input" name="search_tools_query" autocomplete="one-time-code" placeholder="ツールを検索...">
+            <input type="text" id="tool-search-input" name="search_tools_query" autocomplete="one-time-code" placeholder="ツールを検索（例: 電卓）...">
         </div>
 
         <div class="tool-list" id="tool-list">
@@ -349,18 +386,18 @@
     <div id="modal-ui" class="modal-overlay hidden">
         <div class="mini-window">
             <div class="window-header">
-                <span id="modal-title"></span>
+                <span id="modal-title">サインイン</span>
                 <button id="modal-close" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
             </div>
             <div class="window-body">
                 <button class="google-btn" id="google-auth-btn">
-                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"> Googleで続行
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"> Googleで続行
                 </button>
                 <div style="margin: 15px 0; border-bottom: 1px solid #eee; line-height:0.1em; color:#999;">or</div>
                 <input type="email" id="input-email" class="auth-input" autocomplete="username" placeholder="メールアドレス">
                 <input type="password" id="input-pass" class="auth-input" autocomplete="current-password" placeholder="パスワード">
                 <button id="auth-execute-btn" class="primary-btn">送信</button>
-                <p id="auth-toggle-text" style="color:#1a73e8; font-size:13px; cursor:pointer; margin-top:15px;"></p>
+                <p id="auth-toggle-text" style="color:#1a73e8; font-size:13px; cursor:pointer; margin-top:15px;">アカウントをお持ちでない方はこちら</p>
             </div>
         </div>
     </div>
@@ -369,6 +406,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
+        // Firebase設定
         const firebaseConfig = {
             apiKey: "AIzaSyBtQGq5IJXyoHGBGpx25ZfVkXWL-iRRqC8",
             authDomain: "my-programming-tools-auth.firebaseapp.com",
@@ -377,136 +415,212 @@
             messagingSenderId: "617449767952",
             appId: "1:617449767952:web:12f75dcb19f2035d637695"
         };
+
+        // Firebase初期化
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
 
-        // --- ドロワー制御 (新規追加) ---
+        // --- UI要素の取得 ---
+        const guestNav = document.getElementById('header-guest-nav');     // ゲスト用ボタン群
+        const userMenu = document.querySelector('.user-menu-container'); // ユーザー用アイコン
+        const mainUserBtn = document.getElementById('main-user-btn');     // アイコンボタン
+        const dropdownUi = document.getElementById('dropdown-ui');       // ログアウトメニュー
+        const displayEmail = document.getElementById('display-email');   // メアド表示箇所
+        const logoutBtn = document.getElementById('trigger-logout');     // ログアウトボタン
+
+        const modalUi = document.getElementById('modal-ui');
+        const modalTitle = document.getElementById('modal-title');
+        const inputEmail = document.getElementById('input-email');
+        const inputPass = document.getElementById('input-pass');
+        const authExecuteBtn = document.getElementById('auth-execute-btn'); // 送信ボタン
+        const googleAuthBtn = document.getElementById('google-auth-btn');   // Googleボタン
+        const authToggleText = document.getElementById('auth-toggle-text'); // モード切替リンク
+        const modalClose = document.getElementById('modal-close');
+
+        // 現在のモード（trueならログイン、falseなら新規登録）
+        let isLoginMode = true; 
+
+        // --- 1. ログイン状態の監視 (AuthStateObserver) ---
+        // ページを開いた時やログイン/ログアウト時に自動で呼ばれます
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // ログイン中：ゲストボタンを隠し、ユーザーアイコンを表示
+                guestNav.style.display = 'none';
+                mainUserBtn.classList.remove('hidden');
+                displayEmail.textContent = user.email; // メアドを表示
+                console.log("ログイン中:", user.email);
+            } else {
+                // ログアウト中：ユーザーアイコンを隠し、ゲストボタンを表示
+                guestNav.style.display = 'flex';
+                mainUserBtn.classList.add('hidden');
+                dropdownUi.classList.add('hidden'); // ドロップダウンも閉じる
+                console.log("ログアウト状態");
+            }
+        });
+
+        // --- 2. ユーザーメニューの動作 ---
+        mainUserBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdownUi.classList.toggle('hidden');
+        });
+        
+        // 画面のどこかをクリックしたらドロップダウンを閉じる
+        document.addEventListener('click', (e) => {
+            if (!dropdownUi.contains(e.target) && !mainUserBtn.contains(e.target)) {
+                dropdownUi.classList.add('hidden');
+            }
+        });
+
+        // ログアウト処理
+        logoutBtn.addEventListener('click', () => {
+            signOut(auth).then(() => {
+                alert("ログアウトしました");
+            }).catch((error) => {
+                console.error("ログアウトエラー", error);
+            });
+        });
+
+        // --- 3. モーダルと認証ロジック ---
+
+        // モーダルを開く関数
+        window.openAuthModal = (mode) => {
+            modalUi.classList.remove('hidden');
+            // 入力欄リセット
+            inputEmail.value = '';
+            inputPass.value = '';
+            
+            if (mode === 'signin') {
+                isLoginMode = true;
+                modalTitle.textContent = 'サインイン';
+                authExecuteBtn.textContent = 'ログイン';
+                authToggleText.textContent = 'アカウントをお持ちでない方はこちら';
+            } else {
+                isLoginMode = false;
+                modalTitle.textContent = '新規登録';
+                authExecuteBtn.textContent = '登録する';
+                authToggleText.textContent = 'すでにアカウントをお持ちの方はこちら';
+            }
+        };
+
+        // ヘッダーのボタンクリックイベント
+        document.getElementById('nav-signin').addEventListener('click', () => window.openAuthModal('signin'));
+        document.getElementById('nav-signup').addEventListener('click', () => window.openAuthModal('signup'));
+
+        // モーダル内のモード切替テキストクリック
+        authToggleText.addEventListener('click', () => {
+            if (isLoginMode) {
+                window.openAuthModal('signup'); // 登録モードへ切り替え
+            } else {
+                window.openAuthModal('signin'); // ログインモードへ切り替え
+            }
+        });
+
+        // モーダルを閉じる
+        modalClose.addEventListener('click', () => modalUi.classList.add('hidden'));
+        modalUi.addEventListener('click', (e) => {
+            if (e.target === modalUi) modalUi.classList.add('hidden');
+        });
+
+        // --- 4. メール/パスワード認証実行 ---
+        authExecuteBtn.addEventListener('click', () => {
+            const email = inputEmail.value;
+            const pass = inputPass.value;
+
+            if (!email || !pass) {
+                alert("メールアドレスとパスワードを入力してください");
+                return;
+            }
+
+            if (isLoginMode) {
+                // ログイン処理
+                signInWithEmailAndPassword(auth, email, pass)
+                    .then((userCredential) => {
+                        alert("ログインしました！");
+                        modalUi.classList.add('hidden');
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                        alert("ログイン失敗: " + error.message);
+                    });
+            } else {
+                // 新規登録処理
+                createUserWithEmailAndPassword(auth, email, pass)
+                    .then((userCredential) => {
+                        alert("アカウントを作成し、ログインしました！");
+                        modalUi.classList.add('hidden');
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                        alert("登録失敗: " + error.message);
+                    });
+            }
+        });
+
+        // --- 5. Googleログイン実行 ---
+        googleAuthBtn.addEventListener('click', () => {
+            signInWithPopup(auth, provider)
+                .then((result) => {
+                    alert("Googleアカウントでログインしました！");
+                    modalUi.classList.add('hidden');
+                }).catch((error) => {
+                    console.error(error);
+                    alert("Googleログイン失敗: " + error.message);
+                });
+        });
+
+        // --- その他UI操作（ハンバーガーメニュー等） ---
         const hamburgerBtn = document.getElementById('hamburger-btn');
-        const drawer = document.getElementById('mobile-drawer');
-        const overlay = document.getElementById('drawer-overlay');
+        const drawerOverlay = document.getElementById('drawer-overlay');
+        const mobileDrawer = document.getElementById('mobile-drawer');
         const drawerClose = document.getElementById('drawer-close');
         const drawerLinks = document.querySelectorAll('.drawer-link');
 
-        function openDrawer() {
-            drawer.classList.add('open');
-            overlay.classList.add('open');
+        function toggleDrawer(isOpen) {
+            if (isOpen) {
+                mobileDrawer.classList.add('open');
+                drawerOverlay.classList.add('open');
+            } else {
+                mobileDrawer.classList.remove('open');
+                drawerOverlay.classList.remove('open');
+            }
         }
-        function closeDrawer() {
-            drawer.classList.remove('open');
-            overlay.classList.remove('open');
-        }
+        hamburgerBtn.addEventListener('click', () => toggleDrawer(true));
+        drawerClose.addEventListener('click', () => toggleDrawer(false));
+        drawerOverlay.addEventListener('click', () => toggleDrawer(false));
+        drawerLinks.forEach(link => link.addEventListener('click', () => toggleDrawer(false)));
 
-        hamburgerBtn.addEventListener('click', openDrawer);
-        overlay.addEventListener('click', closeDrawer);
-        drawerClose.addEventListener('click', closeDrawer);
-        
-        // メニュー内のリンクをクリックしたら閉じる
-        drawerLinks.forEach(link => {
-            link.addEventListener('click', closeDrawer);
-        });
-
-        // --- UI要素 ---
+        // お知らせ機能
         const bellBtn = document.getElementById('bell-btn');
         const newsUi = document.getElementById('news-ui');
-        const bellBadge = document.getElementById('bell-badge');
-        const userBtn = document.getElementById('main-user-btn');
-        const dropdown = document.getElementById('dropdown-ui');
-        const modal = document.getElementById('modal-ui');
-
-        // --- お知らせ・バッジ制御 ---
-        bellBtn.onclick = (e) => {
+        bellBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             newsUi.classList.toggle('hidden');
-            dropdown.classList.add('hidden');
-            bellBadge.classList.add('hidden');
-        };
+        });
+        document.addEventListener('click', (e) => {
+            if (!newsUi.contains(e.target) && !bellBtn.contains(e.target)) {
+                newsUi.classList.add('hidden');
+            }
+        });
 
-        // --- 検索機能 ---
+        // 検索機能
         const searchInput = document.getElementById('tool-search-input');
         const toolCards = document.querySelectorAll('.tool-card');
         const noResults = document.getElementById('no-results');
-
-        searchInput.addEventListener('input', () => {
-            const query = searchInput.value.toLowerCase();
-            let hasMatch = false;
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            let count = 0;
             toolCards.forEach(card => {
-                const text = card.innerText.toLowerCase();
-                if (text.includes(query)) {
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                const desc = card.querySelector('p').textContent.toLowerCase();
+                if (title.includes(query) || desc.includes(query)) {
                     card.style.display = 'flex';
-                    hasMatch = true;
+                    count++;
                 } else {
                     card.style.display = 'none';
                 }
             });
-            noResults.classList.toggle('hidden', !hasMatch);
-        });
-
-        // 画面クリックでメニューを閉じる
-        document.onclick = (e) => {
-            if (!newsUi.classList.contains('hidden') && !bellBtn.contains(e.target) && !newsUi.contains(e.target)) {
-                newsUi.classList.add('hidden');
-            }
-            if (!dropdown.classList.contains('hidden') && !userBtn.contains(e.target) && !dropdown.contains(e.target)) {
-                dropdown.classList.add('hidden');
-            }
-        };
-
-        // --- 認証機能 ---
-        let mode = 'login'; 
-
-        function openAuth(m) {
-            mode = m;
-            modal.classList.remove('hidden');
-            document.getElementById('modal-title').textContent = m === 'login' ? 'サインイン' : 'アカウント作成';
-            document.getElementById('auth-execute-btn').textContent = m === 'login' ? 'ログイン' : '登録する';
-            document.getElementById('auth-toggle-text').textContent = m === 'login' ? 'アカウントをお持ちでない方はこちら' : 'すでにアカウントをお持ちの方はこちら';
-            // ドロワーが開いていたら閉じる
-            closeDrawer();
-        }
-
-        document.getElementById('nav-signin').onclick = () => openAuth('login');
-        document.getElementById('nav-signup').onclick = () => openAuth('signup');
-        document.getElementById('modal-close').onclick = () => modal.classList.add('hidden');
-        
-        document.getElementById('auth-toggle-text').onclick = () => {
-            openAuth(mode === 'login' ? 'signup' : 'login');
-        };
-
-        document.getElementById('google-auth-btn').onclick = async (e) => {
-            e.stopPropagation();
-            try { await signInWithPopup(auth, new GoogleAuthProvider()); modal.classList.add('hidden'); } catch (err) { alert("失敗: " + err.message); }
-        };
-
-        document.getElementById('auth-execute-btn').onclick = async () => {
-            const e = document.getElementById('input-email').value;
-            const p = document.getElementById('input-pass').value;
-            try {
-                if(mode === 'login') await signInWithEmailAndPassword(auth, e, p);
-                else await createUserWithEmailAndPassword(auth, e, p);
-                modal.classList.add('hidden');
-            } catch (err) { alert("エラー: " + err.message); }
-        };
-
-        // --- 認証状態の監視 ---
-        userBtn.onclick = (e) => { 
-            e.stopPropagation(); 
-            dropdown.classList.toggle('hidden'); 
-            newsUi.classList.add('hidden');
-        };
-
-        document.getElementById('trigger-logout').onclick = () => signOut(auth);
-
-        onAuthStateChanged(auth, (user) => {
-            const guestNav = document.getElementById('header-guest-nav');
-            const userBtnElement = document.getElementById('main-user-btn');
-            if (user) {
-                guestNav.classList.add('hidden');
-                userBtnElement.classList.remove('hidden');
-                document.getElementById('display-email').textContent = user.email;
-            } else {
-                guestNav.classList.remove('hidden');
-                userBtnElement.classList.add('hidden');
-            }
+            noResults.classList.toggle('hidden', count > 0);
         });
     </script>
 </body>

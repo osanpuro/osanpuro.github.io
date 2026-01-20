@@ -2,13 +2,13 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>タイマー・ストップウォッチ - おさんツール</title>
+    <title>多機能連続タイマー（ラップ＆音対応） - おさんツール</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         /* --- おさんツール共通スタイル --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Hiragino Kaku Gothic ProN', sans-serif; background-color: #f0f2f5; padding-top: 80px; color: #202124; }
+        body { font-family: 'Hiragino Kaku Gothic ProN', sans-serif; background-color: #f0f2f5; padding-top: 80px; color: #202124; padding-bottom: 50px;}
         .hidden { display: none !important; }
 
         /* ヘッダー */
@@ -20,7 +20,7 @@
         }
         .logo a { font-size: 22px; font-weight: bold; color: #ffffff; text-decoration: none; }
 
-        /* ヘッダーナビ（未ログイン） */
+        /* ヘッダーナビ */
         #header-guest-nav { display: flex; align-items: center; }
         .nav-text-btn {
             background: none; border: 1px solid white; color: white;
@@ -29,7 +29,7 @@
         }
         .nav-text-btn.primary { background: white; color: #202124; font-weight: bold; }
 
-        /* ユーザーメニュー（ログイン後） */
+        /* ユーザーメニュー */
         .user-menu-container { position: relative; }
         .icon-button { background: none; border: none; cursor: pointer; color: white; display: flex; align-items: center; }
         .icon-button .material-icons { font-size: 40px; }
@@ -65,38 +65,95 @@
             color: #202124;
             margin: 20px 0;
             letter-spacing: 2px;
-            /* 数字が変動しても幅がブレないように */
             font-variant-numeric: tabular-nums;
         }
 
-        .time-controls { margin-bottom: 25px; display: flex; justify-content: center; gap: 10px; }
+        .time-controls { margin-bottom: 15px; display: flex; justify-content: center; gap: 10px; }
         .time-btn {
             font-size: 14px; padding: 10px 15px; cursor: pointer;
             border-radius: 8px; border: 1px solid #dadce0;
             background-color: #f8f9fa; color: #3c4043; transition: 0.2s;
-            /* スマホでのタップ遅延防止 */
             touch-action: manipulation;
         }
         .time-btn:hover { background-color: #e8f0fe; border-color: #1a73e8; }
 
+        .reserve-btn {
+            background-color: #e8f0fe; color: #1a73e8; border: 1px solid #1a73e8; font-weight: bold;
+        }
+        .reserve-btn:hover { background-color: #d2e3fc; }
+
+        /* 設定エリア */
+        .settings-area {
+            margin: 15px 0; padding: 15px; background-color: #f8f9fa;
+            border-radius: 8px; font-size: 14px; text-align: left;
+            display: flex; flex-direction: column; gap: 10px; align-items: center;
+        }
+        .settings-area label {
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-weight: bold; color: #5f6368;
+        }
+        .settings-area input[type="checkbox"] { transform: scale(1.3); }
+
+        /* リスト表示エリア */
+        #list-display {
+            margin: 10px 0 20px 0; padding: 15px; background-color: #f1f3f4;
+            border-radius: 8px; text-align: left; font-size: 14px; min-height: 40px;
+        }
+        #list-display ul { padding-left: 0; list-style: none; }
+        
+        .list-item {
+            display: flex; justify-content: space-between; align-items: center;
+            background: white; margin-bottom: 8px; padding: 8px 12px;
+            border-radius: 6px; border: 1px solid #ddd;
+        }
+        .item-text { font-weight: bold; color: #3c4043; }
+        .item-buttons { display: flex; gap: 5px; }
+
+        .list-item.active { background-color: #e8f0fe; border-color: #1a73e8; color: #1a73e8; }
+        .list-item.done { background-color: #eeeeee; color: #9aa0a6; border-color: #ddd; }
+        .status-badge { font-size: 11px; padding: 2px 6px; border-radius: 4px; margin-right: 8px; color: white; }
+        .badge-active { background-color: #1a73e8; }
+        .badge-done { background-color: #9aa0a6; }
+
+        .mini-btn { font-size: 12px; padding: 4px 10px; border-radius: 4px; border: none; cursor: pointer; }
+        .btn-edit { background-color: #fff8e1; color: #f57c00; border: 1px solid #ffe0b2; }
+        .btn-del { background-color: #ffebee; color: #d32f2f; border: 1px solid #ffcdd2; }
+
         hr { border: none; border-top: 1px solid #eee; margin: 25px 0; }
 
-        .sousa-controls { display: flex; justify-content: center; gap: 15px; }
+        /* 操作ボタン */
+        .sousa-controls { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
         .sousa-btn {
-            font-size: 18px; padding: 12px 25px; cursor: pointer;
+            font-size: 16px; padding: 12px 20px; cursor: pointer;
             border-radius: 12px; border: none;
-            font-weight: bold; transition: 0.2s; min-width: 100px;
-            /* スマホでのタップ遅延防止 */
-            touch-action: manipulation;
+            font-weight: bold; transition: 0.2s; min-width: 80px;
+            touch-action: manipulation; color: white;
         }
-        #btn_start { background-color: #34a853; color: white; }
+        #btn_start { background-color: #34a853; flex-grow: 2; }
         #btn_start:hover { background-color: #2d9147; }
-        #btn_stop { background-color: #ea4335; color: white; }
+        
+        #btn_stop { background-color: #ea4335; flex-grow: 1; }
         #btn_stop:hover { background-color: #d93025; }
-        #btn_reset { background-color: #5f6368; color: white; }
+
+        #btn_lap { background-color: #fbbc04; color: #202124; flex-grow: 1; }
+        #btn_lap:hover { background-color: #f9ab00; }
+
+        #btn_reset { background-color: #5f6368; flex-grow: 1; }
         #btn_reset:hover { background-color: #494c4f; }
 
         #message { margin-top: 20px; color: #5f6368; font-size: 16px; font-weight: 500; }
+
+        /* ラップ表示エリア */
+        #lap-area {
+            margin-top: 20px; padding: 15px; border: 1px dashed #ccc; border-radius: 8px;
+            text-align: left; background: #fff; max-height: 200px; overflow-y: auto;
+        }
+        #lap-area h3 { font-size: 14px; color: #5f6368; margin-bottom: 10px; border-bottom: 2px solid #eee; padding-bottom: 5px; }
+        #lap-list { list-style: none; padding: 0; }
+        #lap-list li {
+            padding: 5px 0; border-bottom: 1px solid #f1f3f4; font-family: monospace; font-size: 14px;
+            display: flex; justify-content: space-between;
+        }
+        #lap-list li:first-child { font-weight: bold; color: #1a73e8; }
 
         /* 認証モーダル */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; justify-content: center; align-items: center; }
@@ -108,31 +165,21 @@
         .auth-input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
         .primary-btn { width: 100%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
 
-        /* --- スマホ対応用レスポンシブ設定 --- */
+        /* スマホ対応 */
         @media (max-width: 600px) {
-            body { padding-top: 60px; } /* ヘッダーの高さに合わせて調整 */
+            body { padding-top: 60px; } 
             header { padding: 0 16px; height: 56px; }
             .logo a { font-size: 18px; }
-            
             main { padding: 20px 10px; }
             h1 { font-size: 20px; margin-bottom: 20px; }
-
             .tokei-box { padding: 30px 15px; }
-            
-            /* 時間表示を画面幅に合わせて縮小 (Viewport Width単位を使用) */
             #gamen { font-size: 17vw; margin: 10px 0; }
-
-            /* 時間追加ボタンを押しやすく */
-            .time-controls { gap: 8px; }
-            .time-btn { flex: 1; padding: 12px 5px; font-size: 12px; }
-
-            /* 操作ボタンを横並びで均等に配置 */
+            .time-controls { gap: 8px; flex-wrap: wrap; }
+            .time-btn { flex: 1 1 30%; padding: 12px 5px; font-size: 12px; }
+            .reserve-btn { flex: 1 1 100%; margin-top: 5px; }
             .sousa-controls { gap: 8px; }
-            .sousa-btn { font-size: 14px; padding: 12px 0; flex: 1; min-width: auto; }
-            
-            /* モーダルをスマホ幅に */
+            .sousa-btn { font-size: 14px; padding: 12px 0; min-width: auto; }
             .mini-window { width: 90%; }
-            .nav-text-btn { padding: 6px 10px; margin-left: 5px; font-size: 12px; }
         }
     </style>
 </head>
@@ -157,7 +204,7 @@
     </header>
 
     <main>
-        <h1>タイマー・ストップウォッチ</h1>
+        <h1>連続タイマー＆ストップウォッチ</h1>
 
         <div class="tokei-box">
             <div id="gamen">00:00</div>
@@ -167,16 +214,46 @@
                 <button class="time-btn" id="btn_plus_10s">+10秒</button>
                 <button class="time-btn" id="btn_plus_1s">+1秒</button>
             </div>
+            
+            <div class="time-controls">
+                <button class="time-btn reserve-btn" id="btn_reserve">予約リストに追加</button>
+            </div>
+
+            <div class="settings-area">
+                <label>
+                    <input type="checkbox" id="check_sound" checked>
+                    アラーム音を鳴らす
+                </label>
+                <label>
+                    <input type="checkbox" id="check_manual">
+                    一つずつ確認して進む（停止する）
+                </label>
+            </div>
+
+            <audio id="alarm-audio" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
+
+            <div id="list-display">
+                <div style="margin-bottom:5px; font-weight:bold;">予約リスト（順番）:</div>
+                <ul id="yoyaku_ul">
+                    <li style="color:#888;">(予約なし)</li>
+                </ul>
+            </div>
 
             <hr>
 
             <div class="sousa-controls">
                 <button class="sousa-btn" id="btn_start">スタート</button>
-                <button class="sousa-btn" id="btn_stop">ストップ</button>
+                <button class="sousa-btn" id="btn_lap">ラップ</button> <button class="sousa-btn" id="btn_stop">一時停止</button>
                 <button class="sousa-btn" id="btn_reset">リセット</button>
             </div>
             
             <p id="message">待機中...</p>
+
+            <div id="lap-area" class="hidden">
+                <h3>ラップ記録</h3>
+                <ul id="lap-list"></ul>
+            </div>
+
         </div>
     </main>
 
@@ -208,7 +285,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // --- 1. 認証・UI制御ロジック ---
+        // --- 1. 認証・UI制御 ---
         let currentUser = null;
         const userBtn = document.getElementById('main-user-btn');
         const dropdown = document.getElementById('dropdown-ui');
@@ -268,21 +345,113 @@
             }
         });
 
-        // --- 2. タイマー・ストップウォッチロジック ---
+        // --- 2. タイマー・ストップウォッチ・ラップロジック ---
         let byou = 0;
         let kakarimono;
         let is_running = false;
         let is_stopwatch_mode = false;
+        
+        let yoyaku_list = [];
+        let current_index = 0;
+        let lap_count = 1;
 
         const gamen = document.getElementById("gamen");
         const msg = document.getElementById("message");
+        const ul_element = document.getElementById("yoyaku_ul");
+        
+        const check_manual = document.getElementById("check_manual");
+        const check_sound = document.getElementById("check_sound");
+        const alarm_audio = document.getElementById("alarm-audio");
+        
+        // ラップ用要素
+        const lap_area = document.getElementById("lap-area");
+        const lap_list = document.getElementById("lap-list");
+
+        function formatTime(s) {
+            const hun = Math.floor(s / 60);
+            const nokori = s % 60;
+            const h = hun < 10 ? "0" + hun : hun;
+            const ss = nokori < 10 ? "0" + nokori : nokori;
+            return h + ":" + ss;
+        }
 
         function koushin() {
-            const hun = Math.floor(byou / 60);
-            const nokori = byou % 60;
-            const h = hun < 10 ? "0" + hun : hun;
-            const s = nokori < 10 ? "0" + nokori : nokori;
-            gamen.innerText = h + ":" + s;
+            gamen.innerText = formatTime(byou);
+        }
+
+        function listKoushin() {
+            ul_element.innerHTML = "";
+            if (yoyaku_list.length === 0) {
+                ul_element.innerHTML = "<li style='color:#888;'>(予約なし)</li>";
+            } else {
+                yoyaku_list.forEach((time, index) => {
+                    const li = document.createElement("li");
+                    li.className = "list-item";
+
+                    let statusText = "";
+                    let is_active = false;
+                    let is_done = false;
+
+                    if (is_running && index === current_index && !is_stopwatch_mode) {
+                        li.classList.add("active");
+                        statusText = '<span class="status-badge badge-active">実行中</span>';
+                        is_active = true;
+                    } 
+                    else if (index < current_index) {
+                        li.classList.add("done");
+                        statusText = '<span class="status-badge badge-done">完了</span>';
+                        is_done = true;
+                    }
+                    else {
+                        statusText = '<span style="margin-right:8px; color:#5f6368;">' + (index + 1) + '.</span>';
+                    }
+
+                    const span = document.createElement("span");
+                    span.className = "item-text";
+                    span.innerHTML = statusText + formatTime(time);
+
+                    const btnDiv = document.createElement("div");
+                    btnDiv.className = "item-buttons";
+
+                    if (!is_active && !is_done) {
+                        const editBtn = document.createElement("button");
+                        editBtn.textContent = "編集";
+                        editBtn.className = "mini-btn btn-edit";
+                        editBtn.onclick = function() {
+                            if (byou > 0 && !is_running) {
+                                alert("画面の時間を0にしてから編集してください");
+                                return;
+                            }
+                            if (is_running) {
+                                alert("実行中は編集できません。");
+                                return;
+                            }
+                            byou = yoyaku_list[index]; 
+                            yoyaku_list.splice(index, 1);
+                            koushin();
+                            listKoushin();
+                            msg.innerText = "時間を画面に戻しました。";
+                        };
+
+                        const delBtn = document.createElement("button");
+                        delBtn.textContent = "削除";
+                        delBtn.className = "mini-btn btn-del";
+                        delBtn.onclick = function() {
+                            if(confirm((index + 1) + "番目の予約を削除しますか？")) {
+                                yoyaku_list.splice(index, 1);
+                                listKoushin();
+                                msg.innerText = "予約を削除しました。";
+                            }
+                        };
+                        btnDiv.appendChild(editBtn);
+                        btnDiv.appendChild(delBtn);
+                    }
+
+                    li.appendChild(span);
+                    li.appendChild(btnDiv);
+                    ul_element.appendChild(li);
+                });
+            }
         }
 
         function addTime(seconds) {
@@ -290,7 +459,7 @@
                 byou = byou + seconds;
                 koushin();
                 is_stopwatch_mode = false;
-                msg.innerText = "タイマー待機中";
+                msg.innerText = "時間をセット中...";
             }
         }
 
@@ -298,10 +467,47 @@
         document.getElementById("btn_plus_10s").onclick = () => addTime(10);
         document.getElementById("btn_plus_1s").onclick = () => addTime(1);
 
+        document.getElementById("btn_reserve").onclick = function() {
+            if (byou > 0 && !is_running) {
+                yoyaku_list.push(byou);
+                byou = 0;
+                koushin();
+                listKoushin();
+                msg.innerText = "リストに追加しました。";
+            } else {
+                msg.innerText = "時間が0か、実行中は追加できません。";
+            }
+        };
+
+        // ★ラップ機能
+        document.getElementById("btn_lap").onclick = function() {
+            // 時間が0で動いていないときはラップを切らない
+            if (byou === 0 && !is_running) return;
+
+            lap_area.classList.remove("hidden");
+            const li = document.createElement("li");
+            
+            // モードによって表示を変える
+            const modeText = is_stopwatch_mode ? "Count Up" : "Timer";
+            
+            li.innerHTML = `<span>#${lap_count} <small style='color:#999'>(${modeText})</small></span> <span>${formatTime(byou)}</span>`;
+            
+            // 新しいものを上に追加
+            lap_list.prepend(li);
+            lap_count++;
+        };
+
         document.getElementById("btn_start").onclick = function() {
             if (is_running) return;
+
+            if (byou === 0 && yoyaku_list.length > current_index) {
+                byou = yoyaku_list[current_index];
+                koushin();
+            }
+
             if (byou === 0) is_stopwatch_mode = true;
             is_running = true;
+            listKoushin();
 
             if (is_stopwatch_mode) {
                 msg.innerText = "計測中（ストップウォッチ）";
@@ -311,19 +517,47 @@
                 }, 1000);
             } else {
                 if (byou > 0) {
-                    msg.innerText = "計測中（タイマー）";
+                    msg.innerText = "計測中（連続タイマー）";
                     kakarimono = setInterval(() => {
                         byou--;
-                        koushin();
-                        if (byou <= 0) {
-                            clearInterval(kakarimono);
-                            is_running = false;
-                            msg.innerText = "時間ですよ！";
-                            alert("時間ですよ！");
+
+                        // ■ 0秒以上なら画面更新
+                        if (byou >= 0) {
+                            koushin();
+                            
+                            // ちょうど0になった瞬間に音を鳴らす
+                            if (byou === 0 && check_sound.checked) {
+                                alarm_audio.currentTime = 0;
+                                alarm_audio.play().catch(e => console.log("再生エラー"));
+                            }
+                        } 
+                        // ■ -1になった時が「次のタイマー」へ行く合図
+                        else {
+                            if (check_manual.checked) {
+                                alert((current_index + 1) + "番目のタイマーが終了しました！");
+                            }
+
+                            current_index++; 
+                            
+                            if (current_index < yoyaku_list.length) {
+                                byou = yoyaku_list[current_index];
+                                listKoushin();
+                                koushin();
+                                msg.innerText = (current_index + 1) + "番目がスタートしました！";
+                            } else {
+                                clearInterval(kakarimono);
+                                is_running = false;
+                                byou = 0;
+                                koushin();
+                                listKoushin();
+                                msg.innerText = "全てのタイマーが終了しました！";
+                                alert("全てのタイマーが終了しました！お疲れ様でした。");
+                            }
                         }
                     }, 1000);
                 } else {
                     is_running = false;
+                    listKoushin();
                 }
             }
         };
@@ -332,14 +566,25 @@
             clearInterval(kakarimono);
             is_running = false;
             msg.innerText = "一時停止中";
+            listKoushin();
         };
 
         document.getElementById("btn_reset").onclick = function() {
+            if(!confirm("すべての予約、時間、ラップをリセットしますか？")) return;
             clearInterval(kakarimono);
             is_running = false;
             byou = 0;
+            yoyaku_list = [];
+            current_index = 0;
             is_stopwatch_mode = false;
+            
+            // ラップリセット
+            lap_count = 1;
+            lap_list.innerHTML = "";
+            lap_area.classList.add("hidden");
+
             koushin();
+            listKoushin();
             msg.innerText = "待機中...";
         };
     </script>
