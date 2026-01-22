@@ -18,9 +18,17 @@
             display: flex; justify-content: space-between; align-items: center;
             padding: 0 24px; z-index: 1000; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
+        
+        /* ヘッダー左側（ロゴ＋ナビ） */
+        .header-left { display: flex; align-items: center; gap: 30px; }
         .logo a { font-size: 22px; font-weight: bold; color: #ffffff; text-decoration: none; }
 
-        /* ヘッダーナビ */
+        /* ヘッダーメニュー（使い方・フィードバック） */
+        .header-nav { display: flex; gap: 20px; }
+        .header-nav a { color: #ccc; text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; cursor: pointer;}
+        .header-nav a:hover { color: white; }
+
+        /* ヘッダーナビ（ゲスト・ユーザー共通） */
         #header-guest-nav { display: flex; align-items: center; }
         .nav-text-btn {
             background: none; border: 1px solid white; color: white;
@@ -155,11 +163,16 @@
         }
         #lap-list li:first-child { font-weight: bold; color: #1a73e8; }
 
-        /* 認証モーダル */
+        /* 認証・使いかたモーダル共通 */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; justify-content: center; align-items: center; }
-        .mini-window { width: 360px; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .mini-window { width: 360px; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); max-height: 90vh; display: flex; flex-direction: column;}
         .window-header { padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
-        .window-body { padding: 25px; text-align: center; }
+        .window-body { padding: 25px; text-align: center; overflow-y: auto; }
+        .window-body h4 { text-align: left; margin: 15px 0 5px 0; color: #1a73e8; }
+        .window-body p, .window-body li { text-align: left; font-size: 14px; color: #5f6368; margin-bottom: 5px; line-height: 1.6; }
+        .window-body ul { padding-left: 20px; margin-bottom: 10px; }
+
+        /* Auth用スタイル */
         .google-btn { width: 100%; height: 44px; background: white; border: 1px solid #dadce0; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 20px; font-weight: bold; }
         .google-btn img { width: 18px; margin-right: 10px; }
         .auth-input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
@@ -169,7 +182,11 @@
         @media (max-width: 600px) {
             body { padding-top: 60px; } 
             header { padding: 0 16px; height: 56px; }
+            .header-left { gap: 15px; }
             .logo a { font-size: 18px; }
+            /* スマホではナビをアイコンにするなど工夫が必要ですが、今回はシンプルに文字サイズ調整 */
+            .header-nav a { font-size: 12px; }
+
             main { padding: 20px 10px; }
             h1 { font-size: 20px; margin-bottom: 20px; }
             .tokei-box { padding: 30px 15px; }
@@ -186,7 +203,14 @@
 <body>
 
     <header>
-        <div class="logo"><a href="../index.html">おさんツール</a></div>
+        <div class="header-left">
+            <div class="logo"><a href="#">おさんツール</a></div>
+            <nav class="header-nav">
+                <a id="nav-usage">使い方</a>
+                <a href="#" onclick="alert('フィードバックフォームは現在準備中です'); return false;">フィードバック</a>
+            </nav>
+        </div>
+
         <div class="user-menu-container">
             <div id="header-guest-nav">
                 <button class="nav-text-btn" id="nav-signin">サインイン</button>
@@ -222,11 +246,11 @@
             <div class="settings-area">
                 <label>
                     <input type="checkbox" id="check_sound" checked>
-                    アラーム音を鳴らす
+                    アラーム音を鳴らす（OKを押すまで停止しません）
                 </label>
                 <label>
                     <input type="checkbox" id="check_manual">
-                    一つずつ確認して進む（停止する）
+                    一つずつ確認して進む（自動で次へ行かない）
                 </label>
             </div>
 
@@ -259,13 +283,34 @@
 
     <div id="modal-ui" class="modal-overlay hidden">
         <div class="mini-window">
-            <div class="window-header"><span id="modal-title"></span><button id="modal-close" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button></div>
+            <div class="window-header"><span id="modal-title"></span><button class="modal-close-btn" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button></div>
             <div class="window-body">
                 <button class="google-btn" id="google-auth-btn"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"> Googleでログイン</button>
                 <input type="email" id="input-email" class="auth-input" placeholder="メールアドレス">
                 <input type="password" id="input-pass" class="auth-input" placeholder="パスワード">
                 <button id="auth-execute-btn" class="primary-btn">送信</button>
-                <p id="auth-toggle-text" style="color:#1a73e8; font-size:13px; cursor:pointer; margin-top:15px;"></p>
+                <p id="auth-toggle-text" style="color:#1a73e8; font-size:13px; cursor:pointer; margin-top:15px; text-align:center;"></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="usage-modal" class="modal-overlay hidden">
+        <div class="mini-window">
+            <div class="window-header"><span>使い方</span><button class="modal-close-btn" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button></div>
+            <div class="window-body" style="text-align: left;">
+                <p>連続した複数のタイマーを順番に実行できるツールです。</p>
+                
+                <h4>1. 時間のセット</h4>
+                <p>「+1分」「+10秒」などで時間を設定し、「予約リストに追加」を押します。これを繰り返して、必要な手順をすべてリストに入れます。</p>
+                
+                <h4>2. 実行</h4>
+                <p>「スタート」を押すとリストの順番通りにタイマーが進みます。0になると音が鳴り、OKを押すと次のタイマーへ進みます（または終了します）。</p>
+
+                <h4>3. ストップウォッチ</h4>
+                <p>時間が00:00の状態でスタートすると、カウントアップ（ストップウォッチ）になります。</p>
+
+                <h4>4. ラップ機能</h4>
+                <p>計測中に「ラップ」を押すと、その時点の時間を記録できます。</p>
             </div>
         </div>
     </div>
@@ -291,11 +336,22 @@
         const dropdown = document.getElementById('dropdown-ui');
         const guestNav = document.getElementById('header-guest-nav');
         const modal = document.getElementById('modal-ui');
+        const usageModal = document.getElementById('usage-modal');
         let authMode = 'login';
 
         userBtn.onclick = (e) => { e.stopPropagation(); dropdown.classList.toggle('hidden'); };
         document.onclick = () => dropdown.classList.add('hidden');
-        document.getElementById('modal-close').onclick = () => modal.classList.add('hidden');
+        
+        // モーダル閉じるボタン共通
+        document.querySelectorAll('.modal-close-btn').forEach(btn => {
+            btn.onclick = () => {
+                modal.classList.add('hidden');
+                usageModal.classList.add('hidden');
+            }
+        });
+
+        // 使い方モーダル
+        document.getElementById('nav-usage').onclick = () => usageModal.classList.remove('hidden');
 
         function openAuth(m) {
             authMode = m;
@@ -363,7 +419,6 @@
         const check_sound = document.getElementById("check_sound");
         const alarm_audio = document.getElementById("alarm-audio");
         
-        // ラップ用要素
         const lap_area = document.getElementById("lap-area");
         const lap_list = document.getElementById("lap-list");
 
@@ -481,18 +536,15 @@
 
         // ★ラップ機能
         document.getElementById("btn_lap").onclick = function() {
-            // 時間が0で動いていないときはラップを切らない
             if (byou === 0 && !is_running) return;
 
             lap_area.classList.remove("hidden");
             const li = document.createElement("li");
             
-            // モードによって表示を変える
             const modeText = is_stopwatch_mode ? "Count Up" : "Timer";
             
             li.innerHTML = `<span>#${lap_count} <small style='color:#999'>(${modeText})</small></span> <span>${formatTime(byou)}</span>`;
             
-            // 新しいものを上に追加
             lap_list.prepend(li);
             lap_count++;
         };
@@ -509,6 +561,11 @@
             is_running = true;
             listKoushin();
 
+            // 音の準備（スマホ対策：ユーザー操作時に一度ロードする）
+            if (check_sound.checked) {
+                alarm_audio.load(); 
+            }
+
             if (is_stopwatch_mode) {
                 msg.innerText = "計測中（ストップウォッチ）";
                 kakarimono = setInterval(() => {
@@ -521,39 +578,34 @@
                     kakarimono = setInterval(() => {
                         byou--;
 
-                        // ■ 0秒以上なら画面更新
                         if (byou >= 0) {
                             koushin();
                             
-                            // ちょうど0になった瞬間に音を鳴らす
-                            if (byou === 0 && check_sound.checked) {
-                                alarm_audio.currentTime = 0;
-                                alarm_audio.play().catch(e => console.log("再生エラー"));
+                            // ■ タイマーが0になった時
+                            if (byou === 0) {
+                                if (check_sound.checked) {
+                                    // 音をループ再生
+                                    alarm_audio.loop = true;
+                                    alarm_audio.currentTime = 0;
+                                    alarm_audio.play().catch(e => console.log("再生エラー", e));
+                                    
+                                    // アラートでブロックする（少し遅延させて音を確実に鳴らす）
+                                    setTimeout(() => {
+                                        alert("時間です！\nOKを押すと音が止まります。");
+                                        
+                                        // OKが押された後
+                                        alarm_audio.pause();
+                                        alarm_audio.currentTime = 0;
+                                        alarm_audio.loop = false; // ループ解除
+                                        
+                                        nextStep(); // 次へ
+                                    }, 100);
+                                } else {
+                                    // 音なしの場合は即次へ（マニュアルチェックがなければ）
+                                    nextStep();
+                                }
                             }
                         } 
-                        // ■ -1になった時が「次のタイマー」へ行く合図
-                        else {
-                            if (check_manual.checked) {
-                                alert((current_index + 1) + "番目のタイマーが終了しました！");
-                            }
-
-                            current_index++; 
-                            
-                            if (current_index < yoyaku_list.length) {
-                                byou = yoyaku_list[current_index];
-                                listKoushin();
-                                koushin();
-                                msg.innerText = (current_index + 1) + "番目がスタートしました！";
-                            } else {
-                                clearInterval(kakarimono);
-                                is_running = false;
-                                byou = 0;
-                                koushin();
-                                listKoushin();
-                                msg.innerText = "全てのタイマーが終了しました！";
-                                alert("全てのタイマーが終了しました！お疲れ様でした。");
-                            }
-                        }
                     }, 1000);
                 } else {
                     is_running = false;
@@ -562,9 +614,63 @@
             }
         };
 
+        // 次のステップへ進む処理
+        function nextStep() {
+            // 音が鳴った（OKを押した）時点で、もし「手動確認」がONならここで止まる
+            // ただし、音のアラート＝確認動作とみなす場合はそのまま進めてもよいが、
+            // UIの「一つずつ確認して進む」のチェックボックスの意味を優先し、
+            // 音停止後、さらに確認が必要かどうかを分岐させる。
+            // ここでは「音の停止＝確認完了」として次に進める動作にするが、
+            // check_manualがONの場合は「次のタイマーに進まず停止」させる。
+
+            if (check_manual.checked) {
+                // 手動モードONの場合：ここで一時停止状態にする
+                clearInterval(kakarimono);
+                is_running = false;
+                current_index++; // インデックスだけ進めておく（完了扱い）
+                if (current_index >= yoyaku_list.length) {
+                    msg.innerText = "全てのタイマーが終了しました！";
+                    alert("全てのタイマーが終了しました！");
+                } else {
+                    msg.innerText = "一時停止中。次は " + (current_index + 1) + " 番目です。";
+                }
+                koushin();
+                listKoushin();
+                // 次の時間はセットしない（手動でスタート押させるため、あるいは0のまま）
+                // UX向上のため、次の時間をセットだけしておく
+                if (current_index < yoyaku_list.length) {
+                    byou = yoyaku_list[current_index];
+                    koushin();
+                }
+                return;
+            }
+
+            // 自動で進む場合
+            current_index++;
+            
+            if (current_index < yoyaku_list.length) {
+                byou = yoyaku_list[current_index];
+                listKoushin();
+                koushin();
+                msg.innerText = (current_index + 1) + "番目がスタートしました！";
+            } else {
+                clearInterval(kakarimono);
+                is_running = false;
+                byou = 0;
+                koushin();
+                listKoushin();
+                msg.innerText = "全てのタイマーが終了しました！";
+                alert("全てのタイマーが終了しました！お疲れ様でした。");
+            }
+        }
+
         document.getElementById("btn_stop").onclick = function() {
             clearInterval(kakarimono);
             is_running = false;
+            if(alarm_audio) {
+                alarm_audio.pause();
+                alarm_audio.currentTime = 0;
+            }
             msg.innerText = "一時停止中";
             listKoushin();
         };
@@ -572,6 +678,10 @@
         document.getElementById("btn_reset").onclick = function() {
             if(!confirm("すべての予約、時間、ラップをリセットしますか？")) return;
             clearInterval(kakarimono);
+            if(alarm_audio) {
+                alarm_audio.pause();
+                alarm_audio.currentTime = 0;
+            }
             is_running = false;
             byou = 0;
             yoyaku_list = [];

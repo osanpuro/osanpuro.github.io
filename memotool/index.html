@@ -34,49 +34,86 @@
             display: grid; grid-template-columns: 1fr 320px; gap: 24px; 
         }
         
-        .editor-section { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .editor-section { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: relative; }
+        
+        /* タイトルエリアとゴミ箱ボタンのレイアウト */
+        .editor-header { display: flex; gap: 10px; align-items: center; margin-bottom: 15px; }
         #memoTitle { 
-            width: 100%; padding: 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 18px; outline: none; margin-bottom: 15px; 
+            flex-grow: 1; padding: 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 18px; outline: none; 
             appearance: none; -webkit-appearance: none; font-weight: bold;
         }
-        #memoBody { 
-            width: 100%; height: 450px; padding: 15px; border: 1px solid #dadce0; border-radius: 8px; font-size: 16px; resize: none; outline: none; line-height: 1.6; 
-            appearance: none; -webkit-appearance: none;
+        /* ゴミ箱ボタンを右上に配置 */
+        .btn-delete { 
+            background: #fce8e6; color: #d93025; border: none; border-radius: 8px; 
+            width: 48px; height: 48px; cursor: pointer; display: flex; justify-content: center; align-items: center; 
+            transition: 0.2s;
         }
-
-        .button-area { display: flex; gap: 10px; margin-top: 20px; align-items: center; }
-        .btn { padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
-        .btn-save { background: #1a73e8; color: white; justify-content: center; min-width: 120px; }
-        .btn-save:hover { background: #1558b0; }
-        .btn-delete { background: #fce8e6; color: #d93025; }
         .btn-delete:hover { background: #faddd9; }
 
-        /* 自動保存ステータス表示 */
+        #memoBody { 
+            width: 100%; height: 450px; padding: 15px; border: 1px solid #dadce0; border-radius: 8px; font-size: 16px; resize: none; outline: none; line-height: 1.6; 
+            appearance: none; -webkit-appearance: none; margin-bottom: 15px; font-family: monospace; /* 等幅フォントにしてチェックボックスを揃える */
+        }
+
+        /* アクションボタンエリア */
+        .button-area { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
+        
+        .btn-save { background: #1a73e8; color: white; min-width: 120px; justify-content: center; }
+        .btn-save:hover { background: #1558b0; }
+        
+        /* 定型文ボタン */
+        .btn-template { background: #f1f3f4; color: #5f6368; font-size: 13px; padding: 8px 16px; }
+        .btn-template:hover { background: #e8eaed; color: #202124; }
+
+        /* 文字数カウント */
+        #char-count-display { font-size: 13px; color: #5f6368; margin-left: 10px; font-variant-numeric: tabular-nums; }
+
+        /* 自動保存ステータス */
         #auto-save-text { font-size: 12px; color: #888; margin-left: 10px; transition: color 0.3s; }
-        .status-saving { color: #ea4335 !important; font-weight: bold; } /* 保存中は赤っぽく */
+        .status-saving { color: #ea4335 !important; font-weight: bold; }
 
         /* リストセクション */
         .list-section { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); height: 600px; display: flex; flex-direction: column; }
-        .list-section h3 { font-size: 16px; margin-bottom: 15px; color: #3c4043; display: flex; align-items: center; gap: 8px; }
+        .list-header { margin-bottom: 15px; }
+        .list-header h3 { font-size: 16px; color: #3c4043; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        
+        /* 検索ボックス */
+        #searchBox {
+            width: 100%; padding: 10px; border: 1px solid #dadce0; border-radius: 8px; font-size: 14px; outline: none;
+            background: #f8f9fa;
+        }
+        #searchBox:focus { background: white; border-color: #1a73e8; }
         
         #listArea { flex-grow: 1; overflow-y: auto; }
         .memo-item {
             padding: 12px; border-radius: 8px; cursor: pointer; border-bottom: 1px solid #f1f3f4;
-            transition: 0.2s; font-size: 14px; display: flex; justify-content: space-between; align-items: center;
+            transition: 0.2s; display: flex; flex-direction: column; gap: 4px;
         }
         .memo-item:hover { background-color: #f8f9fa; }
-        .memo-item .title-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; font-weight: bold; color: #444; }
-        .memo-item.active { background-color: #e8f0fe; color: #1a73e8; }
+        .memo-item.active { background-color: #e8f0fe; }
+        .memo-item.active .title-text { color: #1a73e8; }
+
+        .memo-info { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .title-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; font-weight: bold; color: #444; font-size: 14px; }
+        .date-text { font-size: 11px; color: #888; }
 
         /* 共通UI */
         .user-menu-container { position: relative; }
         .icon-button { background: none; border: none; cursor: pointer; color: white; display: flex; align-items: center; }
         .dropdown-menu { position: absolute; top: 56px; right: 0; width: 220px; background: white; border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); border: 1px solid #ddd; z-index: 1100; overflow: hidden; }
         .dropdown-menu button { width: 100%; padding: 12px 20px; border: none; background: none; text-align: left; cursor: pointer; }
+        
+        /* モーダル共通 */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; justify-content: center; align-items: center; }
-        .mini-window { width: 360px; max-width: 90%; background: white; border-radius: 12px; padding: 25px; text-align: center; }
+        .mini-window { width: 360px; max-width: 90%; background: white; border-radius: 12px; padding: 25px; text-align: left; }
+        .mini-window h3 { text-align: center; margin-bottom: 20px; }
+        
+        /* ToDoモーダルのスタイル */
+        .todo-label { font-size: 12px; font-weight: bold; color: #5f6368; display: block; margin-bottom: 4px; }
+        .todo-input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; }
 
-        /* トースト通知 (保存完了など) */
+        /* トースト通知 */
         #toast {
             visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 4px; padding: 16px;
             position: fixed; z-index: 3000; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; opacity: 0; transition: opacity 0.5s, bottom 0.5s;
@@ -92,7 +129,7 @@
             .editor-section { padding: 15px; }
             #memoBody { height: 300px; }
             .list-section { height: 400px; }
-            .memo-item .title-text { max-width: 70%; }
+            .title-text { max-width: 60%; }
         }
     </style>
 </head>
@@ -121,18 +158,29 @@
 
             <input type="text" style="position:fixed; top:-100px; left:-100px; width:1px; height:1px; opacity:0;" aria-hidden="true">
 
-            <input type="text" id="memoTitle" autocomplete="off" placeholder="無題のメモ">
+            <div class="editor-header">
+                <input type="text" id="memoTitle" autocomplete="off" placeholder="無題のメモ">
+                <button id="deleteBtn" class="btn-delete" title="削除"><span class="material-icons">delete</span></button>
+            </div>
+
             <textarea id="memoBody" placeholder="ここに内容を入力してください..."></textarea>
             
             <div class="button-area">
-                <button id="saveBtn" class="btn btn-save"><span class="material-icons">save</span>保存</button>
-                <span id="auto-save-text"></span> <div style="flex-grow:1;"></div>
-                <button id="deleteBtn" class="btn btn-delete"><span class="material-icons">delete</span></button>
+                <button id="saveBtn" class="btn btn-save" title="Ctrl+Sで保存"><span class="material-icons">save</span>保存</button>
+                
+                <button id="btn-insert-date" class="btn btn-template"><span class="material-icons" style="font-size:14px;">today</span> 日付</button>
+                <button id="btn-open-todo" class="btn btn-template"><span class="material-icons" style="font-size:14px;">notification_add</span> ToDo挿入</button>
+
+                <span id="char-count-display">0文字</span>
+                <span id="auto-save-text"></span>
             </div>
         </div>
 
         <div class="list-section">
-            <h3><span class="material-icons">list</span> 保存済みメモ</h3>
+            <div class="list-header">
+                <h3><span class="material-icons">list</span> 保存済みメモ</h3>
+                <input type="search" id="searchBox" placeholder="タイトルで検索...">
+            </div>
             <div id="listArea"></div>
         </div>
     </main>
@@ -141,12 +189,28 @@
 
     <div id="modal-ui" class="modal-overlay hidden">
         <div class="mini-window">
-            <h3 id="modal-title" style="margin-bottom:20px;">サインイン</h3>
-            <input type="email" id="input-email" autocomplete="username" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:4px;" placeholder="メールアドレス">
-            <input type="password" id="input-pass" autocomplete="current-password" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:4px;" placeholder="パスワード">
+            <h3 id="modal-title">サインイン</h3>
+            <input type="email" id="input-email" autocomplete="username" class="todo-input" placeholder="メールアドレス">
+            <input type="password" id="input-pass" autocomplete="current-password" class="todo-input" placeholder="パスワード">
             <button id="auth-execute-btn" style="width:100%; padding:10px; background:#1a73e8; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">送信</button>
-            <p id="auth-toggle-text" style="color:#1a73e8; font-size:13px; cursor:pointer; margin-top:15px;">新規登録はこちら</p>
-            <button onclick="document.getElementById('modal-ui').classList.add('hidden')" style="margin-top:15px; background:none; border:none; color:#999; cursor:pointer;">キャンセル</button>
+            <p id="auth-toggle-text" style="color:#1a73e8; font-size:13px; cursor:pointer; margin-top:15px; text-align:center;">新規登録はこちら</p>
+            <button onclick="document.getElementById('modal-ui').classList.add('hidden')" style="width:100%; margin-top:10px; background:none; border:none; color:#999; cursor:pointer;">キャンセル</button>
+        </div>
+    </div>
+
+    <div id="todo-modal" class="modal-overlay hidden">
+        <div class="mini-window">
+            <h3>タスクの追加</h3>
+            <label class="todo-label">タスクの内容</label>
+            <input type="text" id="todo-text" class="todo-input" placeholder="例: 書類の提出">
+            
+            <label class="todo-label">期限（通知を設定）</label>
+            <input type="datetime-local" id="todo-date" class="todo-input">
+
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <button id="todo-insert-btn" style="flex:1; padding:10px; background:#1a73e8; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">挿入</button>
+                <button onclick="document.getElementById('todo-modal').classList.add('hidden')" style="flex:1; padding:10px; background:#f1f3f4; color:#333; border:none; border-radius:4px; cursor:pointer;">キャンセル</button>
+            </div>
         </div>
     </div>
 
@@ -167,17 +231,75 @@
 
         let currentUser = null;
         let unsubscribe = null;
-        let autoSaveTimer = null; // 自動保存用のタイマー変数
+        let autoSaveTimer = null;
         const LS_PREFIX = "osan-memo-";
 
+        // HTML要素
         const titleInput = document.getElementById('memoTitle');
         const bodyInput = document.getElementById('memoBody');
         const listArea = document.getElementById('listArea');
+        const searchBox = document.getElementById('searchBox');
         const statusBadge = document.getElementById('status-badge');
         const statusText = document.getElementById('status-text');
         const autoSaveText = document.getElementById('auto-save-text');
+        const charCountDisplay = document.getElementById('char-count-display');
 
-        // --- トースト表示機能 ---
+        // ToDoモーダル要素
+        const todoModal = document.getElementById('todo-modal');
+        const todoText = document.getElementById('todo-text');
+        const todoDate = document.getElementById('todo-date');
+
+        let memoCache = [];
+
+        // 通知済みタスクの管理 (リロードするとリセットされる簡易版)
+        const notifiedTasks = new Set();
+
+        // --- 通知許可リクエスト ---
+        if ("Notification" in window) {
+            Notification.requestPermission();
+        }
+
+        // --- 期限監視ループ (10秒ごとにチェック) ---
+        setInterval(() => {
+            checkDeadlines();
+        }, 10000);
+
+        function checkDeadlines() {
+            if (Notification.permission !== "granted") return;
+
+            const text = bodyInput.value;
+            if (!text) return;
+
+            // 正規表現でタスクと期限を抽出
+            // フォーマット: - [ ] タスク名 (期限: yyyy-mm-ddThh:mm)
+            const regex = /- \[ \] (.+?) \(期限: (\d{4}-\d{2}-\d{2}T\d{2}:\d{2})\)/g;
+            let match;
+            const now = new Date();
+
+            while ((match = regex.exec(text)) !== null) {
+                const taskName = match[1];
+                const deadlineStr = match[2];
+                const deadline = new Date(deadlineStr);
+                
+                // ユニークキー（同じタスク名でも時間が違えば別扱い）
+                const taskKey = taskName + deadlineStr;
+
+                // 期限を過ぎており、かつまだ通知していない場合
+                if (now >= deadline && !notifiedTasks.has(taskKey)) {
+                    // 通知実行
+                    new Notification("タスクの期限です", {
+                        body: `「${taskName}」の時間になりました。`,
+                        icon: "https://fonts.gstatic.com/s/i/materialicons/alarm/v1/24px.svg"
+                    });
+                    
+                    // 通知済みリストに追加
+                    notifiedTasks.add(taskKey);
+                }
+            }
+        }
+
+        // --- 基本機能 ---
+
         function showToast(message) {
             const x = document.getElementById("toast");
             x.textContent = message;
@@ -185,14 +307,11 @@
             setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
         }
 
-        // --- 保存・削除のコアロジック ---
-
-        // isAuto: 手動保存ならfalse, 自動保存ならtrue
         async function saveMemo(isAuto = false) {
             const title = titleInput.value.trim() || "無題のメモ";
             const body = bodyInput.value;
+            const now = Date.now();
 
-            // 自動保存時に中身が空っぽなら何もしない
             if (isAuto && body.trim() === "") return;
 
             autoSaveText.textContent = "保存中...";
@@ -200,29 +319,20 @@
 
             try {
                 if (currentUser) {
-                    // クラウド保存
                     await setDoc(doc(db, "users", currentUser.uid, "memos", title), {
-                        title, body, updatedAt: Date.now()
+                        title, body, updatedAt: now
                     });
                 } else {
-                    // ローカル保存
-                    localStorage.setItem(LS_PREFIX + title, body);
+                    const data = { body: body, updatedAt: now };
+                    localStorage.setItem(LS_PREFIX + title, JSON.stringify(data));
                     refreshLocalList();
                 }
 
-                // 保存完了後の処理
                 autoSaveText.textContent = "保存完了";
                 autoSaveText.classList.remove('status-saving');
                 
-                // 手動保存のときだけ、目立つ通知を出す（自動保存は静かに）
-                if (!isAuto) {
-                    showToast("保存しました");
-                } else {
-                    // 2秒後に「保存完了」の文字を消す
-                    setTimeout(() => {
-                        if(autoSaveText.textContent === "保存完了") autoSaveText.textContent = "";
-                    }, 2000);
-                }
+                if (!isAuto) showToast("保存しました");
+                else setTimeout(() => { if(autoSaveText.textContent === "保存完了") autoSaveText.textContent = ""; }, 2000);
 
             } catch(e) {
                 console.error(e);
@@ -231,25 +341,79 @@
             }
         }
 
-        // 自動保存トリガー (入力があったらタイマーをセット)
         function triggerAutoSave() {
-            // すでに待機中なら一旦キャンセル
+            updateCharCount();
             if (autoSaveTimer) clearTimeout(autoSaveTimer);
-            
-            // UIを「編集中...」にする
             autoSaveText.textContent = "編集中...";
             autoSaveText.classList.remove('status-saving');
-
-            // 3秒(3000ms)後に保存を実行
-            autoSaveTimer = setTimeout(() => {
-                saveMemo(true); // true = 自動保存モード
-            }, 3000);
+            autoSaveTimer = setTimeout(() => saveMemo(true), 3000);
+        }
+        
+        function updateCharCount() {
+            charCountDisplay.textContent = bodyInput.value.length + "文字";
         }
 
-        // 入力欄のイベントリスナー
+        // テキスト挿入関数
+        function insertTextAtCursor(text) {
+            const start = bodyInput.selectionStart;
+            const end = bodyInput.selectionEnd;
+            const original = bodyInput.value;
+            bodyInput.value = original.substring(0, start) + text + original.substring(end);
+            bodyInput.focus();
+            bodyInput.selectionStart = bodyInput.selectionEnd = start + text.length;
+            triggerAutoSave();
+        }
+
+        // --- ToDo関連イベント ---
+
+        // ToDoモーダルを開く
+        document.getElementById('btn-open-todo').onclick = () => {
+            todoText.value = "";
+            todoDate.value = "";
+            todoModal.classList.remove('hidden');
+            todoText.focus();
+        };
+
+        // ToDo挿入実行
+        document.getElementById('todo-insert-btn').onclick = () => {
+            const task = todoText.value.trim();
+            const date = todoDate.value;
+            
+            if (!task) {
+                alert("タスク名を入力してください");
+                return;
+            }
+
+            let insertStr = `\n- [ ] ${task}`;
+            if (date) {
+                insertStr += ` (期限: ${date})`;
+                // 通知許可を確認
+                if (Notification.permission === "default") {
+                    Notification.requestPermission();
+                }
+            }
+            insertStr += "\n";
+
+            insertTextAtCursor(insertStr);
+            todoModal.classList.add('hidden');
+        };
+
+        // 日付挿入
+        document.getElementById('btn-insert-date').onclick = () => {
+            const d = new Date();
+            insertTextAtCursor(`${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} `);
+        };
+
+        // イベントリスナー
         titleInput.addEventListener('input', triggerAutoSave);
         bodyInput.addEventListener('input', triggerAutoSave);
-
+        
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                saveMemo(false);
+            }
+        });
 
         async function deleteMemo() {
             const title = titleInput.value.trim();
@@ -265,53 +429,84 @@
             showToast("削除しました");
             titleInput.value = "";
             bodyInput.value = "";
+            updateCharCount();
             autoSaveText.textContent = "";
         }
 
-        // --- リスト表示 ---
+        // --- リスト表示 & 検索 ---
+
+        function formatDate(timestamp) {
+            if (!timestamp) return "";
+            const d = new Date(timestamp);
+            return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+        }
 
         function refreshLocalList() {
-            listArea.innerHTML = "";
-            let items = [];
+            memoCache = [];
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
                 if (key.startsWith(LS_PREFIX)) {
-                    items.push({
-                        key: key,
+                    let body = "";
+                    let updatedAt = null;
+                    const raw = localStorage.getItem(key);
+                    try {
+                        const parsed = JSON.parse(raw);
+                        if (typeof parsed === 'object' && parsed !== null) {
+                            body = parsed.body || "";
+                            updatedAt = parsed.updatedAt || null;
+                        } else {
+                            body = raw;
+                        }
+                    } catch (e) { body = raw; }
+
+                    memoCache.push({
                         title: key.replace(LS_PREFIX, ""),
-                        body: localStorage.getItem(key)
+                        body: body,
+                        updatedAt: updatedAt
                     });
                 }
             }
-            items.forEach(item => createListItem(item.title, item.body));
+            memoCache.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+            renderList(memoCache);
         }
 
-        function createListItem(title, body) {
-            const item = document.createElement('div');
-            item.className = 'memo-item';
-            
-            // 現在開いているメモと同じタイトルなら色を変えるなどの判定用（簡易実装）
-            if (title === titleInput.value) item.classList.add('active');
-
-            item.innerHTML = `<span class="title-text">${title}</span><span class="material-icons" style="font-size:16px; color:#ccc;">chevron_right</span>`;
-            item.onclick = () => {
-                titleInput.value = title;
-                bodyInput.value = body;
-                autoSaveText.textContent = ""; // 読み込み直後は保存ステータスをリセット
+        function renderList(items) {
+            listArea.innerHTML = "";
+            items.forEach(item => {
+                const el = document.createElement('div');
+                el.className = 'memo-item';
+                if (item.title === titleInput.value) el.classList.add('active');
                 
-                // スマホ時は上へスクロール
-                if (window.innerWidth <= 800) {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                }
+                const dateStr = formatDate(item.updatedAt);
                 
-                // リストの選択状態更新（簡易）
-                document.querySelectorAll('.memo-item').forEach(el => el.classList.remove('active'));
-                item.classList.add('active');
-            };
-            listArea.appendChild(item);
+                el.innerHTML = `
+                    <div class="memo-info">
+                        <span class="title-text">${item.title}</span>
+                        <span class="material-icons" style="font-size:16px; color:#ccc;">chevron_right</span>
+                    </div>
+                    ${dateStr ? `<span class="date-text">${dateStr}</span>` : ''}
+                `;
+                
+                el.onclick = () => {
+                    titleInput.value = item.title;
+                    bodyInput.value = item.body;
+                    updateCharCount();
+                    autoSaveText.textContent = "";
+                    notifiedTasks.clear(); // メモ切り替え時に通知済みフラグをリセット（再チェックのため）
+                    if (window.innerWidth <= 800) window.scrollTo({ top: 0, behavior: 'smooth' });
+                    renderList(memoCache);
+                };
+                listArea.appendChild(el);
+            });
         }
 
-        // --- 状態監視 ---
+        searchBox.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = memoCache.filter(item => item.title.toLowerCase().includes(term));
+            renderList(filtered);
+        });
+
+        // --- 認証 ---
 
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
@@ -326,8 +521,14 @@
 
                 const q = query(collection(db, "users", user.uid, "memos"), orderBy("updatedAt", "desc"));
                 unsubscribe = onSnapshot(q, (snapshot) => {
-                    listArea.innerHTML = "";
-                    snapshot.forEach(doc => createListItem(doc.data().title, doc.data().body));
+                    memoCache = [];
+                    snapshot.forEach(doc => {
+                        const d = doc.data();
+                        memoCache.push({ title: d.title, body: d.body, updatedAt: d.updatedAt });
+                    });
+                    const term = searchBox.value.toLowerCase();
+                    const filtered = term ? memoCache.filter(item => item.title.toLowerCase().includes(term)) : memoCache;
+                    renderList(filtered);
                 });
             } else {
                 statusBadge.className = "storage-status status-local";
@@ -338,10 +539,8 @@
             }
         });
 
-        // ボタンイベント
-        document.getElementById('saveBtn').onclick = () => saveMemo(false); // 手動保存
+        document.getElementById('saveBtn').onclick = () => saveMemo(false);
         document.getElementById('deleteBtn').onclick = deleteMemo;
-        
         document.getElementById('nav-signin').onclick = () => document.getElementById('modal-ui').classList.remove('hidden');
         document.getElementById('trigger-logout').onclick = () => signOut(auth);
         document.getElementById('main-user-btn').onclick = (e) => { e.stopPropagation(); document.getElementById('dropdown-ui').classList.toggle('hidden'); };

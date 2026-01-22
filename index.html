@@ -97,22 +97,33 @@
 
         #mobile-drawer {
             position: fixed; top: 0; left: 0; width: 280px; height: 100%;
-            background: white; z-index: 1200; transform: translateX(-100%); transition: transform 0.3s ease;
+            /* 修正: 背景を黒に変更 */
+            background: #202124; 
+            z-index: 1200; transform: translateX(-100%); transition: transform 0.3s ease;
             box-shadow: 2px 0 8px rgba(0,0,0,0.1); display: flex; flex-direction: column;
         }
         #mobile-drawer.open { transform: translateX(0); }
 
         .drawer-header-area {
-            padding: 20px; background: #f8f9fa; border-bottom: 1px solid #eee;
-            font-weight: bold; color: #202124; display: flex; justify-content: space-between; align-items: center;
+            padding: 20px; 
+            /* 修正: ヘッダーエリアも黒ベースに変更 */
+            background: #202124; border-bottom: 1px solid #3c4043;
+            font-weight: bold; 
+            /* 修正: 文字色を白に変更 */
+            color: #fff; 
+            display: flex; justify-content: space-between; align-items: center;
             font-size: 18px;
         }
         .drawer-list { list-style: none; padding: 10px 0; }
         .drawer-list li a {
-            display: block; padding: 16px 24px; color: #3c4043; text-decoration: none;
+            display: block; padding: 16px 24px; 
+            /* 修正: リンク文字色を白系に変更 */
+            color: #e8eaed; 
+            text-decoration: none;
             font-size: 16px; border-left: 4px solid transparent; transition: 0.2s;
         }
-        .drawer-list li a:hover { background: #f0f2f5; border-left-color: #34a853; }
+        /* 修正: ホバー時の背景色を調整 */
+        .drawer-list li a:hover { background: #3c4043; border-left-color: #34a853; }
 
         /* --- ヒーローセクション --- */
         .hero {
@@ -422,12 +433,12 @@
         const provider = new GoogleAuthProvider();
 
         // --- UI要素の取得 ---
-        const guestNav = document.getElementById('header-guest-nav');     // ゲスト用ボタン群
+        const guestNav = document.getElementById('header-guest-nav');      // ゲスト用ボタン群
         const userMenu = document.querySelector('.user-menu-container'); // ユーザー用アイコン
-        const mainUserBtn = document.getElementById('main-user-btn');     // アイコンボタン
+        const mainUserBtn = document.getElementById('main-user-btn');      // アイコンボタン
         const dropdownUi = document.getElementById('dropdown-ui');       // ログアウトメニュー
-        const displayEmail = document.getElementById('display-email');   // メアド表示箇所
-        const logoutBtn = document.getElementById('trigger-logout');     // ログアウトボタン
+        const displayEmail = document.getElementById('display-email');    // メアド表示箇所
+        const logoutBtn = document.getElementById('trigger-logout');      // ログアウトボタン
 
         const modalUi = document.getElementById('modal-ui');
         const modalTitle = document.getElementById('modal-title');
@@ -590,13 +601,30 @@
         drawerOverlay.addEventListener('click', () => toggleDrawer(false));
         drawerLinks.forEach(link => link.addEventListener('click', () => toggleDrawer(false)));
 
-        // お知らせ機能
+        // --- お知らせ機能（赤丸制御を追加） ---
         const bellBtn = document.getElementById('bell-btn');
         const newsUi = document.getElementById('news-ui');
+        const bellBadge = document.getElementById('bell-badge');
+
+        // 最新のお知らせID（日付などを指定）。これを変更するとユーザーに再度赤丸がつきます。
+        const currentNewsId = '20251231'; 
+
+        // ページ読み込み時に、既読状態をチェック
+        const readNewsId = localStorage.getItem('read_news_id');
+        if (readNewsId === currentNewsId) {
+            // すでに読んでいる場合、赤丸を消す
+            bellBadge.classList.add('hidden');
+        }
+
         bellBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             newsUi.classList.toggle('hidden');
+
+            // ベルを押したら赤丸を消し、既読情報を保存する
+            bellBadge.classList.add('hidden');
+            localStorage.setItem('read_news_id', currentNewsId);
         });
+        
         document.addEventListener('click', (e) => {
             if (!newsUi.contains(e.target) && !bellBtn.contains(e.target)) {
                 newsUi.classList.add('hidden');
