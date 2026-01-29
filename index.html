@@ -209,8 +209,8 @@
         .primary-btn:hover { background: #155cb0; }
 
         /* ============================
-           レスポンシブ (スマホ向け)
-           ============================ */
+            レスポンシブ (スマホ向け)
+            ============================ */
         @media (max-width: 768px) {
             header { padding: 0 15px; height: 60px; }
             body { padding-top: 60px; }
@@ -433,12 +433,12 @@
         const provider = new GoogleAuthProvider();
 
         // --- UI要素の取得 ---
-        const guestNav = document.getElementById('header-guest-nav');      // ゲスト用ボタン群
+        const guestNav = document.getElementById('header-guest-nav');       // ゲスト用ボタン群
         const userMenu = document.querySelector('.user-menu-container'); // ユーザー用アイコン
-        const mainUserBtn = document.getElementById('main-user-btn');      // アイコンボタン
-        const dropdownUi = document.getElementById('dropdown-ui');       // ログアウトメニュー
-        const displayEmail = document.getElementById('display-email');    // メアド表示箇所
-        const logoutBtn = document.getElementById('trigger-logout');      // ログアウトボタン
+        const mainUserBtn = document.getElementById('main-user-btn');       // アイコンボタン
+        const dropdownUi = document.getElementById('dropdown-ui');        // ログアウトメニュー
+        const displayEmail = document.getElementById('display-email');     // メアド表示箇所
+        const logoutBtn = document.getElementById('trigger-logout');       // ログアウトボタン
 
         const modalUi = document.getElementById('modal-ui');
         const modalTitle = document.getElementById('modal-title');
@@ -473,6 +473,8 @@
         // --- 2. ユーザーメニューの動作 ---
         mainUserBtn.addEventListener('click', (e) => {
             e.stopPropagation();
+            // ★追加: お知らせが開いていたら閉じる
+            newsUi.classList.add('hidden');
             dropdownUi.classList.toggle('hidden');
         });
         
@@ -618,6 +620,8 @@
 
         bellBtn.addEventListener('click', (e) => {
             e.stopPropagation();
+            // ★追加: ユーザーメニューが開いていたら閉じる
+            dropdownUi.classList.add('hidden');
             newsUi.classList.toggle('hidden');
 
             // ベルを押したら赤丸を消し、既読情報を保存する
