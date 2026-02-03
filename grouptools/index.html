@@ -2,58 +2,90 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>グループ分けツール - おさんツール</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>グループ分けツール - おさんツール</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         /* =========================================
-           基本スタイル
+           基本設定 & ヘッダー (ご提示のコードを反映)
         ========================================= */
+        html { scroll-behavior: smooth; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Hiragino Kaku Gothic ProN', sans-serif; background-color: #f0f2f5; padding-top: 80px; padding-bottom: 40px; color: #202124; }
+        body { 
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif; 
+            background-color: #fcfcfc; 
+            color: #202124; 
+            line-height: 1.8; 
+            padding-top: 70px; /* ヘッダーの高さ分確保 */
+            font-size: 16px; 
+        }
         .hidden { display: none !important; }
 
-        /* ヘッダー */
+        /* --- ヘッダー --- */
         header {
-            position: fixed; top: 0; left: 0; width: 100%; height: 64px;
+            position: fixed; top: 0; left: 0; width: 100%; height: 70px;
             background: #202124; color: white;
             display: flex; justify-content: space-between; align-items: center;
-            padding: 0 16px; z-index: 1000; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            padding: 0 20px; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
-        
-        .header-left { display: flex; align-items: center; gap: 10px; }
-        .logo a { font-size: 20px; font-weight: bold; color: #ffffff; text-decoration: none; }
 
+        .header-left { display: flex; align-items: center; gap: 15px; }
+
+        /* ハンバーガーボタン */
         #hamburger-btn {
             background: none; border: none; color: white; cursor: pointer;
             display: none; align-items: center; justify-content: center;
-            padding: 5px; margin-right: 5px;
+            padding: 5px;
         }
-        #hamburger-btn .material-icons { font-size: 28px; }
+        #hamburger-btn .material-icons { font-size: 30px; }
 
-        #header-guest-nav { display: flex; align-items: center; }
-        .nav-text-btn {
-            background: none; border: 1px solid white; color: white;
-            padding: 6px 12px; border-radius: 4px; cursor: pointer;
-            margin-left: 8px; font-size: 13px; transition: 0.2s; white-space: nowrap;
+        .logo a { 
+            font-size: 22px; font-weight: bold; color: #ffffff; 
+            text-decoration: none; letter-spacing: 0.1em; white-space: nowrap; 
         }
-        .nav-text-btn.primary { background: white; color: #202124; font-weight: bold; }
-        .icon-button { background: none; border: none; cursor: pointer; color: white; display: flex; align-items: center; }
-        .icon-button .material-icons { font-size: 32px; }
+        
+        .desktop-nav { display: flex; gap: 30px; align-items: center; margin-left: 30px; }
+        .desktop-nav a { color: #ccc; text-decoration: none; font-size: 14px; font-weight: 500; transition: 0.3s; white-space: nowrap; }
+        .desktop-nav a:hover { color: white; }
+
+        .header-right { display: flex; align-items: center; gap: 15px; }
+
+        /* お知らせ・認証周り */
+        .notification-container { position: relative; display: flex; align-items: center; }
+        .bell-button { background: none; border: none; color: #ccc; cursor: pointer; display: flex; align-items: center; position: relative; transition: 0.3s; padding: 5px; }
+        .bell-button:hover { color: white; }
+        .bell-button .material-icons { font-size: 28px; }
+        .bell-badge { position: absolute; top: 6px; right: 6px; width: 10px; height: 10px; background: #ea4335; border-radius: 50%; border: 2px solid #202124; }
+
+        .news-dropdown {
+            position: absolute; top: 60px; right: -10px; width: 320px; background: white; border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 1px solid #eee; z-index: 1100; color: #333; padding: 10px 0;
+        }
+        .news-header { padding: 12px 20px; font-weight: bold; font-size: 14px; border-bottom: 1px solid #f0f0f0; color: #5f6368; letter-spacing: 0.05em; }
+        .news-item { padding: 15px 20px; font-size: 14px; border-bottom: 1px solid #fafafa; transition: 0.2s; text-align: left; }
+        .news-item:hover { background: #f8f9fa; }
+        .news-date { display: block; font-size: 12px; color: #9aa0a6; margin-bottom: 4px; }
+
+        .auth-buttons-container { display: flex; align-items: center; gap: 10px; }
+        .nav-text-btn { background: none; border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; transition: 0.3s; white-space: nowrap; }
+        .nav-text-btn.primary { background: white; color: #202124; font-weight: bold; border-color: white; }
+        .nav-text-btn:hover { border-color: white; }
 
         .user-menu-container { position: relative; }
+        .icon-button { background: none; border: none; cursor: pointer; color: white; display: flex; align-items: center; }
+        .icon-button .material-icons { font-size: 34px; }
+        
         .dropdown-menu {
-            position: absolute; top: 50px; right: 0; width: 220px; background: white; border-radius: 8px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2); border: 1px solid #ddd; z-index: 1100; overflow: hidden;
+            position: absolute; top: 60px; right: 0; width: 240px; 
+            background: white; border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); 
+            border: 1px solid #ddd; z-index: 1100; overflow: hidden; color: #333;
         }
-        .dropdown-menu button {
-            width: 100%; padding: 12px 20px; border: none; background: none;
-            text-align: left; cursor: pointer; font-size: 14px; border-bottom: 1px solid #f1f1f1;
-        }
-        .user-email-info { padding: 12px 20px; font-size: 12px; color: #5f6368; border-bottom: 1px solid #eee; background: #fafafa; word-break: break-all; }
+        .user-email-info { padding: 14px 20px; font-size: 13px; color: #5f6368; border-bottom: 1px solid #eee; background: #fafafa; word-break: break-all; }
+        .dropdown-menu button { width: 100%; padding: 14px 20px; border: none; background: none; text-align: left; cursor: pointer; font-size: 15px; }
+        .dropdown-menu button:hover { background-color: #f1f1f1; }
         .btn-delete { color: #ea4335 !important; }
 
-        /* サイドメニュー */
+        /* --- モバイル用ドロワー --- */
         #drawer-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); z-index: 1100; opacity: 0; pointer-events: none; transition: opacity 0.3s;
@@ -61,30 +93,73 @@
         #drawer-overlay.open { opacity: 1; pointer-events: auto; }
 
         #mobile-drawer {
-            position: fixed; top: 0; left: 0; width: 260px; height: 100%;
-            background: white; z-index: 1200; transform: translateX(-100%); transition: transform 0.3s ease;
+            position: fixed; top: 0; left: 0; width: 280px; height: 100%;
+            background: #202124; 
+            z-index: 1200; transform: translateX(-100%); transition: transform 0.3s ease;
             box-shadow: 2px 0 8px rgba(0,0,0,0.1); display: flex; flex-direction: column;
         }
         #mobile-drawer.open { transform: translateX(0); }
 
-        .drawer-header {
-            padding: 20px; background: #f8f9fa; border-bottom: 1px solid #eee;
-            font-weight: bold; color: #202124; display: flex; justify-content: space-between; align-items: center;
+        .drawer-header-area {
+            padding: 20px; background: #202124; border-bottom: 1px solid #3c4043;
+            font-weight: bold; color: #fff; 
+            display: flex; justify-content: space-between; align-items: center; font-size: 18px;
         }
         .drawer-list { list-style: none; padding: 10px 0; }
         .drawer-list li a {
-            display: block; padding: 15px 20px; color: #3c4043; text-decoration: none;
-            font-size: 15px; border-left: 4px solid transparent; transition: 0.2s;
+            display: block; padding: 16px 24px; color: #e8eaed; 
+            text-decoration: none; font-size: 16px; border-left: 4px solid transparent; transition: 0.2s;
         }
-        .drawer-list li a:hover { background: #f0f2f5; }
-        .drawer-list li a.active { background: #e8f0fe; color: #1a73e8; border-left-color: #1a73e8; font-weight: bold; }
+        .drawer-list li a:hover { background: #3c4043; border-left-color: #34a853; }
+        .drawer-list li a.active { background: #3c4043; border-left-color: #34a853; color: white; }
 
-        /* レイアウト */
-        main { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+        /* --- モーダル・認証用 --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 2000;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .mini-window {
+            width: 380px; background: white; border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4); overflow: hidden; max-width: 90%;
+        }
+        .window-header {
+            padding: 16px 20px; border-bottom: 1px solid #eee; background: #f8f8f8;
+            display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 16px;
+        }
+        .window-body { padding: 30px; text-align: center; }
+        .google-btn {
+            width: 100%; height: 50px; background: white; 
+            border: 1px solid #dadce0; border-radius: 4px; 
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-weight: 500; font-size: 16px; margin-bottom: 25px;
+        }
+        .google-btn img { width: 24px; height: 24px; margin-right: 12px; }
+        .auth-input { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
+        .primary-btn { width: 100%; padding: 14px; background: #1a73e8; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; }
+        .primary-btn:hover { background: #155cb0; }
+
+        /* レスポンシブ */
+        @media (max-width: 768px) {
+            header { padding: 0 15px; height: 60px; }
+            body { padding-top: 60px; }
+            #hamburger-btn { display: flex; }
+            .desktop-nav { display: none; }
+            .logo a { font-size: 17px; white-space: nowrap; }
+            .header-right { gap: 8px; }
+            .nav-text-btn { padding: 6px 12px; font-size: 12px; } 
+            .news-dropdown { width: 300px; right: -50px; top: 50px; }
+            .dropdown-menu { width: 200px; top: 50px; }
+        }
+
+        /* =========================================
+           ツール個別スタイル (グループ分け)
+        ========================================= */
+        main { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
         h1 { font-size: 24px; margin-bottom: 20px; color: #3c4043; }
 
         .tool-container { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
-        .section-box { flex: 1; min-width: 300px; background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }
+        .section-box { flex: 1; min-width: 300px; background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #eee; }
         
         .section-header {
             background: #f8f9fa; padding: 12px 20px; border-bottom: 1px solid #eee;
@@ -113,7 +188,8 @@
         /* 保存ボタン類 */
         .cloud-actions { display: flex; flex-direction: column; gap: 8px; }
         .cloud-btn-row { display: flex; gap: 8px; }
-        .c-btn { flex: 1; padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; font-size: 14px; }
+        .c-btn { flex: 1; padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; font-size: 14px; transition: 0.2s;}
+        .c-btn:hover { opacity: 0.9; }
         .bg-blue { background: #1a73e8; }
         .bg-green { background: #34a853; }
         .bg-red { background: #ea4335; }
@@ -121,7 +197,7 @@
         .status-saving { color: #ea4335 !important; font-weight: bold; }
 
         /* 実行エリア */
-        .execution-area { margin-top: 20px; text-align: center; background: white; padding: 30px 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .execution-area { margin-top: 20px; text-align: center; background: white; padding: 30px 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #eee; }
         .action-btn { 
             background: #34a853; color: white; padding: 15px 0; border: none; border-radius: 8px; 
             font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.2s; width: 100%; max-width: 300px; 
@@ -129,7 +205,8 @@
         }
         .action-btn:hover { background: #2d9147; transform: translateY(-2px); }
         
-        #btn-csv-download { margin-top: 15px; background: #5f6368; color: white; border: none; padding: 12px 20px; border-radius: 4px; cursor: pointer; width: 100%; max-width: 300px; font-weight: bold; }
+        #btn-csv-download { margin-top: 15px; background: #5f6368; color: white; border: none; padding: 12px 20px; border-radius: 4px; cursor: pointer; width: 100%; max-width: 300px; font-weight: bold; transition: 0.2s; }
+        #btn-csv-download:hover:not(:disabled) { background: #4b4e52; }
         #btn-csv-download:disabled { background: #dadce0; cursor: not-allowed; opacity: 0.7; }
 
         /* 結果出力 */
@@ -139,9 +216,8 @@
         }
         #output-title { font-weight: bold; font-size: 18px; color: #3c4043; display: flex; align-items: center; gap: 5px; }
 
-        #output { margin-top: 0; }
+        #output { margin-top: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
         
-        /* フラッシュアニメーション */
         @keyframes highlightFade {
             0% { background-color: #fef08a; transform: scale(1.02); }
             100% { background-color: transparent; transform: scale(1); }
@@ -149,19 +225,12 @@
         .updated-flash { animation: highlightFade 0.6s ease-out; }
 
         .group-box { 
-            margin-bottom: 15px; padding: 15px; border-left: 5px solid #34a853; 
-            background: white; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); line-height: 1.6;
+            padding: 15px; border-left: 5px solid #34a853; 
+            background: white; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); line-height: 1.6; border: 1px solid #eee;
         }
-        .group-title { font-weight: bold; color: #202124; display: block; margin-bottom: 5px; }
-
-        /* 履歴保存ステータス表示 */
-        #history-save-indicator {
-            margin-top: 10px; font-size: 13px; color: #555; font-weight: bold; min-height: 20px;
-        }
-        .text-wait { color: #fbbc04; }
-        .text-saving { color: #ea4335; }
-        .text-done { color: #34a853; }
-        .text-error { color: #d93025; background: #fce8e6; padding: 5px 10px; border-radius: 4px; display: inline-block; }
+        .group-title { font-weight: bold; color: #202124; display: block; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 5px;}
+        .group-box ul { padding-left: 20px; list-style-type: decimal; }
+        .group-box li { font-size: 15px; margin-bottom: 2px; }
 
         /* 履歴リスト */
         #history-list { list-style: none; margin-top: 0; }
@@ -179,23 +248,13 @@
         .history-actions button {
             padding: 8px 12px; border-radius: 4px; border: 1px solid #1a73e8; 
             background: white; color: #1a73e8; cursor: pointer; font-size: 12px; font-weight: bold;
-            display: flex; align-items: center; justify-content: center;
+            display: flex; align-items: center; justify-content: center; transition: 0.2s;
         }
         .history-actions button:hover { background: #e8f0fe; }
         
         .btn-history-delete { color: #ea4335 !important; border-color: #ea4335 !important; }
         .btn-history-delete:hover { background: #fce8e6 !important; }
         .btn-history-delete .material-icons { font-size: 16px; }
-
-        /* モーダル */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; justify-content: center; align-items: center; }
-        .mini-window { width: 360px; max-width: 90%; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .window-header { padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
-        .window-body { padding: 25px; text-align: center; }
-        .google-btn { width: 100%; padding: 10px; background: white; border: 1px solid #dadce0; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 20px; font-weight: bold; }
-        .google-btn img { width: 18px; margin-right: 10px; }
-        .auth-input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; }
-        .primary-btn { width: 100%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
 
         /* ステータスバッジ */
         #storage-status {
@@ -212,8 +271,6 @@
         #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
 
         @media (max-width: 768px) {
-            #hamburger-btn { display: flex; }
-            main { padding: 0 15px; }
             .tool-container { flex-direction: column; }
             .section-box { width: 100%; }
         }
@@ -227,33 +284,60 @@
                 <span class="material-icons">menu</span>
             </button>
             <div class="logo"><a href="../index.html">おさんツール</a></div>
+            
+            <nav class="desktop-nav">
+                <a href="../about.html">概要</a>
+                <a href="../tools.html">ツール一覧</a>
+                <a href="#">フィードバック</a>
+            </nav>
         </div>
 
-        <div class="user-menu-container">
-            <div id="header-guest-nav">
+        <div class="header-right">
+            <div class="notification-container">
+                <button class="bell-button" id="bell-btn" title="お知らせ">
+                    <span class="material-icons">notifications</span>
+                    <span class="bell-badge" id="bell-badge"></span>
+                </button>
+                <div class="news-dropdown hidden" id="news-ui">
+                    <div class="news-header">NOTIFICATION</div>
+                    <div class="news-item">
+                        <span class="news-date">2025/12/31</span>
+                        新機能「高機能電卓」を公開いたしました。
+                    </div>
+                    <div class="news-item">
+                        <span class="news-date">2025/12/23</span>
+                        レスポンシブ対応になりました。
+                    </div>
+                </div>
+            </div>
+
+            <div id="header-guest-nav" class="auth-buttons-container">
                 <button class="nav-text-btn" id="nav-signin">サインイン</button>
                 <button class="nav-text-btn primary" id="nav-signup">登録</button>
             </div>
-            <button id="main-user-btn" class="icon-button hidden">
-                <span class="material-icons">account_circle</span>
-            </button>
-            <div id="dropdown-ui" class="dropdown-menu hidden">
-                <div class="user-email-info" id="display-email"></div>
-                <button id="trigger-logout">ログアウト</button>
-                <button id="trigger-delete-account" class="btn-delete">アカウント削除</button>
+
+            <div class="user-menu-container">
+                <button id="main-user-btn" class="icon-button hidden"><span class="material-icons">account_circle</span></button>
+                <div id="dropdown-ui" class="dropdown-menu hidden">
+                    <div class="user-email-info" id="display-email"></div>
+                    <button id="trigger-logout">ログアウト</button>
+                    <button id="trigger-delete-account" class="btn-delete">アカウント削除</button>
+                </div>
             </div>
         </div>
     </header>
 
     <div id="drawer-overlay"></div>
     <nav id="mobile-drawer">
-        <div class="drawer-header">
+        <div class="drawer-header-area">
             <span>メニュー</span>
             <span class="material-icons" id="drawer-close" style="cursor:pointer;">close</span>
         </div>
         <ul class="drawer-list">
-            <li><a href="../index.html">トップページ</a></li>
-            <li><a href="#" class="active">グループ分け</a></li>
+            <li><a href="../about.html" class="drawer-link">概要</a></li>
+            <li><a href="../tools.html" class="drawer-link">ツール一覧</a></li>
+            <li><a href="#" class="drawer-link active">グループ分け</a></li>
+            <li><a href="#" class="drawer-link">フィードバック</a></li>
         </ul>
     </nav>
 
@@ -338,8 +422,6 @@
                 グループ分け実行
             </button>
             <br>
-            <div id="history-save-indicator"></div>
-
             <button id="btn-csv-download" disabled onclick="downloadCSV()">
                 CSVで保存
             </button>
@@ -372,14 +454,19 @@
 
     <div id="modal-ui" class="modal-overlay hidden">
         <div class="mini-window">
-            <div class="window-header"><span id="modal-title"></span><button id="modal-close" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button></div>
+            <div class="window-header">
+                <span id="modal-title">サインイン</span>
+                <button id="modal-close" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
+            </div>
             <div class="window-body">
-                <button class="google-btn" id="google-auth-btn"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"> Googleで続行</button>
+                <button class="google-btn" id="google-auth-btn">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"> Googleで続行
+                </button>
                 <div style="margin: 15px 0; border-bottom: 1px solid #eee; line-height:0.1em; color:#999;">or</div>
                 <input type="email" id="input-email" class="auth-input" autocomplete="username" placeholder="メールアドレス">
                 <input type="password" id="input-pass" class="auth-input" autocomplete="current-password" placeholder="パスワード">
                 <button id="auth-execute-btn" class="primary-btn">送信</button>
-                <p id="auth-toggle-text" style="color:#1a73e8; font-size:13px; cursor:pointer; margin-top:15px;"></p>
+                <p id="auth-toggle-text" style="color:#1a73e8; font-size:13px; cursor:pointer; margin-top:15px;">アカウントをお持ちでない方はこちら</p>
             </div>
         </div>
     </div>
@@ -389,6 +476,7 @@
         import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteField } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
+        // Firebase設定
         const firebaseConfig = {
             apiKey: "AIzaSyBtQGq5IJXyoHGBGpx25ZfVkXWL-iRRqC8",
             authDomain: "my-programming-tools-auth.firebaseapp.com",
@@ -397,20 +485,191 @@
             messagingSenderId: "617449767952",
             appId: "1:617449767952:web:12f75dcb19f2035d637695"
         };
+
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
 
         // --- 変数定義 ---
         let currentUser = null;
         let lastRes = []; 
-        let historySaveTimer = null; 
         let listAutoSaveTimer = null;
-
         const LS_KEY_HISTORY = 'group_tool_history_v1';
         const LS_KEY_LISTS = 'group_tool_lists_v4';
 
-        // --- トースト表示機能 ---
+        // --- UI要素の取得 (ヘッダー関連) ---
+        const guestNav = document.getElementById('header-guest-nav');
+        const mainUserBtn = document.getElementById('main-user-btn');
+        const dropdownUi = document.getElementById('dropdown-ui');
+        const displayEmail = document.getElementById('display-email');
+        const logoutBtn = document.getElementById('trigger-logout');
+        const deleteAccBtn = document.getElementById('trigger-delete-account');
+
+        const modalUi = document.getElementById('modal-ui');
+        const modalTitle = document.getElementById('modal-title');
+        const inputEmail = document.getElementById('input-email');
+        const inputPass = document.getElementById('input-pass');
+        const authExecuteBtn = document.getElementById('auth-execute-btn');
+        const googleAuthBtn = document.getElementById('google-auth-btn');
+        const authToggleText = document.getElementById('auth-toggle-text');
+        const modalClose = document.getElementById('modal-close');
+        
+        const storageStatus = document.getElementById('storage-status');
+
+        let isLoginMode = true; 
+
+        // 1. ログイン状態の監視
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if (user) {
+                // ヘッダー表示切り替え
+                guestNav.style.display = 'none';
+                mainUserBtn.classList.remove('hidden');
+                displayEmail.textContent = user.email;
+                
+                // ツール側ステータス
+                storageStatus.textContent = "保存先: クラウド(アカウント)";
+                storageStatus.className = "status-cloud";
+            } else {
+                // ヘッダー表示切り替え
+                guestNav.style.display = 'flex';
+                mainUserBtn.classList.add('hidden');
+                dropdownUi.classList.add('hidden');
+                
+                // ツール側ステータス
+                storageStatus.textContent = "保存先: ブラウザ(ローカル)";
+                storageStatus.className = "status-local";
+            }
+            // データの再読み込み (ツール連携)
+            refreshSavedLists();
+            loadHistory();
+        });
+
+        // 2. ユーザーメニューの動作
+        mainUserBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            newsUi.classList.add('hidden'); // お知らせを閉じる
+            dropdownUi.classList.toggle('hidden');
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!dropdownUi.contains(e.target) && !mainUserBtn.contains(e.target)) {
+                dropdownUi.classList.add('hidden');
+            }
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            signOut(auth).then(() => showToast("ログアウトしました")).catch((e) => console.error(e));
+        });
+
+        deleteAccBtn.onclick = async () => {
+            if (!currentUser || !confirm("アカウントを削除しますか？\n（保存データも削除されます）")) return;
+            try { await currentUser.delete(); location.reload(); } catch (err) { alert("セキュリティのため、再ログインが必要です。"); signOut(auth); }
+        };
+
+        // 3. モーダルと認証ロジック
+        window.openAuthModal = (mode) => {
+            modalUi.classList.remove('hidden');
+            inputEmail.value = '';
+            inputPass.value = '';
+            
+            if (mode === 'signin') {
+                isLoginMode = true;
+                modalTitle.textContent = 'サインイン';
+                authExecuteBtn.textContent = 'ログイン';
+                authToggleText.textContent = 'アカウントをお持ちでない方はこちら';
+            } else {
+                isLoginMode = false;
+                modalTitle.textContent = '新規登録';
+                authExecuteBtn.textContent = '登録する';
+                authToggleText.textContent = 'すでにアカウントをお持ちの方はこちら';
+            }
+        };
+
+        document.getElementById('nav-signin').addEventListener('click', () => window.openAuthModal('signin'));
+        document.getElementById('nav-signup').addEventListener('click', () => window.openAuthModal('signup'));
+
+        authToggleText.addEventListener('click', () => {
+            if (isLoginMode) window.openAuthModal('signup');
+            else window.openAuthModal('signin');
+        });
+
+        modalClose.addEventListener('click', () => modalUi.classList.add('hidden'));
+        modalUi.addEventListener('click', (e) => {
+            if (e.target === modalUi) modalUi.classList.add('hidden');
+        });
+
+        // メール認証実行
+        authExecuteBtn.addEventListener('click', () => {
+            const email = inputEmail.value;
+            const pass = inputPass.value;
+            if (!email || !pass) return alert("入力してください");
+
+            if (isLoginMode) {
+                signInWithEmailAndPassword(auth, email, pass)
+                    .then(() => { showToast("ログインしました"); modalUi.classList.add('hidden'); })
+                    .catch((e) => alert("失敗: " + e.message));
+            } else {
+                createUserWithEmailAndPassword(auth, email, pass)
+                    .then(() => { showToast("登録してログインしました"); modalUi.classList.add('hidden'); })
+                    .catch((e) => alert("失敗: " + e.message));
+            }
+        });
+
+        // Google認証実行
+        googleAuthBtn.addEventListener('click', () => {
+            signInWithPopup(auth, provider)
+                .then(() => { showToast("Googleでログインしました"); modalUi.classList.add('hidden'); })
+                .catch((e) => alert("失敗: " + e.message));
+        });
+
+        // 4. ハンバーガーメニュー
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const drawerOverlay = document.getElementById('drawer-overlay');
+        const mobileDrawer = document.getElementById('mobile-drawer');
+        const drawerClose = document.getElementById('drawer-close');
+        const drawerLinks = document.querySelectorAll('.drawer-link');
+
+        function toggleDrawer(isOpen) {
+            if (isOpen) {
+                mobileDrawer.classList.add('open');
+                drawerOverlay.classList.add('open');
+            } else {
+                mobileDrawer.classList.remove('open');
+                drawerOverlay.classList.remove('open');
+            }
+        }
+        hamburgerBtn.addEventListener('click', () => toggleDrawer(true));
+        drawerClose.addEventListener('click', () => toggleDrawer(false));
+        drawerOverlay.addEventListener('click', () => toggleDrawer(false));
+        drawerLinks.forEach(link => link.addEventListener('click', () => toggleDrawer(false)));
+
+        // 5. お知らせ機能
+        const bellBtn = document.getElementById('bell-btn');
+        const newsUi = document.getElementById('news-ui');
+        const bellBadge = document.getElementById('bell-badge');
+        const currentNewsId = '20251231'; 
+
+        if (localStorage.getItem('read_news_id') === currentNewsId) {
+            bellBadge.classList.add('hidden');
+        }
+
+        bellBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdownUi.classList.add('hidden'); // ユーザーメニューを閉じる
+            newsUi.classList.toggle('hidden');
+            bellBadge.classList.add('hidden');
+            localStorage.setItem('read_news_id', currentNewsId);
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!newsUi.contains(e.target) && !bellBtn.contains(e.target)) {
+                newsUi.classList.add('hidden');
+            }
+        });
+
+        // --- ツール機能 (トースト表示) ---
         function showToast(message) {
             const x = document.getElementById("toast");
             x.textContent = message;
@@ -418,89 +677,13 @@
             setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
         }
 
-        // --- ドロワー制御 ---
-        const hamburgerBtn = document.getElementById('hamburger-btn');
-        const drawer = document.getElementById('mobile-drawer');
-        const overlay = document.getElementById('drawer-overlay');
-        const drawerClose = document.getElementById('drawer-close');
-
-        function openDrawer() { drawer.classList.add('open'); overlay.classList.add('open'); }
-        function closeDrawer() { drawer.classList.remove('open'); overlay.classList.remove('open'); }
-
-        hamburgerBtn.addEventListener('click', openDrawer);
-        overlay.addEventListener('click', closeDrawer);
-        drawerClose.addEventListener('click', closeDrawer);
-
-        // --- UI制御 ---
+        // --- ツール機能 (開閉制御) ---
         window.toggleSection = (id, iconId) => {
             const el = document.getElementById(id);
             const icon = document.getElementById(iconId);
             el.classList.toggle('hidden');
             icon.textContent = el.classList.contains('hidden') ? 'expand_more' : 'expand_less';
         };
-
-        const userBtn = document.getElementById('main-user-btn');
-        const dropdown = document.getElementById('dropdown-ui');
-        const guestNav = document.getElementById('header-guest-nav');
-        const modal = document.getElementById('modal-ui');
-        const storageStatus = document.getElementById('storage-status');
-        let mode = 'login';
-
-        userBtn.onclick = (e) => { e.stopPropagation(); dropdown.classList.toggle('hidden'); };
-        document.onclick = () => dropdown.classList.add('hidden');
-        document.getElementById('modal-close').onclick = () => modal.classList.add('hidden');
-
-        function openAuth(m) {
-            mode = m;
-            modal.classList.remove('hidden');
-            document.getElementById('modal-title').textContent = m === 'login' ? 'サインイン' : 'アカウント作成';
-            document.getElementById('auth-execute-btn').textContent = m === 'login' ? 'ログイン' : '登録する';
-            document.getElementById('auth-toggle-text').textContent = m === 'login' ? 'アカウントをお持ちでない方はこちら' : 'すでにアカウントをお持ちの方はこちら';
-        }
-
-        document.getElementById('nav-signin').onclick = () => openAuth('login');
-        document.getElementById('nav-signup').onclick = () => openAuth('signup');
-        document.getElementById('auth-toggle-text').onclick = () => openAuth(mode === 'login' ? 'signup' : 'login');
-        document.getElementById('trigger-logout').onclick = () => signOut(auth);
-
-        document.getElementById('google-auth-btn').onclick = async (e) => {
-            e.stopPropagation();
-            try { await signInWithPopup(auth, new GoogleAuthProvider()); modal.classList.add('hidden'); } catch (err) { alert("失敗: " + err.message); }
-        };
-        document.getElementById('auth-execute-btn').onclick = async () => {
-            const e = document.getElementById('input-email').value;
-            const p = document.getElementById('input-pass').value;
-            try {
-                if(mode === 'login') await signInWithEmailAndPassword(auth, e, p);
-                else await createUserWithEmailAndPassword(auth, e, p);
-                modal.classList.add('hidden');
-            } catch (err) { alert(err.message); }
-        };
-        document.getElementById('trigger-delete-account').onclick = async () => {
-            if (!currentUser || !confirm("アカウントを削除しますか？")) return;
-            try { await currentUser.delete(); location.reload(); } catch (err) { alert("再ログインが必要です"); signOut(auth); }
-        };
-
-        // 認証状態の監視
-        onAuthStateChanged(auth, (user) => {
-            currentUser = user;
-            if (user) {
-                guestNav.classList.add('hidden');
-                userBtn.classList.remove('hidden');
-                document.getElementById('display-email').textContent = user.email;
-                storageStatus.textContent = "保存先: クラウド(アカウント)";
-                storageStatus.className = "status-cloud";
-                refreshSavedLists();
-                loadHistory();       
-            } else {
-                guestNav.classList.remove('hidden');
-                userBtn.classList.add('hidden');
-                storageStatus.textContent = "保存先: ブラウザ(ローカル)";
-                storageStatus.className = "status-local";
-                refreshSavedLists();
-                loadHistory();       
-            }
-        });
 
         // --- 名簿保存機能 ---
         async function saveNameList(isAuto = false) {
@@ -624,7 +807,7 @@
             }
         };
 
-        // --- グループ分け実行 ---
+        // --- グループ分けコアロジック ---
         window.divideGroups = async () => {
             const rawText = document.getElementById('names-input').value;
             const count = parseInt(document.getElementById('group-count').value);
@@ -633,6 +816,7 @@
             if (rawText.trim() === "") return alert("名簿を入力してください。");
             if (isNaN(count) || count < 1) return alert("グループ数は1以上にしてください。");
 
+            // 空白行でブロック分割
             const sectionsRaw = rawText.split(/\n\s*\n/);
             const sections = [];
             let totalPeople = 0;
@@ -648,6 +832,7 @@
             if (totalPeople === 0) return alert("名簿を入力してください。");
             if (count > totalPeople) return alert(`人数(${totalPeople}人)より多いグループ数は作れません。`);
 
+            // グループ作成
             const groups = Array.from({length: count}, () => []);
             let currentOffset = 0;
 
@@ -656,92 +841,75 @@
                 shuf.forEach((n, i) => {
                     groups[(i + currentOffset) % count].push(n);
                 });
-                currentOffset = (currentOffset + lines.length) % count;
+                currentOffset += lines.length;
             });
 
-            lastRes = groups.map(g => {
-                if (sort === 'original') return g.sort((a,b) => rawText.indexOf(a) - rawText.indexOf(b));
-                return g;
-            });
-
-            // 表示（フラッシュ効果あり）
-            displayResult(lastRes, "実行結果");
-
-            // --- 履歴保存ロジック（3秒待機） ---
-            const ind = document.getElementById('history-save-indicator');
-            if (historySaveTimer) clearTimeout(historySaveTimer);
-
-            ind.innerHTML = '<span class="text-wait">⏳ 3秒後に履歴へ保存します...</span>';
-            
-            historySaveTimer = setTimeout(async () => {
-                ind.innerHTML = '<span class="text-saving">履歴に保存中...</span>';
-                
-                await saveToHistory(lastRes)
-                    .then(() => {
-                        ind.innerHTML = '<span class="text-done">✅ 履歴に保存されました</span>';
-                    })
-                    .catch((err) => {
-                        console.error("履歴保存失敗:", err);
-                        ind.innerHTML = `<span class="text-error">⚠ 保存エラー: ${err.message}</span>`;
-                    });
-                historySaveTimer = null;
-            }, 3000);
-        };
-
-        function displayResult(resultData, titleLabel = "") {
-            lastRes = resultData;
-            const outputArea = document.getElementById('output');
-            const header = document.getElementById('output-header');
-            const titleEl = document.getElementById('output-title');
-
-            // タイトル更新
-            if(titleLabel) {
-                header.style.display = "flex";
-                titleEl.textContent = titleLabel;
-            } else {
-                header.style.display = "none";
+            if (sort === 'shuffled') {
+                groups.forEach(g => g.sort(() => Math.random() - 0.5));
             }
 
-            // データ描画
-            outputArea.innerHTML = resultData.map((g, i) => 
-                `<div class="group-box">
-                    <span class="group-title">グループ ${i+1} (${g.length}名)</span>
-                    ${g.join('、 ')}
-                 </div>`
-            ).join('');
+            lastRes = groups;
+            displayResult(groups);
             
-            // アニメーション発火 (classを一度外して付け直す)
-            outputArea.classList.remove('updated-flash');
-            void outputArea.offsetWidth; // Reflow trigger
-            outputArea.classList.add('updated-flash');
+            // 履歴保存
+            const historyData = groups.map(g => ({ members: g }));
+            const now = new Date();
+            const dateStr = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+            
+            const historyItem = {
+                id: Date.now().toString(),
+                date: dateStr,
+                count: count,
+                total: totalPeople,
+                data: historyData
+            };
+            
+            await saveToHistory(historyItem);
+            document.getElementById('btn-csv-download').disabled = false;
+        };
 
-            const csvBtn = document.getElementById('btn-csv-download');
-            csvBtn.disabled = false;
+        function displayResult(groups, titleOverride = null) {
+            const output = document.getElementById('output');
+            const outputHeader = document.getElementById('output-header');
+            const outputTitle = document.getElementById('output-title');
             
-            // 少し上にスクロールして見やすくする
-            header.scrollIntoView({behavior: "smooth", block: "start"});
+            output.innerHTML = "";
+            outputHeader.style.display = 'flex';
+            
+            if (titleOverride) {
+                outputTitle.textContent = titleOverride;
+            } else {
+                const now = new Date();
+                const timeStr = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+                outputTitle.textContent = `結果 (${timeStr} 実行)`;
+            }
+
+            output.classList.remove('updated-flash');
+            void output.offsetWidth;
+            output.classList.add('updated-flash');
+
+            groups.forEach((group, i) => {
+                const box = document.createElement('div');
+                box.className = 'group-box';
+                const title = document.createElement('span');
+                title.className = 'group-title';
+                title.textContent = `グループ ${i + 1} (${group.length}名)`;
+                box.appendChild(title);
+                
+                const ul = document.createElement('ul');
+                group.forEach(name => {
+                    const li = document.createElement('li');
+                    li.textContent = name;
+                    ul.appendChild(li);
+                });
+                box.appendChild(ul);
+                output.appendChild(box);
+            });
+            outputHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         // --- 履歴機能 ---
-        function createHistoryItem(result) {
-            if (!result || !Array.isArray(result)) return null;
-
-            // Firestore制限回避: 2次元配列をオブジェクト配列に
-            const safeData = result.map(group => ({ members: group }));
-
-            return {
-                id: Date.now(),
-                date: new Date().toLocaleString('ja-JP'),
-                data: safeData,
-                count: result.length,
-                total: result.flat().length
-            };
-        }
-
-        async function saveToHistory(result) {
-            const item = createHistoryItem(result);
-            if (!item) throw new Error("保存データが無効です");
-
+        async function saveToHistory(item) {
             if (currentUser) {
                 const userRef = doc(db, "users", currentUser.uid);
                 const snap = await getDoc(userRef);
@@ -795,19 +963,16 @@
             }
             
             histArray.forEach((item) => {
-                // プレビュー用に最初の数名を取得
                 let firstGroupMembers = [];
                 if(item.data && item.data.length > 0) {
-                     // 新形式 or 旧形式
                      const g1 = item.data[0];
-                     if(g1.members) firstGroupMembers = g1.members; // 新形式
-                     else if(Array.isArray(g1)) firstGroupMembers = g1; // 旧形式
+                     if(g1.members) firstGroupMembers = g1.members;
+                     else if(Array.isArray(g1)) firstGroupMembers = g1;
                 }
                 const previewText = firstGroupMembers.slice(0, 3).join("、") + (firstGroupMembers.length > 3 ? "..." : "");
 
                 const li = document.createElement('li');
                 li.className = 'history-item';
-                // 「例：」を削除してメンバー名だけ表示
                 li.innerHTML = `
                     <div class="history-left">
                         <div class="history-date">${item.date}</div>
@@ -820,17 +985,17 @@
                     </div>
                 `;
                 
-                // 表示ボタン
                 li.querySelector('.btn-restore').onclick = () => {
                     let restoreData = item.data;
                     if (restoreData.length > 0 && !Array.isArray(restoreData[0]) && restoreData[0].members) {
                         restoreData = restoreData.map(g => g.members);
                     }
+                    lastRes = restoreData;
                     displayResult(restoreData, `📜 履歴: ${item.date}`);
+                    document.getElementById('btn-csv-download').disabled = false;
                     showToast("履歴を表示しました");
                 };
 
-                // 削除ボタン
                 li.querySelector('.btn-history-delete').onclick = () => deleteHistoryItem(item.id);
 
                 listEl.appendChild(li);
@@ -841,7 +1006,6 @@
             if(!confirm("この履歴を削除しますか？")) return;
 
             if (currentUser) {
-                // Cloud Deletion
                 try {
                     const userRef = doc(db, "users", currentUser.uid);
                     const snap = await getDoc(userRef);
@@ -851,11 +1015,8 @@
                         showToast("履歴を削除しました");
                         renderHistoryList(newHist);
                     }
-                } catch(e) {
-                    alert("削除エラー: " + e.message);
-                }
+                } catch(e) { alert("削除エラー: " + e.message); }
             } else {
-                // Local Deletion
                 try {
                     const stored = localStorage.getItem(LS_KEY_HISTORY);
                     if (stored) {
@@ -865,9 +1026,7 @@
                         showToast("履歴を削除しました");
                         renderHistoryList(newHist);
                     }
-                } catch(e) {
-                    console.error(e);
-                }
+                } catch(e) { console.error(e); }
             }
         }
 
