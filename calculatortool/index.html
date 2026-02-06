@@ -2,8 +2,8 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>高機能関数電卓 - おさんツール</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>高機能関数電卓</title>
     
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
@@ -12,7 +12,7 @@
 
     <style>
         /* =========================================
-           1. メインページ共通スタイル (ヘッダー・ベース)
+           1. ご提示いただいた基本スタイル (そのまま採用)
         ========================================= */
         html { scroll-behavior: smooth; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -21,11 +21,14 @@
             background-color: #fcfcfc; 
             color: #202124; 
             line-height: 1.8; 
-            padding-top: 70px; /* ヘッダーの高さ分 */
+            padding-top: 70px;
+            font-size: 16px; 
+            
+            /* 電卓アプリ用に画面高さを固定するための追加設定 */
             height: 100vh;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* 電卓用にスクロール制御 */
         }
         .hidden { display: none !important; }
 
@@ -34,219 +37,232 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 70px;
             background: #202124; color: white;
             display: flex; justify-content: space-between; align-items: center;
-            padding: 0 20px; z-index: 5000; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            padding: 0 20px; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
         .header-left { display: flex; align-items: center; gap: 15px; }
 
-        /* ハンバーガーボタン（デフォルト非表示） */
+        /* ハンバーガーボタン */
         #hamburger-btn {
             background: none; border: none; color: white; cursor: pointer;
             display: none; align-items: center; justify-content: center;
+            padding: 5px;
         }
-        #hamburger-btn .material-icons { font-size: 28px; }
+        #hamburger-btn .material-icons { font-size: 30px; }
 
-        .logo a { font-size: 22px; font-weight: bold; color: #ffffff; text-decoration: none; letter-spacing: 0.1em; }
+        .logo a { 
+            font-size: 22px; font-weight: bold; color: #ffffff; 
+            text-decoration: none; letter-spacing: 0.1em; white-space: nowrap; 
+        }
         
-        /* デスクトップ用ナビリンク */
         .desktop-nav { display: flex; gap: 30px; align-items: center; margin-left: 30px; }
         .desktop-nav a { color: #ccc; text-decoration: none; font-size: 14px; font-weight: 500; transition: 0.3s; white-space: nowrap; }
         .desktop-nav a:hover { color: white; }
 
         .header-right { display: flex; align-items: center; gap: 15px; }
 
-        /* 認証・お知らせ周り */
+        /* お知らせ・認証周り */
         .notification-container { position: relative; display: flex; align-items: center; }
         .bell-button { background: none; border: none; color: #ccc; cursor: pointer; display: flex; align-items: center; position: relative; transition: 0.3s; padding: 5px; }
         .bell-button:hover { color: white; }
-        .bell-button .material-icons { font-size: 26px; }
-        .bell-badge { position: absolute; top: 6px; right: 6px; width: 9px; height: 9px; background: #ea4335; border-radius: 50%; border: 2px solid #202124; }
+        .bell-button .material-icons { font-size: 28px; }
+        .bell-badge { position: absolute; top: 6px; right: 6px; width: 10px; height: 10px; background: #ea4335; border-radius: 50%; border: 2px solid #202124; }
 
         .news-dropdown {
-            position: absolute; top: 55px; right: 0; width: 320px; background: white; border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 1px solid #eee; z-index: 5100; color: #333; padding: 10px 0;
+            position: absolute; top: 60px; right: -10px; width: 320px; background: white; border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 1px solid #eee; z-index: 1100; color: #333; padding: 10px 0;
         }
-        .news-header { padding: 12px 20px; font-weight: bold; font-size: 13px; border-bottom: 1px solid #f0f0f0; color: #5f6368; letter-spacing: 0.05em; }
-        .news-item { padding: 15px 20px; font-size: 13px; border-bottom: 1px solid #fafafa; transition: 0.2s; text-align: left; }
+        .news-header { padding: 12px 20px; font-weight: bold; font-size: 14px; border-bottom: 1px solid #f0f0f0; color: #5f6368; letter-spacing: 0.05em; }
+        .news-item { padding: 15px 20px; font-size: 14px; border-bottom: 1px solid #fafafa; transition: 0.2s; text-align: left; }
         .news-item:hover { background: #f8f9fa; }
-        .news-date { display: block; font-size: 11px; color: #9aa0a6; margin-bottom: 4px; }
+        .news-date { display: block; font-size: 12px; color: #9aa0a6; margin-bottom: 4px; }
 
         .auth-buttons-container { display: flex; align-items: center; gap: 10px; }
-        .nav-text-btn { background: none; border: 1px solid rgba(255,255,255,0.3); color: white; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; transition: 0.3s; white-space: nowrap; }
+        .nav-text-btn { background: none; border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; transition: 0.3s; white-space: nowrap; }
         .nav-text-btn.primary { background: white; color: #202124; font-weight: bold; border-color: white; }
         .nav-text-btn:hover { border-color: white; }
 
         .user-menu-container { position: relative; }
         .icon-button { background: none; border: none; cursor: pointer; color: white; display: flex; align-items: center; }
-        .icon-button .material-icons { font-size: 32px; }
+        .icon-button .material-icons { font-size: 34px; }
         
         .dropdown-menu {
-            position: absolute; top: 55px; right: 0; width: 220px; 
+            position: absolute; top: 60px; right: 0; width: 240px; 
             background: white; border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); 
-            border: 1px solid #ddd; z-index: 5100; overflow: hidden; color: #333;
+            border: 1px solid #ddd; z-index: 1100; overflow: hidden; color: #333;
         }
-        .user-email-info { padding: 14px 20px; font-size: 12px; color: #5f6368; border-bottom: 1px solid #eee; background: #fafafa; word-break: break-all; }
-        .dropdown-menu button { width: 100%; padding: 14px 20px; border: none; background: none; text-align: left; cursor: pointer; }
+        .user-email-info { padding: 14px 20px; font-size: 13px; color: #5f6368; border-bottom: 1px solid #eee; background: #fafafa; word-break: break-all; }
+        .dropdown-menu button { width: 100%; padding: 14px 20px; border: none; background: none; text-align: left; cursor: pointer; font-size: 15px; }
         .dropdown-menu button:hover { background-color: #f1f1f1; }
 
-        /* --- モバイル用ドロワー (グローバルメニュー) --- */
+        /* --- モバイル用ドロワー --- */
         #drawer-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 5500; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+            background: rgba(0,0,0,0.5); z-index: 1100; opacity: 0; pointer-events: none; transition: opacity 0.3s;
         }
         #drawer-overlay.open { opacity: 1; pointer-events: auto; }
 
         #mobile-drawer {
-            position: fixed; top: 0; left: 0; width: 260px; height: 100%;
-            background: white; z-index: 5600; transform: translateX(-100%); transition: transform 0.3s ease;
+            position: fixed; top: 0; left: 0; width: 280px; height: 100%;
+            background: #202124; 
+            z-index: 1200; transform: translateX(-100%); transition: transform 0.3s ease;
             box-shadow: 2px 0 8px rgba(0,0,0,0.1); display: flex; flex-direction: column;
         }
         #mobile-drawer.open { transform: translateX(0); }
 
         .drawer-header-area {
-            padding: 20px; background: #f8f9fa; border-bottom: 1px solid #eee;
-            font-weight: bold; color: #202124; display: flex; justify-content: space-between; align-items: center;
+            padding: 20px; background: #202124; border-bottom: 1px solid #3c4043;
+            font-weight: bold; color: #fff; 
+            display: flex; justify-content: space-between; align-items: center; font-size: 18px;
         }
         .drawer-list { list-style: none; padding: 10px 0; }
         .drawer-list li a {
-            display: block; padding: 15px 20px; color: #3c4043; text-decoration: none;
-            font-size: 15px; border-left: 4px solid transparent; transition: 0.2s;
+            display: block; padding: 16px 24px; color: #e8eaed; 
+            text-decoration: none; font-size: 16px; border-left: 4px solid transparent; transition: 0.2s;
         }
-        .drawer-list li a:hover { background: #f0f2f5; border-left-color: #34a853; }
+        .drawer-list li a:hover { background: #3c4043; border-left-color: #34a853; }
 
-        /* --- モーダル・認証用スタイル --- */
+        /* --- モーダル・認証用 --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); z-index: 7000;
+            background: rgba(0,0,0,0.6); z-index: 2000;
             display: flex; justify-content: center; align-items: center;
         }
         .mini-window {
-            width: 360px; background: white; border-radius: 12px;
+            width: 380px; background: white; border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.4); overflow: hidden; max-width: 90%;
         }
         .window-header {
-            padding: 16px; border-bottom: 1px solid #eee; background: #f8f8f8;
-            display: flex; justify-content: space-between; align-items: center; font-weight: bold;
+            padding: 16px 20px; border-bottom: 1px solid #eee; background: #f8f8f8;
+            display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 16px;
         }
         .window-body { padding: 30px; text-align: center; }
         .google-btn {
-            width: 100%; height: 48px; background: white; 
+            width: 100%; height: 50px; background: white; 
             border: 1px solid #dadce0; border-radius: 4px; 
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-weight: 500; font-size: 14px; margin-bottom: 25px;
+            cursor: pointer; font-weight: 500; font-size: 16px; margin-bottom: 25px;
         }
-        .google-btn img { width: 20px; height: 20px; margin-right: 12px; }
-        .auth-input { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
-        .primary-btn { width: 100%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        .google-btn img { width: 24px; height: 24px; margin-right: 12px; }
+        .auth-input { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
+        .primary-btn { width: 100%; padding: 14px; background: #1a73e8; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; }
+        .primary-btn:hover { background: #155cb0; }
 
-
-        /* =========================================
-           2. 電卓専用 UI
-        ========================================= */
-        .calculator-screen {
-            flex: 1; width: 100%; max-width: 800px; margin: 0 auto;
-            display: flex; flex-direction: column; padding: 20px;
-            position: relative; z-index: 1;
-        }
-
-        /* ツールバー (履歴サイドバー呼び出し等) */
-        .tools-bar { 
-            display: flex; align-items: center; margin-bottom: 10px; height: 30px; 
-            gap: 15px; 
-        }
-        .tool-menu-btn {
-            background: none; border: none; cursor: pointer; color: #555;
-            display: flex; align-items: center; justify-content: center;
-            padding: 4px; border-radius: 4px;
-        }
-        .tool-menu-btn:hover { background-color: rgba(0,0,0,0.05); color: #000; }
-
-        .storage-status {
-            font-size: 12px; padding: 4px 10px; border-radius: 12px; font-weight: bold; display: inline-flex; align-items: center; gap:4px;
-        }
-        .status-local { background: #e8f0fe; color: #1a73e8; }
-        .status-cloud { background: #e6f4ea; color: #1e8e3e; }
-
-        #ime-warning { margin-left: auto; color:#ff3b30; font-size:0.8rem; font-weight:bold; opacity:0; }
-
-        math-field {
-            font-size: 2rem; width: 100%; padding: 15px 0;
-            border: none; outline: none; background-color: transparent; color: #333;
-            border-bottom: 2px solid #ccc;
-        }
-        math-field:focus-within { border-bottom-color: #007aff; }
-
-        .result-area {
-            margin-top: auto; padding-top: 20px;
-            text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 15px;
-        }
-        #result-display { font-size: 2.2rem; color: #007aff; font-family: 'KaTeX_Main', serif; min-height: 3rem; }
-
-        .btn-sd {
-            background: #fff; border: 1px solid #ccc;
-            padding: 6px 16px; border-radius: 20px; font-weight: bold;
-            color: #333; cursor: pointer;
-        }
-        .btn-sd.active { background: #007aff; color: #fff; border-color: #007aff; }
-
-        .keyboard-wrapper {
-            width: 100%; display: flex; justify-content: center; padding-bottom: 10px;
-            background-color: #f0f2f5;
-        }
-        #keyboard-container {
-            width: 98%; max-width: 800px; height: 35vh; min-height: 250px;
-            background-color: #e0e4e9; border-radius: 16px 16px 0 0;
-            overflow: hidden; box-shadow: 0 -2px 20px rgba(0,0,0,0.1);
-            position: relative; z-index: 2;
-        }
-        .ML__keyboard { height: 100% !important; --keyboard-background: #e0e4e9; }
-
-        /* =========================================
-           3. 電卓履歴用サイドバー (右からスライド等の制御はJSで行う)
-           ※ メインメニューのドロワーと区別するためクラスなどを変更
-        ========================================= */
-        .history-sidebar-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 6000; display: none;
-        }
-        .history-sidebar {
-            position: fixed; top: 0; left: 0; 
-            width: 280px; height: 100%;
-            background: #fff; box-shadow: 2px 0 10px rgba(0,0,0,0.2);
-            z-index: 6001; transform: translateX(-100%); transition: transform 0.3s ease;
-            display: flex; flex-direction: column; color: #333;
-        }
-        .history-sidebar.open { transform: translateX(0); }
-        .history-sidebar-header {
-            padding: 15px; border-bottom: 1px solid #eee;
-            font-weight: bold; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center;
-            background: #f8f9fa;
-        }
-        .history-content { flex: 1; overflow-y: auto; padding: 10px; }
-        .menu-section-title { font-size: 0.8rem; color: #888; margin: 20px 10px 10px; text-transform: uppercase; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-        
-        .history-item {
-            background: #f9f9f9; padding: 10px; margin-bottom: 8px;
-            border-radius: 8px; cursor: pointer; border-left: 3px solid transparent;
-        }
-        .history-item:hover { border-left-color: #007aff; }
-        .history-latex { font-size: 0.9rem; color: #888; margin-bottom: 4px; overflow-x: auto; }
-        .history-val { font-size: 1.1rem; color: #333; font-weight: bold; text-align: right; }
-        
-        /* ショートカット表 */
-        .shortcut-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-        .shortcut-table th { text-align: left; color: #007aff; border-bottom: 1px solid #eee; padding: 5px; }
-        .shortcut-table td { padding: 8px 5px; border-bottom: 1px solid #eee; }
-        .key-badge { background: #eee; color:#333; padding:2px 6px; border-radius:4px; font-family:monospace; font-weight:bold; }
-
-        /* レスポンシブ (スマホ向け) */
+        /* レスポンシブ */
         @media (max-width: 768px) {
-            header { padding: 0 15px; }
+            header { padding: 0 15px; height: 60px; }
+            body { padding-top: 60px; }
             #hamburger-btn { display: flex; }
             .desktop-nav { display: none; }
-            .header-right { gap: 10px; }
-            .nav-text-btn { padding: 5px 10px; font-size: 11px; }
-            .news-dropdown { width: 300px; right: -50px; }
+            .logo a { font-size: 17px; white-space: nowrap; }
+            .header-right { gap: 8px; }
+            .nav-text-btn { padding: 6px 12px; font-size: 12px; } 
+            .news-dropdown { width: 300px; right: -50px; top: 50px; }
+            .dropdown-menu { width: 200px; top: 50px; }
+        }
+
+        /* =========================================
+           2. 電卓アプリ用追加スタイル
+        ========================================= */
+        .calc-wrapper {
+            flex: 1; display: flex; flex-direction: column;
+            width: 100%; max-width: 900px; margin: 0 auto;
+            position: relative; overflow: hidden;
+        }
+
+        /* ツールバー（保存先表示など） */
+        .toolbar {
+            padding: 10px 20px; display: flex; align-items: center; justify-content: space-between;
+            background: #fcfcfc;
+        }
+        .storage-badge {
+            font-size: 12px; padding: 4px 12px; border-radius: 20px;
+            font-weight: bold; display: flex; align-items: center; gap: 6px;
+        }
+        .status-local { background: #e8eaed; color: #5f6368; }
+        .status-cloud { background: #e6f4ea; color: #137333; }
+
+        .tool-btn {
+            background: white; border: 1px solid #ccc; border-radius: 4px;
+            padding: 6px 12px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: 0.2s;
+        }
+        .tool-btn:hover { background: #f1f1f1; border-color: #bbb; }
+
+        /* スクリーン（数式入力・結果） */
+        .screen-area {
+            flex: 1; display: flex; flex-direction: column; padding: 10px 20px;
+            overflow-y: auto; 
+        }
+        math-field {
+            font-size: 28px; width: 100%; padding: 15px 5px;
+            border: none; border-bottom: 2px solid #ccc; background: transparent;
+            margin-bottom: 20px; outline: none;
+        }
+        math-field:focus-within { border-bottom-color: #1a73e8; }
+
+        .result-container {
+            margin-top: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 15px;
+            padding-bottom: 10px;
+        }
+        #result-display {
+            font-size: 36px; min-height: 3rem; color: #1a73e8;
+            font-family: 'Times New Roman', serif; text-align: right; word-break: break-all;
+        }
+        
+        .action-row { display: flex; align-items: center; gap: 12px; }
+        .hint { font-size: 12px; color: #888; }
+        
+        .circle-btn {
+            width: 48px; height: 48px; border-radius: 50%; border: 1px solid #dadce0;
+            background: white; font-weight: bold; color: #5f6368; cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.2s; font-size: 14px;
+        }
+        .circle-btn:hover { background: #f8f9fa; }
+        .circle-btn.active { background: #1a73e8; color: white; border-color: #1a73e8; }
+
+        /* キーボードエリア */
+        .keyboard-wrapper {
+            background: #e8eaed; border-top: 1px solid #ccc;
+            width: 100%; display: flex; justify-content: center;
+        }
+        #keyboard-mount {
+            width: 100%; max-width: 900px; height: 32vh; min-height: 260px;
+            --keyboard-background: #e8eaed;
+            --keyboard-toolbar-text: #202124;
+        }
+
+        /* 履歴サイドバー */
+        .history-sidebar {
+            position: fixed; top: 0; right: 0; width: 320px; height: 100%;
+            background: white; z-index: 3000; box-shadow: -4px 0 15px rgba(0,0,0,0.1);
+            transform: translateX(100%); transition: transform 0.3s ease;
+            display: flex; flex-direction: column;
+        }
+        .history-sidebar.open { transform: translateX(0); }
+        
+        .hs-header {
+            padding: 20px; border-bottom: 1px solid #eee; background: #f8f8f8;
+            display: flex; justify-content: space-between; align-items: center; font-weight: bold; color: #5f6368;
+        }
+        .hs-body { flex: 1; overflow-y: auto; padding: 0; }
+        
+        .history-item {
+            padding: 15px 20px; border-bottom: 1px solid #f1f1f1; cursor: pointer;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 6px; transition: 0.2s;
+        }
+        .history-item:hover { background: #f4f8ff; }
+        .h-latex { font-size: 14px; color: #666; width: 100%; text-align: left; overflow-x: hidden; white-space: nowrap; text-overflow: ellipsis; }
+        .h-val { font-size: 18px; color: #202124; font-weight: 500; }
+        .drawer-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 2500; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+        }
+        .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+
+        @media (max-width: 768px) {
+            .history-sidebar { width: 85%; }
+            math-field { font-size: 24px; }
+            #result-display { font-size: 32px; }
         }
     </style>
 </head>
@@ -257,12 +273,12 @@
             <button id="hamburger-btn" aria-label="メニューを開く">
                 <span class="material-icons">menu</span>
             </button>
-            <div class="logo"><a href="../index.html">おさんツール</a></div>
+            <div class="logo"><a href="#">おさんツール</a></div>
             
             <nav class="desktop-nav">
-                <a href="../index.html#about">概要</a>
-                <a href="../index.html#tools">ツール一覧</a>
-                <a href="../feedback.html">フィードバック</a>
+                <a href="#">概要</a>
+                <a href="#">ツール一覧</a>
+                <a href="#">フィードバック</a>
             </nav>
         </div>
 
@@ -295,11 +311,12 @@
                 <div id="dropdown-ui" class="dropdown-menu hidden">
                     <div class="user-email-info" id="display-email"></div>
                     <button id="trigger-logout">ログアウト</button>
+                    <button id="trigger-delete-account" class="btn-delete">アカウント削除</button>
                 </div>
             </div>
         </div>
     </header>
-
+    
     <div id="drawer-overlay"></div>
     <nav id="mobile-drawer">
         <div class="drawer-header-area">
@@ -307,98 +324,92 @@
             <span class="material-icons" id="drawer-close" style="cursor:pointer;">close</span>
         </div>
         <ul class="drawer-list">
-            <li><a href="../index.html#about" class="drawer-link">概要</a></li>
-            <li><a href="../index.html#tools" class="drawer-link">ツール一覧</a></li>
-            <li><a href="../feedback.html">フィードバック</a></li>
+            <li><a href="#" class="drawer-link">概要</a></li>
+            <li><a href="#" class="drawer-link">ツール一覧</a></li>
+            <li><a href="#">フィードバック</a></li>
         </ul>
     </nav>
 
-    <div class="calculator-screen">
-        <div class="tools-bar">
-            <button class="tool-menu-btn" onclick="toggleHistorySidebar(true)" title="履歴・設定">
-                <span class="material-icons" style="font-size:24px;">history</span>
-            </button>
-
-            <div id="status-badge" class="storage-status status-local">
+    <div class="calc-wrapper">
+        <div class="toolbar">
+            <div id="status-badge" class="storage-badge status-local">
                 <span class="material-icons" style="font-size:14px;">save</span>
                 <span id="status-text">保存先: ローカル</span>
             </div>
-
-            <span id="ime-warning">⚠️ 全角入力不可</span>
+            <div style="display:flex; gap:8px;">
+                <button class="tool-btn" onclick="document.getElementById('shortcut-modal').classList.remove('hidden')">
+                    <span class="material-icons" style="font-size:16px;">keyboard</span> キー
+                </button>
+                <button class="tool-btn" onclick="toggleHistory(true)">
+                    <span class="material-icons" style="font-size:16px;">history</span> 履歴
+                </button>
+            </div>
         </div>
 
-        <math-field id="mf" math-virtual-keyboard-policy="manual"></math-field>
+        <div id="ime-warning" style="color:#ea4335; font-size:12px; text-align:center; height:1rem; opacity:0; font-weight:bold;">
+            ⚠️ 全角入力は計算できません
+        </div>
 
-        <div class="result-area">
-            <div id="result-display"></div>
-            <div style="display:flex; gap:10px; align-items:center;">
-                <span style="font-size:0.8rem; color:#888;">[Enter]で履歴保存</span>
-                <button class="btn-sd" id="btn-sd" onclick="toggleFormat()">S⇔D</button>
+        <div class="screen-area">
+            <math-field id="mf" math-virtual-keyboard-policy="manual" menu-items="none" style="outline:none;"></math-field>
+
+            <div class="result-container">
+                <div id="result-display"></div>
+                <div class="action-row">
+                    <span class="hint">[Enter] で保存</span>
+                    <button id="btn-sd" class="circle-btn" onclick="toggleFormat()">S⇔D</button>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="keyboard-wrapper">
-        <div id="keyboard-container"></div>
+        <div id="keyboard-mount"></div>
     </div>
 
-    <div class="history-sidebar-overlay" id="history-overlay" onclick="toggleHistorySidebar(false)"></div>
-    <div class="history-sidebar" id="history-sidebar">
-        <div class="history-sidebar-header">
-            <span>履歴・ツール</span>
-            <button onclick="toggleHistorySidebar(false)" style="border:none; background:none; cursor:pointer;">
-                <span class="material-icons">close</span>
-            </button>
-        </div>
-        <div class="history-content">
-            <div class="menu-section-title">ツール</div>
-            <div style="padding:10px; cursor:pointer; color:#333; display:flex; align-items:center; gap:8px;" onclick="document.getElementById('shortcut-modal').style.display='flex'">
-                <span class="material-icons" style="font-size:18px; color:#888;">keyboard</span> ショートカット一覧
+    <div id="history-overlay" class="drawer-overlay" onclick="toggleHistory(false)"></div>
+    <div id="history-sidebar" class="history-sidebar">
+        <div class="hs-header">
+            <span>計算履歴</span>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <button onclick="clearHistory()" style="border:none; background:none; color:#ea4335; font-size:13px; cursor:pointer; font-weight:bold;">クリア</button>
+                <button onclick="toggleHistory(false)" style="border:none; background:none; cursor:pointer; color:#5f6368;"><span class="material-icons">close</span></button>
             </div>
-
-            <div class="menu-section-title">
-                計算履歴
-                <button onclick="clearHistory()" style="float:right; border:none; background:none; color:red; cursor:pointer; font-size:0.8rem;">クリア</button>
-            </div>
-            <div id="history-list"></div>
         </div>
+        <div id="history-list" class="hs-body">
+            </div>
     </div>
-
     <div id="modal-ui" class="modal-overlay hidden">
         <div class="mini-window">
             <div class="window-header">
-                <span id="modal-title"></span>
-                <button id="modal-close-btn" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
+                <span id="modal-title">サインイン</span>
+                <button id="modal-close" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
             </div>
             <div class="window-body">
                 <button class="google-btn" id="google-auth-btn">
-                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"> Googleで続行
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google"> Googleで続行
                 </button>
                 <div style="margin: 15px 0; border-bottom: 1px solid #eee; line-height:0.1em; color:#999;">or</div>
                 <input type="email" id="input-email" class="auth-input" autocomplete="username" placeholder="メールアドレス">
                 <input type="password" id="input-pass" class="auth-input" autocomplete="current-password" placeholder="パスワード">
                 <button id="auth-execute-btn" class="primary-btn">送信</button>
-                <p id="auth-toggle-text" style="color:#1a73e8; font-size:13px; cursor:pointer; margin-top:15px;"></p>
+                <p id="auth-toggle-text" style="color:#1a73e8; font-size:13px; cursor:pointer; margin-top:15px;">アカウントをお持ちでない方はこちら</p>
             </div>
         </div>
     </div>
 
     <div id="shortcut-modal" class="modal-overlay hidden">
-        <div class="mini-window">
+        <div class="mini-window" style="width:320px;">
             <div class="window-header">
-                <span>ショートカット</span>
-                <button onclick="document.getElementById('shortcut-modal').style.display='none'" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
+                ショートカット
+                <button onclick="document.getElementById('shortcut-modal').classList.add('hidden')" style="border:none; background:none; cursor:pointer; font-size:24px;">&times;</button>
             </div>
-            <div class="window-body" style="text-align:left;">
-                <table class="shortcut-table">
-                    <tr><th>機能</th><th>キー入力</th></tr>
-                    <tr><td>分数</td><td><span class="key-badge">/</span></td></tr>
-                    <tr><td>ルート</td><td><span class="key-badge">sqrt</span></td></tr>
-                    <tr><td>円周率</td><td><span class="key-badge">pi</span></td></tr>
-                    <tr><td>三角関数</td><td><span class="key-badge">sin</span> <span class="key-badge">cos</span></td></tr>
-                    <tr><td>履歴保存</td><td><span class="key-badge">Enter</span></td></tr>
-                </table>
-                <button onclick="document.getElementById('shortcut-modal').style.display='none'" class="primary-btn" style="margin-top:20px;">閉じる</button>
+            <div class="window-body" style="text-align:left; font-size:14px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:1px solid #f9f9f9; padding-bottom:8px;"><span>分数</span> <code>/</code></div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:1px solid #f9f9f9; padding-bottom:8px;"><span>ルート</span> <code>sqrt</code></div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:1px solid #f9f9f9; padding-bottom:8px;"><span>べき乗</span> <code>^</code></div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:1px solid #f9f9f9; padding-bottom:8px;"><span>パイ(π)</span> <code>pi</code></div>
+                <div style="display:flex; justify-content:space-between;"><span>保存</span> <code>Enter</code></div>
             </div>
         </div>
     </div>
@@ -408,140 +419,247 @@
         import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, deleteDoc, collection, onSnapshot, query, orderBy, addDoc, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // --- Firebase 設定 ---
+        // Firebase設定 (ご提示コードのものを使用)
         const firebaseConfig = {
             apiKey: "AIzaSyBtQGq5IJXyoHGBGpx25ZfVkXWL-iRRqC8",
             authDomain: "my-programming-tools-auth.firebaseapp.com",
             projectId: "my-programming-tools-auth",
+            storageBucket: "my-programming-tools-auth.firebasestorage.app",
+            messagingSenderId: "617449767952",
             appId: "1:617449767952:web:12f75dcb19f2035d637695"
         };
+
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getFirestore(app);
+        const db = getFirestore(app); // 電卓履歴用にFirestoreを追加
+        const provider = new GoogleAuthProvider();
 
-        // --- グローバル変数 ---
-        let currentUser = null;
-        let unsubscribeHistory = null;
-        const LS_KEY = "osan-func-calc-history";
+        // UI要素の取得 (ヘッダー関連)
+        const guestNav = document.getElementById('header-guest-nav');
+        const userMenu = document.querySelector('.user-menu-container');
+        const mainUserBtn = document.getElementById('main-user-btn');
+        const dropdownUi = document.getElementById('dropdown-ui');
+        const displayEmail = document.getElementById('display-email');
+        const logoutBtn = document.getElementById('trigger-logout');
 
-        // --- UI要素取得 ---
-        const hamburgerBtn = document.getElementById('hamburger-btn');
-        const drawer = document.getElementById('mobile-drawer');
-        const drawerOverlay = document.getElementById('drawer-overlay');
-        const drawerClose = document.getElementById('drawer-close');
-        
-        const bellBtn = document.getElementById('bell-btn');
-        const newsUi = document.getElementById('news-ui');
-        const userBtn = document.getElementById('main-user-btn');
-        const dropdown = document.getElementById('dropdown-ui');
-        
-        const modal = document.getElementById('modal-ui');
-        const modalCloseBtn = document.getElementById('modal-close-btn');
+        // UI要素の取得 (モーダル関連)
+        const modalUi = document.getElementById('modal-ui');
+        const modalTitle = document.getElementById('modal-title');
+        const inputEmail = document.getElementById('input-email');
+        const inputPass = document.getElementById('input-pass');
+        const authExecuteBtn = document.getElementById('auth-execute-btn');
+        const googleAuthBtn = document.getElementById('google-auth-btn');
+        const authToggleText = document.getElementById('auth-toggle-text');
+        const modalClose = document.getElementById('modal-close');
 
-        // --- 電卓関連変数 ---
+        // UI要素の取得 (電卓関連)
         const mf = document.getElementById('mf');
         const resultDisplay = document.getElementById('result-display');
-        const btnSd = document.getElementById('btn-sd');
-        const historyList = document.getElementById('history-list');
         const statusBadge = document.getElementById('status-badge');
         const statusText = document.getElementById('status-text');
+        const historyList = document.getElementById('history-list');
+
+        let isLoginMode = true; 
         
-        let ce; 
+        // 電卓用グローバル変数
+        let ce;
         let currentBox = null;
         let isDecimalMode = false;
         let historyData = [];
+        let unsubscribeHistory = null;
+        const LS_KEY = "osan-func-calc-history";
 
-        // ============================================
-        // 1. ヘッダー・グローバルUIロジック
-        // ============================================
-
-        // ドロワー (モバイルメニュー) 制御
-        function openDrawer() { drawer.classList.add('open'); drawerOverlay.classList.add('open'); }
-        function closeDrawer() { drawer.classList.remove('open'); drawerOverlay.classList.remove('open'); }
-        hamburgerBtn.addEventListener('click', openDrawer);
-        drawerOverlay.addEventListener('click', closeDrawer);
-        drawerClose.addEventListener('click', closeDrawer);
-
-        // お知らせ・ユーザーメニュー制御
-        bellBtn.onclick = (e) => {
-            e.stopPropagation();
-            newsUi.classList.toggle('hidden');
-            dropdown.classList.add('hidden');
-            document.getElementById('bell-badge').classList.add('hidden');
-        };
-        userBtn.onclick = (e) => { 
-            e.stopPropagation(); 
-            dropdown.classList.toggle('hidden'); 
-            newsUi.classList.add('hidden');
-        };
-
-        // 画面クリックで閉じる
-        document.onclick = (e) => {
-            if (!newsUi.classList.contains('hidden') && !bellBtn.contains(e.target) && !newsUi.contains(e.target)) newsUi.classList.add('hidden');
-            if (!dropdown.classList.contains('hidden') && !userBtn.contains(e.target) && !dropdown.contains(e.target)) dropdown.classList.add('hidden');
-        };
-
-        // 認証モーダル制御
-        let authMode = 'login'; 
-        function openAuth(m) {
-            authMode = m;
-            modal.classList.remove('hidden');
-            document.getElementById('modal-title').textContent = m === 'login' ? 'サインイン' : 'アカウント作成';
-            document.getElementById('auth-execute-btn').textContent = m === 'login' ? 'ログイン' : '登録する';
-            document.getElementById('auth-toggle-text').textContent = m === 'login' ? 'アカウントをお持ちでない方はこちら' : 'すでにアカウントをお持ちの方はこちら';
-            closeDrawer();
-        }
-
-        document.getElementById('nav-signin').onclick = () => openAuth('login');
-        document.getElementById('nav-signup').onclick = () => openAuth('signup');
-        modalCloseBtn.onclick = () => modal.classList.add('hidden');
-        
-        document.getElementById('auth-toggle-text').onclick = () => {
-            openAuth(authMode === 'login' ? 'signup' : 'login');
-        };
-
-        // 認証実行
-        document.getElementById('google-auth-btn').onclick = async (e) => {
-            e.stopPropagation();
-            try { await signInWithPopup(auth, new GoogleAuthProvider()); modal.classList.add('hidden'); } catch (err) { alert("失敗: " + err.message); }
-        };
-        document.getElementById('auth-execute-btn').onclick = async () => {
-            const e = document.getElementById('input-email').value;
-            const p = document.getElementById('input-pass').value;
-            try {
-                if(authMode === 'login') await signInWithEmailAndPassword(auth, e, p);
-                else await createUserWithEmailAndPassword(auth, e, p);
-                modal.classList.add('hidden');
-            } catch (err) { alert("エラー: " + err.message); }
-        };
-        document.getElementById('trigger-logout').onclick = () => signOut(auth);
-
-
-        // ============================================
-        // 2. 電卓ロジック
-        // ============================================
-
+        // 初期化処理
         window.addEventListener('DOMContentLoaded', () => {
             initEngine();
-            window.mathVirtualKeyboard.container = document.getElementById('keyboard-container');
-            window.mathVirtualKeyboard.layouts = ["default"];
-            window.mathVirtualKeyboard.show();
-            mf.focus();
+            // MathLive キーボード設定
+            if(window.mathVirtualKeyboard) {
+                window.mathVirtualKeyboard.container = document.getElementById('keyboard-mount');
+                window.mathVirtualKeyboard.layouts = ["default"];
+                window.mathVirtualKeyboard.show();
+            }
         });
 
         function initEngine() {
             if (typeof ComputeEngine !== 'undefined') {
                 ce = new ComputeEngine.ComputeEngine();
-                refreshHistoryView(); 
+                refreshHistoryView(); // ローカル履歴表示
             } else {
                 setTimeout(initEngine, 100);
             }
         }
 
+        // 1. ログイン状態の監視
+        onAuthStateChanged(auth, (user) => {
+            if (unsubscribeHistory) unsubscribeHistory(); // 前のリスナーがあれば解除
+
+            if (user) {
+                // ヘッダー表示切り替え
+                guestNav.style.display = 'none';
+                mainUserBtn.classList.remove('hidden');
+                displayEmail.textContent = user.email;
+
+                // 電卓：クラウド保存モードへ
+                statusBadge.className = "storage-badge status-cloud";
+                statusText.textContent = "保存先: クラウド";
+                
+                // Firestoreから履歴同期
+                const q = query(collection(db, "users", user.uid, "calc_history_v2"), orderBy("createdAt", "desc"));
+                unsubscribeHistory = onSnapshot(q, (snapshot) => {
+                    historyData = [];
+                    snapshot.forEach(doc => historyData.push(doc.data()));
+                    renderHistoryList();
+                });
+
+            } else {
+                // ヘッダー表示切り替え
+                guestNav.style.display = 'flex';
+                mainUserBtn.classList.add('hidden');
+                dropdownUi.classList.add('hidden');
+
+                // 電卓：ローカル保存モードへ
+                statusBadge.className = "storage-badge status-local";
+                statusText.textContent = "保存先: ローカル";
+                
+                refreshHistoryView();
+            }
+        });
+
+        // 2. ユーザーメニューの動作
+        mainUserBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            newsUi.classList.add('hidden'); 
+            dropdownUi.classList.toggle('hidden');
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!dropdownUi.contains(e.target) && !mainUserBtn.contains(e.target)) {
+                dropdownUi.classList.add('hidden');
+            }
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            signOut(auth).then(() => alert("ログアウトしました")).catch((e) => console.error(e));
+        });
+
+        // 3. モーダルと認証ロジック (ご提示コード通り)
+        window.openAuthModal = (mode) => {
+            modalUi.classList.remove('hidden');
+            inputEmail.value = '';
+            inputPass.value = '';
+            
+            if (mode === 'signin') {
+                isLoginMode = true;
+                modalTitle.textContent = 'サインイン';
+                authExecuteBtn.textContent = 'ログイン';
+                authToggleText.textContent = 'アカウントをお持ちでない方はこちら';
+            } else {
+                isLoginMode = false;
+                modalTitle.textContent = '新規登録';
+                authExecuteBtn.textContent = '登録する';
+                authToggleText.textContent = 'すでにアカウントをお持ちの方はこちら';
+            }
+        };
+
+        document.getElementById('nav-signin').addEventListener('click', () => window.openAuthModal('signin'));
+        document.getElementById('nav-signup').addEventListener('click', () => window.openAuthModal('signup'));
+
+        authToggleText.addEventListener('click', () => {
+            if (isLoginMode) window.openAuthModal('signup');
+            else window.openAuthModal('signin');
+        });
+
+        modalClose.addEventListener('click', () => modalUi.classList.add('hidden'));
+        modalUi.addEventListener('click', (e) => {
+            if (e.target === modalUi) modalUi.classList.add('hidden');
+        });
+
+        // メール認証実行
+        authExecuteBtn.addEventListener('click', () => {
+            const email = inputEmail.value;
+            const pass = inputPass.value;
+            if (!email || !pass) return alert("入力してください");
+
+            if (isLoginMode) {
+                signInWithEmailAndPassword(auth, email, pass)
+                    .then(() => { alert("ログインしました！"); modalUi.classList.add('hidden'); })
+                    .catch((e) => alert("失敗: " + e.message));
+            } else {
+                createUserWithEmailAndPassword(auth, email, pass)
+                    .then(() => { alert("登録してログインしました！"); modalUi.classList.add('hidden'); })
+                    .catch((e) => alert("失敗: " + e.message));
+            }
+        });
+
+        // Google認証実行
+        googleAuthBtn.addEventListener('click', () => {
+            signInWithPopup(auth, provider)
+                .then(() => { alert("Googleでログインしました！"); modalUi.classList.add('hidden'); })
+                .catch((e) => alert("失敗: " + e.message));
+        });
+
+        // 4. ハンバーガーメニュー
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const drawerOverlay = document.getElementById('drawer-overlay');
+        const mobileDrawer = document.getElementById('mobile-drawer');
+        const drawerClose = document.getElementById('drawer-close');
+        const drawerLinks = document.querySelectorAll('.drawer-link');
+
+        function toggleDrawer(isOpen) {
+            if (isOpen) {
+                mobileDrawer.classList.add('open');
+                drawerOverlay.classList.add('open');
+            } else {
+                mobileDrawer.classList.remove('open');
+                drawerOverlay.classList.remove('open');
+            }
+        }
+        hamburgerBtn.addEventListener('click', () => toggleDrawer(true));
+        drawerClose.addEventListener('click', () => toggleDrawer(false));
+        drawerOverlay.addEventListener('click', () => toggleDrawer(false));
+        drawerLinks.forEach(link => link.addEventListener('click', () => toggleDrawer(false)));
+
+        // 5. お知らせ機能
+        const bellBtn = document.getElementById('bell-btn');
+        const newsUi = document.getElementById('news-ui');
+        const bellBadge = document.getElementById('bell-badge');
+        const currentNewsId = '20251231'; 
+
+        if (localStorage.getItem('read_news_id') === currentNewsId) {
+            bellBadge.classList.add('hidden');
+        }
+
+        bellBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdownUi.classList.add('hidden'); 
+            newsUi.classList.toggle('hidden');
+            bellBadge.classList.add('hidden');
+            localStorage.setItem('read_news_id', currentNewsId);
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!newsUi.contains(e.target) && !bellBtn.contains(e.target)) {
+                newsUi.classList.add('hidden');
+            }
+        });
+
+        // ============================================
+        // 6. 電卓機能の追加ロジック
+        // ============================================
+
+        // 履歴サイドバー開閉
+        window.toggleHistory = (open) => {
+            const hBar = document.getElementById('history-sidebar');
+            const hOver = document.getElementById('history-overlay');
+            if(open) { hBar.classList.add('open'); hOver.classList.add('open'); }
+            else { hBar.classList.remove('open'); hOver.classList.remove('open'); mf.focus(); }
+        }
+
+        // 計算イベント
         mf.addEventListener('input', (evt) => {
-            const imeWarning = document.getElementById('ime-warning');
-            if (evt.data && /[^\x01-\x7E]/.test(evt.data)) imeWarning.style.opacity = '1';
-            else imeWarning.style.opacity = '0';
+            const val = evt.target.value;
+            // 全角文字警告
+            document.getElementById('ime-warning').style.opacity = (val && /[^\x01-\x7E]/.test(val)) ? '1' : '0';
             calculate();
         });
 
@@ -552,7 +670,7 @@
             }
         });
 
-        window.calculate = function() {
+        function calculate() {
             if (!ce) return;
             const latex = mf.getValue();
             if (!latex) {
@@ -561,81 +679,84 @@
                 return;
             }
             try {
-                let expr = ce.parse(latex);
-                let result = expr.evaluate();
-                if (!result.isValid) return;
-                currentBox = result;
-                updateDisplay();
-            } catch (e) { }
+                const expr = ce.parse(latex);
+                const result = expr.evaluate();
+                if (result.isValid) {
+                    currentBox = result;
+                    updateDisplay();
+                }
+            } catch (e) {}
         }
 
         window.toggleFormat = function() {
             if (!currentBox) return;
             isDecimalMode = !isDecimalMode;
-            btnSd.classList.toggle('active', isDecimalMode);
+            document.getElementById('btn-sd').classList.toggle('active', isDecimalMode);
             updateDisplay();
-            mf.focus();
         }
 
         function updateDisplay() {
             if (!currentBox) return;
             let html = "";
             if (isDecimalMode) {
-                const val = currentBox.N().valueOf();
-                let strVal = parseFloat(val.toFixed(10)).toString();
-                html = `= ${strVal}`;
+                try {
+                    const val = currentBox.N().valueOf();
+                    html = `= ${parseFloat(val.toFixed(10))}`;
+                } catch(e) { html = "= ?"; }
             } else {
-                const latexResult = currentBox.latex;
-                html = MathLive.convertLatexToMarkup(`= ${latexResult}`);
+                html = MathLive.convertLatexToMarkup(`= ${currentBox.latex}`);
             }
             resultDisplay.innerHTML = html;
         }
 
-        // 履歴追加
+        // 履歴保存
         async function addToHistory() {
             if (!currentBox) return;
             const latex = mf.getValue();
-
-            if (historyData.length > 0 && historyData[0].latex === latex) return;
             
-            let valStr = "";
-            try {
-                const val = currentBox.N().valueOf();
-                valStr = parseFloat(val.toFixed(6)).toString();
-            } catch(e) { valStr = "?"; }
+            // 直近重複回避
+            if (historyData.length > 0 && historyData[0].latex === latex) return;
 
+            let valStr = "";
+            try { valStr = parseFloat(currentBox.N().valueOf().toFixed(6)); } catch(e) { valStr = "?"; }
+            
             const newItem = { latex: latex, val: valStr, createdAt: Date.now() };
 
+            const currentUser = auth.currentUser;
             if (currentUser) {
                 try {
                     await addDoc(collection(db, "users", currentUser.uid, "calc_history_v2"), newItem);
                 } catch(e) { console.error(e); }
             } else {
                 historyData.unshift(newItem);
-                if (historyData.length > 20) historyData.pop();
+                if (historyData.length > 30) historyData.pop();
                 localStorage.setItem(LS_KEY, JSON.stringify(historyData));
                 renderHistoryList();
             }
+            
+            // エフェクト
+            const btn = document.getElementById('btn-sd');
+            btn.style.transform = "scale(1.1)";
+            setTimeout(() => btn.style.transform = "scale(1)", 200);
         }
 
         // 履歴描画
         function renderHistoryList() {
             historyList.innerHTML = '';
             if (historyData.length === 0) {
-                historyList.innerHTML = '<div style="padding:10px; color:#888;">履歴なし</div>';
+                historyList.innerHTML = '<div style="padding:20px; color:#aaa; text-align:center; font-size:14px;">履歴はありません</div>';
                 return;
             }
-
             historyData.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'history-item';
                 div.innerHTML = `
-                    <div class="history-latex">$$${item.latex}$$</div>
-                    <div class="history-val">= ${item.val}</div>
+                    <div class="h-latex">$$${item.latex}$$</div>
+                    <div class="h-val">= ${item.val}</div>
                 `;
                 div.onclick = () => {
                     mf.setValue(item.latex);
-                    toggleHistorySidebar(false);
+                    toggleHistory(false);
                     calculate();
                 };
                 historyList.appendChild(div);
@@ -643,27 +764,14 @@
             if(window.MathLive) MathLive.renderMathInElement(historyList);
         }
 
-        // 履歴サイドバー制御 (電卓専用)
-        window.toggleHistorySidebar = function(open) {
-            const sb = document.getElementById('history-sidebar');
-            const ol = document.getElementById('history-overlay');
-            if (open) {
-                sb.classList.add('open');
-                ol.style.display = 'block';
-            } else {
-                sb.classList.remove('open');
-                ol.style.display = 'none';
-                mf.focus();
-            }
-        }
-
         window.clearHistory = async function() {
-            if(!confirm("履歴を全て削除しますか？")) return;
+            if(!confirm("履歴を削除しますか？")) return;
+            const currentUser = auth.currentUser;
             if(currentUser) {
                 const q = query(collection(db, "users", currentUser.uid, "calc_history_v2"));
                 const snapshot = await getDocs(q);
                 const batch = writeBatch(db);
-                snapshot.forEach((doc) => { batch.delete(doc.ref); });
+                snapshot.forEach((doc) => batch.delete(doc.ref));
                 await batch.commit();
             } else {
                 localStorage.removeItem(LS_KEY);
@@ -673,51 +781,11 @@
         }
 
         function refreshHistoryView() {
-            if(!currentUser) {
+            if(!auth.currentUser) {
                 historyData = JSON.parse(localStorage.getItem(LS_KEY) || "[]");
                 renderHistoryList();
             }
         }
-
-        // ============================================
-        // 3. 認証状態と機能の連携
-        // ============================================
-        onAuthStateChanged(auth, (user) => {
-            currentUser = user;
-            if (unsubscribeHistory) unsubscribeHistory();
-
-            const guestNav = document.getElementById('header-guest-nav');
-            const userBtnElement = document.getElementById('main-user-btn');
-
-            if (user) {
-                // ヘッダー表示切替
-                guestNav.classList.add('hidden');
-                userBtnElement.classList.remove('hidden');
-                document.getElementById('display-email').textContent = user.email;
-
-                // 電卓ステータス切替
-                statusBadge.className = "storage-status status-cloud";
-                statusText.textContent = "保存先: クラウド";
-
-                // Firestore履歴同期
-                const q = query(collection(db, "users", user.uid, "calc_history_v2"), orderBy("createdAt", "desc"));
-                unsubscribeHistory = onSnapshot(q, (snapshot) => {
-                    historyData = [];
-                    snapshot.forEach(doc => historyData.push(doc.data()));
-                    renderHistoryList();
-                });
-            } else {
-                // ヘッダー表示切替
-                guestNav.classList.remove('hidden');
-                userBtnElement.classList.add('hidden');
-
-                // 電卓ステータス切替
-                statusBadge.className = "storage-status status-local";
-                statusText.textContent = "保存先: ローカル";
-                
-                refreshHistoryView();
-            }
-        });
     </script>
 </body>
 </html>
